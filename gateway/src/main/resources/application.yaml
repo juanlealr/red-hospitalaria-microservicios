@@ -1,0 +1,30 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: admisiones-route
+              uri: lb://admisiones-service
+              predicates:
+                - Path=/api/admisiones/**
+            - id: laboratorio-route
+              uri: lb://laboratorio-service
+              predicates:
+                - Path=/api/laboratorio/**
+            - id: farmacia-route
+              uri: lb://farmacia-service
+              predicates:
+                - Path=/api/farmacia/**
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
