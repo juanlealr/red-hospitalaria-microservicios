@@ -1,0 +1,11 @@
+services:
+  admisiones-db:
+    image: postgres:16
+    container_name: admisiones-db
+    environment:
+      POSTGRES_DB: admisiones_db
+      POSTGRES_USER: admisiones
+      POSTGRES_PASSWORD: admisiones
+    ports:
+      - "5432:5432"
+    restart: always
