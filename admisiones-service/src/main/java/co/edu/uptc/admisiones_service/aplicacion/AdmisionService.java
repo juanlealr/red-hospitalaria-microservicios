@@ -2,7 +2,12 @@ package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.dominio.Admision;
 import co.edu.uptc.admisiones_service.dominio.DisponibilidadCama;
+import co.edu.uptc.admisiones_service.infraestructura.salida.laboratorio.VerificadorLaboratorioGrpcAdapter;
+import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEvent;
+import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEventRepository;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,14 +27,20 @@ public class AdmisionService implements AdmisionUseCase {
     private final RepositorioAdmisiones repositorioAdmisiones;
     private final AdmisionFactory admisionFactory;
     private final TrasladoPacienteService trasladoPacienteService;
+    private final VerificadorLaboratorioGrpcAdapter verificadorLaboratorioGrpc;
+    private final OutboxEventRepository outboxRepository;
 
     public AdmisionService(
             RepositorioAdmisiones repositorioAdmisiones,
             AdmisionFactory admisionFactory,
-            TrasladoPacienteService trasladoPacienteService) {
+            TrasladoPacienteService trasladoPacienteService,
+            VerificadorLaboratorioGrpcAdapter verificadorLaboratorioGrpc,
+            OutboxEventRepository outboxRepository) {
         this.repositorioAdmisiones = repositorioAdmisiones;
         this.admisionFactory = admisionFactory;
         this.trasladoPacienteService = trasladoPacienteService;
+        this.verificadorLaboratorioGrpc = verificadorLaboratorioGrpc;
+        this.outboxRepository = outboxRepository;
     }
 
     @Override
@@ -45,11 +56,21 @@ public class AdmisionService implements AdmisionUseCase {
         repositorioAdmisiones.guardar(admision);
     }
 
-    @Override
+    @Transactional
     public void darDeAlta(String admisionId, boolean tieneOrdenesLaboratorioPendientes) {
-        Admision admision = buscarPorId(admisionId);
+        Admision admision = repositorioAdmisiones.buscarPorId(admisionId)
+                .orElseThrow(() -> new RuntimeException("Admisión no encontrada"));
+
+        // 1. Lógica de dominio
         admision.darDeAlta(tieneOrdenesLaboratorioPendientes, LocalDateTime.now());
         repositorioAdmisiones.guardar(admision);
+
+        // 2. Registro del evento en la tabla Outbox (misma transacción DB)
+        String payload = """
+                {"admisionId": "%s", "pacienteId": "%s", "fechaAlta": "%s"}"""
+                .formatted(admision.id(), admision.pacienteId(), LocalDateTime.now());
+
+        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteDadoDeAlta", payload));
     }
 
     @Override

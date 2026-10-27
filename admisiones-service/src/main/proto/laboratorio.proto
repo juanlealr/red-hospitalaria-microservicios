@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "co.edu.uptc.admisiones_service.grpc";
+option java_multiple_files = true;
+
+service LaboratorioGrpc {
+  rpc VerificarOrdenesPendientes (OrdenesPendientesRequest) returns (OrdenesPendientesResponse) {}
+}
+
+message OrdenesPendientesRequest {
+  string pacienteId = 1;
+}
+
+message OrdenesPendientesResponse {
+  bool tienePendientes = 1;
+}

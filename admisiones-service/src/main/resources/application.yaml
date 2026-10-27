@@ -19,12 +19,16 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-  # --- BLOQUE NUEVO PARA gRPC (Paso 3) ---
   grpc:
     client:
       channel:
         laboratorio:
           target: static://localhost:9091
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 eureka:
   instance:
