@@ -1,0 +1,16 @@
+services:
+  farmacia-db:
+    image: postgres:16
+    container_name: farmacia-db
+    environment:
+      POSTGRES_DB: farmacia_db
+      POSTGRES_USER: farmacia
+      POSTGRES_PASSWORD: farmacia
+    ports:
+      - "5433:5432"
+    restart: always
+    volumes:
+      - farmacia-db-data:/var/lib/postgresql/data
+
+volumes:
+  farmacia-db-data:
