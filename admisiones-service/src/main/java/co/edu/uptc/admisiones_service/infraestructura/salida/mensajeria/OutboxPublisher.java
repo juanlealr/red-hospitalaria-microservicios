@@ -1,5 +1,6 @@
 package co.edu.uptc.admisiones_service.infraestructura.salida.mensajeria;
 
+import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEvent;
 import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEventRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,22 +23,30 @@ public class OutboxPublisher {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @Scheduled(fixedDelay = 2000) // Revisa cada 2 segundos
+    @Scheduled(fixedDelay = 2000)
     @Transactional
     public void publicarPendientes() {
-        for (var evento : outboxRepository.findByPublicadoFalseOrderByIdAsc()) {
+        for (OutboxEvent evento : outboxRepository.findByPublicadoFalseOrderByIdAsc()) {
             try {
-                // .get(5, SECONDS) fuerza la confirmación síncrona del bróker
-                kafkaTemplate.send("admisiones.paciente-dado-alta", evento.getClave(), evento.getPayload())
+                String topico = determinarTopico(evento.getTipo());
+                kafkaTemplate.send(topico, evento.getClave(), evento.getPayload())
                         .get(5, TimeUnit.SECONDS);
 
                 evento.marcarPublicado();
-                log.info("Outbox: Evento {} ({}) publicado en Kafka", evento.getId(), evento.getTipo());
+                log.info("Outbox: Evento {} ({}) publicado en tópico '{}'", evento.getId(), evento.getTipo(), topico);
             } catch (Exception e) {
-                log.warn("Outbox: No se pudo enviar el evento {}. Se reintentará en el siguiente ciclo",
-                        evento.getId());
-                return; // Se detiene el bucle para preservar el orden estricto de eventos
+                log.warn("Outbox: No se pudo enviar el evento {} (se reintentará): {}", evento.getId(), e.getMessage());
+                return; // Mantiene orden estricto interrumpiendo el lote
             }
         }
+    }
+
+    private String determinarTopico(String tipoEvento) {
+        return switch (tipoEvento) {
+            case "PacienteIngresado" -> "admisiones.ingresos-registrados";
+            case "PacienteTrasladado" -> "admisiones.pacientes-trasladados";
+            case "PacienteDadoDeAlta" -> "admisiones.paciente-dado-alta";
+            default -> "admisiones.eventos-generales";
+        };
     }
 }

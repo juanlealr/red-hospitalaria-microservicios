@@ -1,26 +1,17 @@
 package co.edu.uptc.admisiones_service.aplicacion;
 
+import co.edu.uptc.admisiones_service.compartido.RecursoNoEncontradoException;
 import co.edu.uptc.admisiones_service.dominio.Admision;
 import co.edu.uptc.admisiones_service.dominio.DisponibilidadCama;
 import co.edu.uptc.admisiones_service.infraestructura.salida.laboratorio.VerificadorLaboratorioGrpcAdapter;
 import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEvent;
 import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEventRepository;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-/**
- * Caso de uso concreto: implementa AdmisionUseCase orquestando el Agregado,
- * la Factory, el Servicio de Dominio y el puerto secundario — equivalente
- * a InvestigadorService en RICA. Esta clase es la que faltaba en la
- * sección 6 del taller de DDD: ahí solo construimos las piezas tácticas
- * (Value Object, Servicio de Dominio, Agregado, Factory) sin nadie que las
- * orqueste ni las persista.
- */
 @Service
 public class AdmisionService implements AdmisionUseCase {
 
@@ -44,42 +35,82 @@ public class AdmisionService implements AdmisionUseCase {
     }
 
     @Override
+    @Transactional
     public Admision registrarIngreso(String pacienteId, String sedeId, DisponibilidadCama disponibilidadSede) {
         Admision admision = admisionFactory.registrarIngreso(pacienteId, sedeId, disponibilidadSede);
-        return repositorioAdmisiones.guardar(admision);
+        Admision guardada = repositorioAdmisiones.guardar(admision);
+
+        // Evento de Dominio: PacienteIngresado
+        String payload = """
+                {
+                    "admisionId": "%s",
+                    "pacienteId": "%s",
+                    "sedeInicialId": "%s",
+                    "fechaIngreso": "%s"
+                }""".formatted(guardada.id(), guardada.pacienteId(), guardada.sedeActualId(), guardada.fechaIngreso());
+
+        outboxRepository.save(new OutboxEvent(guardada.pacienteId(), "PacienteIngresado", payload));
+        return guardada;
     }
 
     @Override
+    @Transactional
     public void trasladarPaciente(String admisionId, DisponibilidadCama disponibilidadDestino) {
         Admision admision = buscarPorId(admisionId);
-        trasladoPacienteService.trasladar(admision, disponibilidadDestino, LocalDateTime.now());
+        String sedeOrigenId = admision.sedeActualId();
+        LocalDateTime fechaTraslado = LocalDateTime.now();
+
+        trasladoPacienteService.trasladar(admision, disponibilidadDestino, fechaTraslado);
         repositorioAdmisiones.guardar(admision);
+
+        // Evento de Dominio: PacienteTrasladado
+        String payload = """
+                {
+                    "admisionId": "%s",
+                    "pacienteId": "%s",
+                    "sedeOrigenId": "%s",
+                    "sedeDestinoId": "%s",
+                    "fechaTraslado": "%s"
+                }""".formatted(admision.id(), admision.pacienteId(), sedeOrigenId, disponibilidadDestino.sedeId(),
+                fechaTraslado);
+
+        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteTrasladado", payload));
     }
 
+    @Override
     @Transactional
-    public void darDeAlta(String admisionId, boolean tieneOrdenesLaboratorioPendientes) {
-        Admision admision = repositorioAdmisiones.buscarPorId(admisionId)
-                .orElseThrow(() -> new RuntimeException("Admisión no encontrada"));
+    public void darDeAlta(String admisionId, boolean tieneOrdenesLaboratorioPendientesIgnorada) {
+        Admision admision = buscarPorId(admisionId);
 
-        // 1. Lógica de dominio
-        admision.darDeAlta(tieneOrdenesLaboratorioPendientes, LocalDateTime.now());
+        // 1. Verificación síncrona gRPC con Resilience4j
+        boolean ordenesPendientes = verificadorLaboratorioGrpc.tieneOrdenesPendientes(admision.pacienteId());
+
+        // 2. Transición de estado en el Agregado
+        LocalDateTime fechaAlta = LocalDateTime.now();
+        admision.darDeAlta(ordenesPendientes, fechaAlta);
         repositorioAdmisiones.guardar(admision);
 
-        // 2. Registro del evento en la tabla Outbox (misma transacción DB)
+        // Evento de Dominio: PacienteDadoDeAlta
         String payload = """
-                {"admisionId": "%s", "pacienteId": "%s", "fechaAlta": "%s"}"""
-                .formatted(admision.id(), admision.pacienteId(), LocalDateTime.now());
+                {
+                    "admisionId": "%s",
+                    "pacienteId": "%s",
+                    "sedeId": "%s",
+                    "fechaAlta": "%s"
+                }""".formatted(admision.id(), admision.pacienteId(), admision.sedeActualId(), fechaAlta);
 
         outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteDadoDeAlta", payload));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Admision buscarPorId(String admisionId) {
         return repositorioAdmisiones.buscarPorId(admisionId)
-                .orElseThrow(() -> new NoSuchElementException("No existe una admisión con id " + admisionId));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Admisión no encontrada con ID: " + admisionId));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Admision> listarTodas() {
         return repositorioAdmisiones.listarTodos();
     }

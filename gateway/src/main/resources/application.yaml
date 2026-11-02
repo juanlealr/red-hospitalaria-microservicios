@@ -21,6 +21,10 @@ spring:
               uri: lb://farmacia-service
               predicates:
                 - Path=/api/farmacia/**
+            - id: consultas-admisiones-route
+              uri: lb://consultas-admisiones-service
+              predicates:
+                - Path=/api/consultas/admisiones/**
 
 eureka:
   instance:
