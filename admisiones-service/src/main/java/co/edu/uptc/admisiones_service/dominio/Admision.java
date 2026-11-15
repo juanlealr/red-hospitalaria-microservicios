@@ -1,6 +1,5 @@
 package co.edu.uptc.admisiones_service.dominio;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -13,48 +12,44 @@ import java.util.List;
 public class Admision {
 
     @Id
-    @JsonProperty("id")
     private String id;
 
-    @JsonProperty("pacienteId")
     private String pacienteId;
-
-    @JsonProperty("sedeActualId")
     private String sedeActualId;
+    private String servicioActual;
 
     @Enumerated(EnumType.STRING)
-    @JsonProperty("estado")
     private EstadoAdmision estado;
 
-    @JsonProperty("fechaIngreso")
     private LocalDateTime fechaIngreso;
-
-    @JsonProperty("fechaAlta")
     private LocalDateTime fechaAlta;
 
     @ElementCollection
     @CollectionTable(name = "admision_traslados", joinColumns = @JoinColumn(name = "admision_id"))
-    @JsonProperty("historialTraslados")
     private List<Traslado> historialTraslados = new ArrayList<>();
 
     protected Admision() {
-        // Exigido por Hibernate
+        // exigido por Hibernate
     }
 
-    public Admision(String id, String pacienteId, String sedeInicialId, LocalDateTime fechaIngreso) {
+    public Admision(String id, String pacienteId, String sedeInicialId, String servicioInicial,
+            LocalDateTime fechaIngreso) {
         this.id = id;
         this.pacienteId = pacienteId;
         this.sedeActualId = sedeInicialId;
+        this.servicioActual = servicioInicial;
         this.estado = EstadoAdmision.ACTIVA;
         this.fechaIngreso = fechaIngreso;
     }
 
-    public void registrarTraslado(String sedeDestinoId, LocalDateTime fecha) {
+    public void registrarTraslado(String sedeDestinoId, String servicioDestino, LocalDateTime fecha) {
         if (estado != EstadoAdmision.ACTIVA) {
             throw new IllegalStateException("Solo se puede trasladar una admisión activa.");
         }
-        historialTraslados.add(new Traslado(this.sedeActualId, sedeDestinoId, fecha));
+        historialTraslados.add(new Traslado(
+                this.sedeActualId, this.servicioActual, sedeDestinoId, servicioDestino, fecha));
         this.sedeActualId = sedeDestinoId;
+        this.servicioActual = servicioDestino;
     }
 
     public void darDeAlta(boolean tieneOrdenesLaboratorioPendientes, LocalDateTime fecha) {
@@ -69,61 +64,35 @@ public class Admision {
         this.fechaAlta = fecha;
     }
 
-    // Getters estilo JavaBean
-    public String getId() {
+    public String id() {
         return id;
     }
 
-    public String getPacienteId() {
+    public String pacienteId() {
         return pacienteId;
     }
 
-    public String getSedeActualId() {
+    public String sedeActualId() {
         return sedeActualId;
     }
 
-    public EstadoAdmision getEstado() {
-        return estado;
-    }
-
-    public LocalDateTime getFechaIngreso() {
-        return fechaIngreso;
-    }
-
-    public LocalDateTime getFechaAlta() {
-        return fechaAlta;
-    }
-
-    public List<Traslado> getHistorialTraslados() {
-        return Collections.unmodifiableList(historialTraslados);
-    }
-
-    // Compatibilidad de métodos cortos
-    public String id() {
-        return getId();
-    }
-
-    public String pacienteId() {
-        return getPacienteId();
-    }
-
-    public String sedeActualId() {
-        return getSedeActualId();
+    public String servicioActual() {
+        return servicioActual;
     }
 
     public EstadoAdmision estado() {
-        return getEstado();
+        return estado;
     }
 
     public LocalDateTime fechaIngreso() {
-        return getFechaIngreso();
+        return fechaIngreso;
     }
 
     public LocalDateTime fechaAlta() {
-        return getFechaAlta();
+        return fechaAlta;
     }
 
     public List<Traslado> historialTraslados() {
-        return getHistorialTraslados();
+        return Collections.unmodifiableList(historialTraslados);
     }
 }

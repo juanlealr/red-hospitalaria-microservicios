@@ -22,4 +22,9 @@ public class TopicosConfig {
     public NewTopic admisionesPacienteDadoAlta() {
         return TopicBuilder.name("admisiones.paciente-dado-alta").partitions(3).replicas(1).build();
     }
+
+    @Bean
+    public NewTopic farmaciaSolicitudes() {
+        return TopicBuilder.name("farmacia.solicitudes").partitions(3).replicas(1).build();
+    }
 }

@@ -20,34 +20,42 @@ public class AdmisionService implements AdmisionUseCase {
     private final TrasladoPacienteService trasladoPacienteService;
     private final VerificadorLaboratorioGrpcAdapter verificadorLaboratorioGrpc;
     private final OutboxEventRepository outboxRepository;
+    private final InventarioCamasUseCase inventarioCamasUseCase;
 
     public AdmisionService(
             RepositorioAdmisiones repositorioAdmisiones,
             AdmisionFactory admisionFactory,
             TrasladoPacienteService trasladoPacienteService,
             VerificadorLaboratorioGrpcAdapter verificadorLaboratorioGrpc,
-            OutboxEventRepository outboxRepository) {
+            OutboxEventRepository outboxRepository,
+            InventarioCamasUseCase inventarioCamasUseCase) {
         this.repositorioAdmisiones = repositorioAdmisiones;
         this.admisionFactory = admisionFactory;
         this.trasladoPacienteService = trasladoPacienteService;
         this.verificadorLaboratorioGrpc = verificadorLaboratorioGrpc;
         this.outboxRepository = outboxRepository;
+        this.inventarioCamasUseCase = inventarioCamasUseCase;
     }
 
     @Override
     @Transactional
-    public Admision registrarIngreso(String pacienteId, String sedeId, DisponibilidadCama disponibilidadSede) {
-        Admision admision = admisionFactory.registrarIngreso(pacienteId, sedeId, disponibilidadSede);
+    public Admision registrarIngreso(String pacienteId, String sedeId, String servicio) {
+        DisponibilidadCama disponibilidad = inventarioCamasUseCase.consultarDisponibilidad(sedeId, servicio);
+
+        Admision admision = admisionFactory.registrarIngreso(pacienteId, sedeId, disponibilidad);
         Admision guardada = repositorioAdmisiones.guardar(admision);
 
-        // Evento de Dominio: PacienteIngresado
+        inventarioCamasUseCase.ocuparCama(sedeId, servicio);
+
         String payload = """
                 {
                     "admisionId": "%s",
                     "pacienteId": "%s",
                     "sedeInicialId": "%s",
+                    "servicioInicial": "%s",
                     "fechaIngreso": "%s"
-                }""".formatted(guardada.id(), guardada.pacienteId(), guardada.sedeActualId(), guardada.fechaIngreso());
+                }""".formatted(guardada.id(), guardada.pacienteId(), guardada.sedeActualId(),
+                guardada.servicioActual(), guardada.fechaIngreso());
 
         outboxRepository.save(new OutboxEvent(guardada.pacienteId(), "PacienteIngresado", payload));
         return guardada;
@@ -55,15 +63,21 @@ public class AdmisionService implements AdmisionUseCase {
 
     @Override
     @Transactional
-    public void trasladarPaciente(String admisionId, DisponibilidadCama disponibilidadDestino) {
+    public void trasladarPaciente(String admisionId, String sedeDestinoId, String servicioDestino) {
         Admision admision = buscarPorId(admisionId);
         String sedeOrigenId = admision.sedeActualId();
+        String servicioOrigen = admision.servicioActual();
         LocalDateTime fechaTraslado = LocalDateTime.now();
+
+        DisponibilidadCama disponibilidadDestino = inventarioCamasUseCase.consultarDisponibilidad(sedeDestinoId,
+                servicioDestino);
 
         trasladoPacienteService.trasladar(admision, disponibilidadDestino, fechaTraslado);
         repositorioAdmisiones.guardar(admision);
 
-        // Evento de Dominio: PacienteTrasladado
+        inventarioCamasUseCase.liberarCama(sedeOrigenId, servicioOrigen);
+        inventarioCamasUseCase.ocuparCama(sedeDestinoId, servicioDestino);
+
         String payload = """
                 {
                     "admisionId": "%s",
@@ -71,26 +85,24 @@ public class AdmisionService implements AdmisionUseCase {
                     "sedeOrigenId": "%s",
                     "sedeDestinoId": "%s",
                     "fechaTraslado": "%s"
-                }""".formatted(admision.id(), admision.pacienteId(), sedeOrigenId, disponibilidadDestino.sedeId(),
-                fechaTraslado);
+                }""".formatted(admision.id(), admision.pacienteId(), sedeOrigenId, sedeDestinoId, fechaTraslado);
 
         outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteTrasladado", payload));
     }
 
     @Override
     @Transactional
-    public void darDeAlta(String admisionId, boolean tieneOrdenesLaboratorioPendientesIgnorada) {
+    public void darDeAlta(String admisionId) {
         Admision admision = buscarPorId(admisionId);
 
-        // 1. Verificación síncrona gRPC con Resilience4j
         boolean ordenesPendientes = verificadorLaboratorioGrpc.tieneOrdenesPendientes(admision.pacienteId());
 
-        // 2. Transición de estado en el Agregado
         LocalDateTime fechaAlta = LocalDateTime.now();
         admision.darDeAlta(ordenesPendientes, fechaAlta);
         repositorioAdmisiones.guardar(admision);
 
-        // Evento de Dominio: PacienteDadoDeAlta
+        inventarioCamasUseCase.liberarCama(admision.sedeActualId(), admision.servicioActual());
+
         String payload = """
                 {
                     "admisionId": "%s",

@@ -2,7 +2,6 @@ package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador;
 
 import co.edu.uptc.admisiones_service.aplicacion.AdmisionUseCase;
 import co.edu.uptc.admisiones_service.dominio.Admision;
-import co.edu.uptc.admisiones_service.dominio.DisponibilidadCama;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +21,8 @@ public class AdmisionController {
     public ResponseEntity<Admision> registrarIngreso(
             @RequestParam String pacienteId,
             @RequestParam String sedeId,
-            @RequestBody DisponibilidadCama disponibilidadSede) {
-        Admision admision = admisionUseCase.registrarIngreso(pacienteId, sedeId, disponibilidadSede);
+            @RequestParam String servicio) {
+        Admision admision = admisionUseCase.registrarIngreso(pacienteId, sedeId, servicio);
         return ResponseEntity.ok(admision);
     }
 
@@ -40,16 +39,15 @@ public class AdmisionController {
     @PutMapping("/{id}/traslado")
     public ResponseEntity<Void> trasladarPaciente(
             @PathVariable String id,
-            @RequestBody DisponibilidadCama disponibilidadDestino) {
-        admisionUseCase.trasladarPaciente(id, disponibilidadDestino);
+            @RequestParam String sedeDestinoId,
+            @RequestParam String servicioDestino) {
+        admisionUseCase.trasladarPaciente(id, sedeDestinoId, servicioDestino);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/alta")
-    public ResponseEntity<Void> darDeAlta(
-            @PathVariable String id,
-            @RequestParam(defaultValue = "false") boolean tieneOrdenesLaboratorioPendientes) {
-        admisionUseCase.darDeAlta(id, tieneOrdenesLaboratorioPendientes);
+    public ResponseEntity<Void> darDeAlta(@PathVariable String id) {
+        admisionUseCase.darDeAlta(id);
         return ResponseEntity.noContent().build();
     }
 }

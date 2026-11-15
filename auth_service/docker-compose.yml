@@ -1,0 +1,12 @@
+# auth-service/docker-compose.yml
+services:
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+    ports:
+      - "5436:5432"
+    restart: always
