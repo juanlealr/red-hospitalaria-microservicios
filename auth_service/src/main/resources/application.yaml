@@ -22,7 +22,7 @@ seguridad:
     email: ${ADMIN_INICIAL_EMAIL:admin@hospital.com}
     password: ${ADMIN_INICIAL_PASSWORD:123456789}
   jwt:
-    secret: ${t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
+    secret: ${JWT_SECRET:t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
     expiracion-ms: 7200000
 
 eureka:

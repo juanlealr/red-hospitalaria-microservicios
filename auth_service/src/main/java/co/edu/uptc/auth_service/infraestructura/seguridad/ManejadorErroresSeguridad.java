@@ -1,4 +1,4 @@
-package co.edu.uptc.admisiones_service.infraestructura.seguridad; // ← ajusta por servicio
+package co.edu.uptc.auth_service.infraestructura.seguridad; // ← ajusta por servicio
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -32,7 +32,7 @@ public class JwtService {
                 .claim("rol", rol.name())
                 .issuedAt(Date.from(ahora))
                 .expiration(Date.from(ahora.plusMillis(expiracionMs)))
-                .signWith(key)
+                .signWith(key, Jwts.SIG.HS256) // ← antes: .signWith(key)
                 .compact();
     }
 

@@ -1,7 +1,6 @@
-
-====================
+========================================
 ARCHIVO: ./eureka-server/pom.xml
-====================
+========================================
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -69,9 +68,9 @@ ARCHIVO: ./eureka-server/pom.xml
 
 </project>
 
-====================
+========================================
 ARCHIVO: ./eureka-server/src/test/java/co/edu/uptc/eureka_server/EurekaServerApplicationTests.java
-====================
+========================================
 package co.edu.uptc.eureka_server;
 
 import org.junit.jupiter.api.Test;
@@ -86,9 +85,9 @@ class EurekaServerApplicationTests {
 
 }
 
-====================
+========================================
 ARCHIVO: ./eureka-server/src/main/resources/application.yaml
-====================
+========================================
 server:
   port: 8761
 
@@ -101,9 +100,9 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
 
-====================
+========================================
 ARCHIVO: ./eureka-server/src/main/java/co/edu/uptc/eureka_server/EurekaServerApplication.java
-====================
+========================================
 package co.edu.uptc.eureka_server;
 
 import org.springframework.boot.SpringApplication;
@@ -117,9 +116,9 @@ public class EurekaServerApplication {
 		SpringApplication.run(EurekaServerApplication.class, args);
 	}
 }
-====================
+========================================
 ARCHIVO: ./farmacia-service/pom.xml
-====================
+========================================
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -150,7 +149,7 @@ ARCHIVO: ./farmacia-service/pom.xml
 	</scm>
 	<properties>
 		<java.version>25</java.version>
-		<spring-cloud.version>2025.1.3</spring-cloud.version>
+		<spring-cloud.version>2025.1.4</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -221,9 +220,9 @@ ARCHIVO: ./farmacia-service/pom.xml
 
 </project>
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/docker-compose.yml
-====================
+========================================
 services:
   farmacia-db:
     image: postgres:16
@@ -241,9 +240,9 @@ services:
 volumes:
   farmacia-db-data:
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/test/java/co/edu/uptc/farmacia_service/dominio/CoberturaTest.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.dominio;
 
 import org.junit.jupiter.api.Test;
@@ -275,9 +274,9 @@ class CoberturaTest {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/test/java/co/edu/uptc/farmacia_service/dominio/SolicitudMedicamentoTest.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.dominio;
 
 import org.junit.jupiter.api.Test;
@@ -382,9 +381,9 @@ class SolicitudMedicamentoTest {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/test/java/co/edu/uptc/farmacia_service/aplicacion/SolicitudMedicamentoFactoryTest.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.EstadoSolicitudMedicamento;
@@ -438,9 +437,9 @@ class SolicitudMedicamentoFactoryTest {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/test/java/co/edu/uptc/farmacia_service/aplicacion/SolicitudMedicamentoServiceTest.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.Cobertura;
@@ -578,9 +577,9 @@ class SolicitudMedicamentoServiceTest {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/test/java/co/edu/uptc/farmacia_service/aplicacion/VerificacionCoberturaServiceTest.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.Cobertura;
@@ -629,9 +628,9 @@ class VerificacionCoberturaServiceTest {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/test/java/co/edu/uptc/farmacia_service/infraestructura/salida/aseguradora/CoberturaAseguradoraStubAdapterTest.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.aseguradora;
 
 import co.edu.uptc.farmacia_service.dominio.Cobertura;
@@ -650,9 +649,9 @@ class CoberturaAseguradoraStubAdapterTest {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/test/java/co/edu/uptc/farmacia_service/infraestructura/entrada/rest/SolicitudMedicamentoControllerTest.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.entrada.rest;
 
 import co.edu.uptc.farmacia_service.aplicacion.SolicitudMedicamentoUseCase;
@@ -776,9 +775,41 @@ class SolicitudMedicamentoControllerTest {
     }
 }
 
-====================
+========================================
+ARCHIVO: ./farmacia-service/src/main/resources/db/migration/V2__crear_tabla_outbox_events.sql
+========================================
+CREATE TABLE outbox_events (
+    id BIGSERIAL PRIMARY KEY,
+    evento_id VARCHAR(36) NOT NULL UNIQUE,
+    clave VARCHAR(255) NOT NULL,
+    tipo VARCHAR(100) NOT NULL,
+    payload TEXT NOT NULL,
+    ocurrido_en TIMESTAMP NOT NULL,
+    publicado BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX idx_outbox_pendientes ON outbox_events (publicado, id);
+
+========================================
+ARCHIVO: ./farmacia-service/src/main/resources/db/migration/V1__crear_tabla_solicitudes_medicamento.sql
+========================================
+CREATE TABLE solicitudes_medicamento (
+    id VARCHAR(36) PRIMARY KEY,
+    paciente_id VARCHAR(255) NOT NULL,
+    medico_id VARCHAR(255) NOT NULL,
+    medicamento VARCHAR(255) NOT NULL,
+    fecha_solicitud TIMESTAMP NOT NULL,
+    estado VARCHAR(50) NOT NULL,
+    cobertura_porcentaje INTEGER,
+    fecha_despacho TIMESTAMP,
+    CONSTRAINT chk_solicitudes_cobertura CHECK (cobertura_porcentaje IS NULL OR cobertura_porcentaje BETWEEN 0 AND 100)
+);
+
+CREATE INDEX idx_solicitudes_paciente ON solicitudes_medicamento (paciente_id);
+
+========================================
 ARCHIVO: ./farmacia-service/src/main/resources/application.yaml
-====================
+========================================
 server:
   port: 8081
 
@@ -826,9 +857,9 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/dominio/Cobertura.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.dominio;
 
 /**
@@ -850,9 +881,9 @@ public record Cobertura(int porcentaje) {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/dominio/EstadoSolicitudMedicamento.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.dominio;
 
 /**
@@ -873,9 +904,9 @@ public enum EstadoSolicitudMedicamento {
     DESPACHADA
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/dominio/SolicitudMedicamento.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.dominio;
 
 import java.time.LocalDateTime;
@@ -1059,9 +1090,9 @@ public class SolicitudMedicamento {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/compartido/ServicioExternoNoDisponibleException.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.compartido;
 
 /**
@@ -1076,9 +1107,9 @@ public class ServicioExternoNoDisponibleException extends RuntimeException {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/RegistroSolicitudTransaccional.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.SolicitudMedicamento;
@@ -1117,9 +1148,9 @@ public class RegistroSolicitudTransaccional {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/EventosFarmacia.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 /**
@@ -1137,9 +1168,9 @@ public final class EventosFarmacia {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/SolicitudMedicamentoFactory.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.SolicitudMedicamento;
@@ -1179,9 +1210,9 @@ public class SolicitudMedicamentoFactory {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/VerificacionCoberturaService.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.Cobertura;
@@ -1226,9 +1257,9 @@ public class VerificacionCoberturaService {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/RepositorioSolicitudesMedicamento.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.SolicitudMedicamento;
@@ -1252,9 +1283,9 @@ public interface RepositorioSolicitudesMedicamento {
     List<SolicitudMedicamento> listarTodas();
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/SolicitudMedicamentoService.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.SolicitudMedicamento;
@@ -1330,9 +1361,9 @@ public class SolicitudMedicamentoService implements SolicitudMedicamentoUseCase 
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/SolicitudMedicamentoUseCase.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.SolicitudMedicamento;
@@ -1359,9 +1390,9 @@ public interface SolicitudMedicamentoUseCase {
     List<SolicitudMedicamento> listarTodas();
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/ConsultaCoberturaExterna.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.Cobertura;
@@ -1378,9 +1409,9 @@ public interface ConsultaCoberturaExterna {
     Cobertura consultar(String pacienteId);
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/aplicacion/PublicadorEventosSolicitud.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.aplicacion;
 
 import co.edu.uptc.farmacia_service.dominio.SolicitudMedicamento;
@@ -1397,9 +1428,9 @@ public interface PublicadorEventosSolicitud {
     void publicar(String tipoEvento, SolicitudMedicamento solicitud);
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/mensajeria/EventoSolicitudPayload.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.mensajeria;
 
 import java.time.LocalDateTime;
@@ -1422,9 +1453,9 @@ public record EventoSolicitudPayload(
         LocalDateTime fechaDespacho) {
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/mensajeria/PublicadorEventosOutboxAdapter.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.mensajeria;
 
 import co.edu.uptc.farmacia_service.aplicacion.PublicadorEventosSolicitud;
@@ -1489,9 +1520,9 @@ public class PublicadorEventosOutboxAdapter implements PublicadorEventosSolicitu
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/mensajeria/OutboxEventPublisher.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.mensajeria;
 
 import co.edu.uptc.farmacia_service.infraestructura.salida.persistencia.OutboxEventEntity;
@@ -1548,9 +1579,9 @@ public class OutboxEventPublisher {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/persistencia/OutboxEventEntity.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.persistencia;
 
 import jakarta.persistence.Column;
@@ -1639,9 +1670,9 @@ public class OutboxEventEntity {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/persistencia/SolicitudMedicamentoJpaEntity.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.farmacia_service.dominio.EstadoSolicitudMedicamento;
@@ -1745,9 +1776,9 @@ public class SolicitudMedicamentoJpaEntity {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/persistencia/OutboxEventRepository.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.persistencia;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -1772,9 +1803,9 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
     List<OutboxEventEntity> buscarPendientesParaPublicar();
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/persistencia/SolicitudMedicamentoJpaAdapter.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.farmacia_service.aplicacion.RepositorioSolicitudesMedicamento;
@@ -1817,9 +1848,9 @@ public class SolicitudMedicamentoJpaAdapter implements RepositorioSolicitudesMed
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/persistencia/SolicitudMedicamentoPersistenceMapper.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.farmacia_service.dominio.Cobertura;
@@ -1863,9 +1894,9 @@ public final class SolicitudMedicamentoPersistenceMapper {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/persistencia/SolicitudMedicamentoJpaRepository.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.persistencia;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -1878,9 +1909,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SolicitudMedicamentoJpaRepository extends JpaRepository<SolicitudMedicamentoJpaEntity, String> {
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/aseguradora/CoberturaAseguradoraRestAdapter.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.aseguradora;
 
 import co.edu.uptc.farmacia_service.aplicacion.ConsultaCoberturaExterna;
@@ -1966,9 +1997,9 @@ public class CoberturaAseguradoraRestAdapter implements ConsultaCoberturaExterna
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/aseguradora/CoberturaAseguradoraStubAdapter.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.aseguradora;
 
 import co.edu.uptc.farmacia_service.aplicacion.ConsultaCoberturaExterna;
@@ -1994,9 +2025,9 @@ public class CoberturaAseguradoraStubAdapter implements ConsultaCoberturaExterna
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/aseguradora/CoberturaRespuesta.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.aseguradora;
 
 /**
@@ -2005,9 +2036,9 @@ package co.edu.uptc.farmacia_service.infraestructura.salida.aseguradora;
 public record CoberturaRespuesta(Integer porcentaje) {
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/salida/aseguradora/AseguradoraProperties.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.salida.aseguradora;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -2035,9 +2066,9 @@ public record AseguradoraProperties(String url, int connectTimeoutMs, int readTi
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/entrada/rest/dto/RecibirSolicitudRequest.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.entrada.rest.dto;
 
 import jakarta.validation.constraints.NotBlank;
@@ -2052,9 +2083,9 @@ public record RecibirSolicitudRequest(
         @NotBlank(message = "el medicamento es obligatorio") String medicamento) {
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/entrada/rest/dto/SolicitudMedicamentoResponse.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.entrada.rest.dto;
 
 import java.time.LocalDateTime;
@@ -2074,9 +2105,9 @@ public record SolicitudMedicamentoResponse(
         LocalDateTime fechaDespacho) {
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/entrada/rest/StatusController.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.entrada.rest;
 
 import org.springframework.http.ResponseEntity;
@@ -2098,9 +2129,9 @@ public class StatusController {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/entrada/rest/FarmaciaExceptionHandler.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.entrada.rest;
 
 import co.edu.uptc.farmacia_service.compartido.ServicioExternoNoDisponibleException;
@@ -2158,9 +2189,9 @@ public class FarmaciaExceptionHandler {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/entrada/rest/SolicitudMedicamentoController.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.entrada.rest;
 
 import co.edu.uptc.farmacia_service.aplicacion.SolicitudMedicamentoUseCase;
@@ -2230,9 +2261,9 @@ public class SolicitudMedicamentoController {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/infraestructura/entrada/rest/SolicitudMedicamentoRestMapper.java
-====================
+========================================
 package co.edu.uptc.farmacia_service.infraestructura.entrada.rest;
 
 import co.edu.uptc.farmacia_service.dominio.SolicitudMedicamento;
@@ -2259,9 +2290,9 @@ public class SolicitudMedicamentoRestMapper {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./farmacia-service/src/main/java/co/edu/uptc/farmacia_service/FarmaciaServiceApplication.java
-====================
+========================================
 package co.edu.uptc.farmacia_service;
 
 import co.edu.uptc.farmacia_service.infraestructura.salida.aseguradora.AseguradoraProperties;
@@ -2281,9 +2312,9 @@ public class FarmaciaServiceApplication {
 
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/pom.xml
-====================
+========================================
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -2314,7 +2345,7 @@ ARCHIVO: ./admisiones-service/pom.xml
 	</scm>
 	<properties>
 		<java.version>25</java.version>
-		<spring-cloud.version>2025.1.3</spring-cloud.version>
+		<spring-cloud.version>2025.1.4</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -2418,9 +2449,9 @@ ARCHIVO: ./admisiones-service/pom.xml
 
 </project>
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/docker-compose.yml
-====================
+========================================
 services:
   admisiones-db:
     image: postgres:16
@@ -2448,9 +2479,9 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/test/java/co/edu/uptc/admisiones_service/aplicacion/GestionInventarioCamasServiceTest.java
-====================
+========================================
 // admisiones-service/src/test/java/co/edu/uptc/admisiones_service/aplicacion/GestionInventarioCamasServiceTest.java
 package co.edu.uptc.admisiones_service.aplicacion;
 
@@ -2510,9 +2541,9 @@ class GestionInventarioCamasServiceTest {
         }
     }
 }
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/test/java/co/edu/uptc/admisiones_service/AdmisionesServiceApplicationTests.java
-====================
+========================================
 package co.edu.uptc.admisiones_service;
 
 import org.junit.jupiter.api.Test;
@@ -2527,9 +2558,61 @@ class AdmisionesServiceApplicationTests {
 
 }
 
-====================
+========================================
+ARCHIVO: ./admisiones-service/src/main/resources/db/migration/V4__bloqueo_optimista_inventario.sql
+========================================
+-- admisiones-service/src/main/resources/db/migration/V4__bloqueo_optimista_inventario.sql
+ALTER TABLE inventario_camas ADD COLUMN version BIGINT NOT NULL DEFAULT 0;
+========================================
+ARCHIVO: ./admisiones-service/src/main/resources/db/migration/V3__agregar_servicio_e_inventario_camas.sql
+========================================
+ALTER TABLE admisiones ADD COLUMN servicio_actual VARCHAR(100);
+UPDATE admisiones SET servicio_actual = 'sin-especificar' WHERE servicio_actual IS NULL;
+ALTER TABLE admisiones ALTER COLUMN servicio_actual SET NOT NULL;
+
+ALTER TABLE admision_traslados ADD COLUMN servicio_origen VARCHAR(100);
+ALTER TABLE admision_traslados ADD COLUMN servicio_destino VARCHAR(100);
+
+CREATE TABLE inventario_camas (
+    id             VARCHAR(255) PRIMARY KEY,
+    sede_id        VARCHAR(255) NOT NULL,
+    servicio       VARCHAR(100) NOT NULL,
+    camas_totales  INT NOT NULL,
+    camas_ocupadas INT NOT NULL DEFAULT 0,
+    CONSTRAINT uq_inventario_sede_servicio UNIQUE (sede_id, servicio)
+);
+========================================
+ARCHIVO: ./admisiones-service/src/main/resources/db/migration/V2__crear_tabla_outbox_events.sql
+========================================
+CREATE TABLE outbox_events (
+    id BIGSERIAL PRIMARY KEY,
+    clave VARCHAR(255),
+    tipo VARCHAR(255),
+    payload TEXT,
+    publicado BOOLEAN NOT NULL DEFAULT FALSE
+);
+========================================
+ARCHIVO: ./admisiones-service/src/main/resources/db/migration/V1__crear_tabla_admisiones.sql
+========================================
+CREATE TABLE admisiones (
+    id VARCHAR(255) PRIMARY KEY,
+    paciente_id VARCHAR(255) NOT NULL,
+    sede_actual_id VARCHAR(255) NOT NULL,
+    estado VARCHAR(50) NOT NULL,
+    fecha_ingreso TIMESTAMP NOT NULL,
+    fecha_alta TIMESTAMP
+);
+
+CREATE TABLE admision_traslados (
+    admision_id VARCHAR(255) NOT NULL,
+    sede_origen_id VARCHAR(255) NOT NULL,
+    sede_destino_id VARCHAR(255) NOT NULL,
+    fecha TIMESTAMP NOT NULL,
+    CONSTRAINT fk_admision_traslados_admision FOREIGN KEY (admision_id) REFERENCES admisiones(id) ON DELETE CASCADE
+);
+========================================
 ARCHIVO: ./admisiones-service/src/main/resources/application.yaml
-====================
+========================================
 server:
   port: 8080
 
@@ -2571,11 +2654,11 @@ eureka:
 
 seguridad:
   jwt:
-    secret: ${JWT_SECRET:cambia-este-secreto-de-al-menos-32-caracteres-para-produccion}
+    secret: ${t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/dominio/Admision.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.dominio;
 
 import jakarta.persistence.*;
@@ -2674,9 +2757,9 @@ public class Admision {
         return Collections.unmodifiableList(historialTraslados);
     }
 }
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/dominio/DisponibilidadCama.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.dominio;
 
 /**
@@ -2729,9 +2812,9 @@ public record DisponibilidadCama(
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/dominio/Traslado.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.dominio;
 
 import jakarta.persistence.Embeddable;
@@ -2761,9 +2844,9 @@ public record Traslado(
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/dominio/InventarioCamas.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.dominio;
 
 import jakarta.persistence.Entity;
@@ -2850,9 +2933,9 @@ public class InventarioCamas {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/dominio/EstadoAdmision.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.dominio;
 
 /**
@@ -2866,9 +2949,9 @@ public enum EstadoAdmision {
     DADA_DE_ALTA
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/compartido/RecursoNoEncontradoException.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.compartido;
 
 public class RecursoNoEncontradoException extends RuntimeException {
@@ -2878,9 +2961,9 @@ public class RecursoNoEncontradoException extends RuntimeException {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/compartido/ServicioNoDisponibleException.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.compartido;
 
 public class ServicioNoDisponibleException extends RuntimeException {
@@ -2889,9 +2972,9 @@ public class ServicioNoDisponibleException extends RuntimeException {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/compartido/GlobalExceptionHandler.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.compartido;
 
 import org.springframework.http.HttpStatus;
@@ -2988,9 +3071,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(cuerpo);
     }
 }
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/AdmisionUseCase.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.dominio.Admision;
@@ -3009,9 +3092,9 @@ public interface AdmisionUseCase {
     List<Admision> listarTodas();
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/AdmisionService.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.compartido.RecursoNoEncontradoException;
@@ -3142,9 +3225,9 @@ public class AdmisionService implements AdmisionUseCase {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/InventarioCamasUseCase.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.dominio.DisponibilidadCama;
@@ -3165,9 +3248,9 @@ public interface InventarioCamasUseCase {
     void liberarCama(String sedeId, String servicio);
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/RepositorioAdmisiones.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.dominio.Admision;
@@ -3194,9 +3277,9 @@ public interface RepositorioAdmisiones {
     Admision guardar(Admision admision);
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/AdmisionFactory.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.dominio.Admision;
@@ -3229,9 +3312,9 @@ public class AdmisionFactory {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/RepositorioInventarioCamas.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.dominio.InventarioCamas;
@@ -3246,9 +3329,9 @@ public interface RepositorioInventarioCamas {
     InventarioCamas guardar(InventarioCamas inventario);
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/TrasladoPacienteService.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.dominio.Admision;
@@ -3269,9 +3352,9 @@ public class TrasladoPacienteService {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/GestionInventarioCamasService.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.aplicacion;
 
 import co.edu.uptc.admisiones_service.compartido.RecursoNoEncontradoException;
@@ -3347,9 +3430,9 @@ public class GestionInventarioCamasService implements InventarioCamasUseCase {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/mensajeria/OutboxPublisher.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.mensajeria;
 
 import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEvent;
@@ -3402,9 +3485,9 @@ public class OutboxPublisher {
         };
     }
 }
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/persistencia/OutboxEventRepository.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -3413,9 +3496,9 @@ import java.util.List;
 public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> {
     List<OutboxEvent> findByPublicadoFalseOrderByIdAsc();
 }
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/persistencia/InventarioCamasRepositoryJpaAdapter.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.admisiones_service.aplicacion.RepositorioInventarioCamas;
@@ -3449,9 +3532,9 @@ public class InventarioCamasRepositoryJpaAdapter implements RepositorioInventari
         return jpaRepository.save(inventario);
     }
 }
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/persistencia/AdmisionJpaRepository.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.admisiones_service.dominio.Admision;
@@ -3467,9 +3550,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AdmisionJpaRepository extends JpaRepository<Admision, String> {
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/persistencia/OutboxEvent.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
 
 import jakarta.persistence.*;
@@ -3525,9 +3608,9 @@ public class OutboxEvent {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/persistencia/AdmisionRepositoryJpaAdapter.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.admisiones_service.aplicacion.RepositorioAdmisiones;
@@ -3569,9 +3652,9 @@ public class AdmisionRepositoryJpaAdapter implements RepositorioAdmisiones {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/persistencia/InventarioCamasJpaRepository.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.admisiones_service.dominio.InventarioCamas;
@@ -3586,9 +3669,9 @@ public interface InventarioCamasJpaRepository extends JpaRepository<InventarioCa
     List<InventarioCamas> findBySedeId(String sedeId);
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/laboratorio/VerificadorLaboratorioGrpcAdapter.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.laboratorio;
 
 import co.edu.uptc.admisiones_service.compartido.ServicioNoDisponibleException;
@@ -3646,10 +3729,52 @@ public class VerificadorLaboratorioGrpcAdapter {
     }
 }
 
-====================
+========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/seguridad/ManejadorErroresSeguridad.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.seguridad; // ← ajusta por servicio
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+@Component
+public class ManejadorErroresSeguridad implements AuthenticationEntryPoint, AccessDeniedHandler {
+
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException ex) throws IOException {
+        response.setHeader("WWW-Authenticate", "Bearer");
+        escribir(response, HttpStatus.UNAUTHORIZED,
+                "Token ausente, inválido o expirado. Inicia sesión en /api/auth/login.");
+    }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+            AccessDeniedException ex) throws IOException {
+        escribir(response, HttpStatus.FORBIDDEN, "Tu rol no tiene permiso para realizar esta acción.");
+    }
+
+    private void escribir(HttpServletResponse response, HttpStatus status, String mensaje) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(
+                "{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"%s\",\"mensaje\":\"%s\"}"
+                        .formatted(LocalDateTime.now(), status.value(), status.getReasonPhrase(), mensaje));
+    }
+}
+
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/seguridad/SecurityConfig.java
-====================
-// admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/seguridad/SecurityConfig.java
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.seguridad;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -3694,10 +3819,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, ManejadorErroresSeguridad manejador)
+            throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(manejador)
+                        .accessDeniedHandler(manejador))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/status").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/admisiones/ingreso").hasAuthority("ROLE_ADMISIONES")
@@ -3705,18 +3834,61 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/admisiones/*/alta").hasAuthority("ROLE_MEDICO")
                         .requestMatchers(HttpMethod.POST, "/api/admisiones/inventario-camas")
                         .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ADMISIONES")
+                        .requestMatchers(HttpMethod.GET, "/api/admisiones/inventario-camas/reporte-ocupacion")
+                        .hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/api/admisiones/**")
                         .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_MEDICO", "ROLE_ADMINISTRADOR")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(manejador)
+                        .accessDeniedHandler(manejador)
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
     }
 }
 
-====================
+========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/entrada/controlador/dto/ReporteOcupacionSede.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador.dto;
+
+import co.edu.uptc.admisiones_service.dominio.DisponibilidadCama;
+
+import java.util.List;
+
+public record ReporteOcupacionSede(
+        String sedeId,
+        int camasTotales,
+        int camasOcupadas,
+        int camasLibres,
+        double porcentajeOcupacion,
+        List<DetalleServicio> servicios) {
+
+    public record DetalleServicio(
+            String servicio, int camasTotales, int camasOcupadas, int camasLibres, double porcentajeOcupacion) {
+    }
+
+    public static ReporteOcupacionSede desde(String sedeId, List<DisponibilidadCama> inventario) {
+        List<DetalleServicio> detalle = inventario.stream()
+                .map(d -> new DetalleServicio(d.servicio(), d.camasTotales(), d.camasOcupadas(),
+                        d.camasTotales() - d.camasOcupadas(), porcentaje(d.camasOcupadas(), d.camasTotales())))
+                .toList();
+
+        int totales = detalle.stream().mapToInt(DetalleServicio::camasTotales).sum();
+        int ocupadas = detalle.stream().mapToInt(DetalleServicio::camasOcupadas).sum();
+
+        return new ReporteOcupacionSede(sedeId, totales, ocupadas, totales - ocupadas,
+                porcentaje(ocupadas, totales), detalle);
+    }
+
+    private static double porcentaje(int ocupadas, int totales) {
+        return totales == 0 ? 0.0 : Math.round(ocupadas * 1000.0 / totales) / 10.0;
+    }
+}
+
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/entrada/controlador/dto/RegistrarCapacidadRequest.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador.dto;
 
 import jakarta.validation.constraints.Min;
@@ -3728,9 +3900,9 @@ public record RegistrarCapacidadRequest(
         @Min(value = 0, message = "El total de camas no puede ser negativo") int camasTotales) {
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/entrada/controlador/StatusController.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador;
 
 import org.springframework.http.ResponseEntity;
@@ -3752,9 +3924,9 @@ public class StatusController {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/entrada/controlador/AdmisionController.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador;
 
 import co.edu.uptc.admisiones_service.aplicacion.AdmisionUseCase;
@@ -3809,9 +3981,9 @@ public class AdmisionController {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/entrada/controlador/InventarioCamasController.java
-====================
+========================================
 package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador;
 
 import co.edu.uptc.admisiones_service.aplicacion.InventarioCamasUseCase;
@@ -3821,6 +3993,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import co.edu.uptc.admisiones_service.compartido.RecursoNoEncontradoException;
+import co.edu.uptc.admisiones_service.infraestructura.entrada.controlador.dto.ReporteOcupacionSede;
 
 import java.util.List;
 
@@ -3854,11 +4028,22 @@ public class InventarioCamasController {
                 request.sedeId(), request.servicio(), request.camasTotales());
         return ResponseEntity.status(HttpStatus.CREATED).body(disponibilidad);
     }
+
+    /** HU-10: reporte de ocupación por sede, calculado sobre el inventario real. */
+    @GetMapping("/reporte-ocupacion")
+    public ResponseEntity<ReporteOcupacionSede> reporteOcupacion(@RequestParam String sedeId) {
+        List<DisponibilidadCama> inventario = inventarioCamasUseCase.listarPorSede(sedeId);
+        if (inventario.isEmpty()) {
+            throw new RecursoNoEncontradoException(
+                    "No hay inventario de camas registrado para la sede: " + sedeId);
+        }
+        return ResponseEntity.ok(ReporteOcupacionSede.desde(sedeId, inventario));
+    }
 }
 
-====================
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/AdmisionesServiceApplication.java
-====================
+========================================
 package co.edu.uptc.admisiones_service;
 
 import co.edu.uptc.admisiones_service.grpc.LaboratorioGrpcGrpc.LaboratorioGrpcBlockingStub;
@@ -3876,9 +4061,9 @@ public class AdmisionesServiceApplication {
 	}
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/pom.xml
-====================
+========================================
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -3971,9 +4156,9 @@ ARCHIVO: ./consultas_admisiones_service/pom.xml
 
 </project>
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/docker-compose.yml
-====================
+========================================
 services:
   consultas-mongo:
     image: mongo:7.0
@@ -3984,9 +4169,9 @@ services:
       MONGO_INITDB_DATABASE: admisiones_consultas
     restart: always
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/test/java/co/edu/uptc/consultas_admisiones_service/ConsultasAdmisionesServiceApplicationTests.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service;
 
 import org.junit.jupiter.api.Test;
@@ -4001,9 +4186,9 @@ class ConsultasAdmisionesServiceApplicationTests {
 
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/resources/application.yaml
-====================
+========================================
 server:
   port: 8083
 
@@ -4029,11 +4214,11 @@ eureka:
 
 seguridad:
   jwt:
-    secret: ${JWT_SECRET:cambia-este-secreto-de-al-menos-32-caracteres-para-produccion}
+    secret: ${t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/dominio/proyeccion/ProyectorFichasAdmision.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.dominio.proyeccion;
 
 import co.edu.uptc.consultas_admisiones_service.dominio.modelo.FichaAdmision;
@@ -4122,9 +4307,9 @@ public class ProyectorFichasAdmision {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/dominio/proyeccion/ProyectorFichasMedicacion.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.dominio.proyeccion;
 
 import co.edu.uptc.consultas_admisiones_service.dominio.modelo.FichaMedicacion;
@@ -4184,9 +4369,9 @@ public class ProyectorFichasMedicacion {
         return json.hasNonNull(campo) ? json.get(campo).asText() : null;
     }
 }
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/dominio/repositorio/FichaAdmisionRepository.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.dominio.repositorio;
 
 import co.edu.uptc.consultas_admisiones_service.dominio.modelo.FichaAdmision;
@@ -4205,9 +4390,9 @@ public interface FichaAdmisionRepository extends MongoRepository<FichaAdmision, 
     Optional<FichaAdmision> findFirstByPacienteIdAndEstado(String pacienteId, String estado);
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/dominio/repositorio/FichaMedicacionRepository.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.dominio.repositorio;
 
 import co.edu.uptc.consultas_admisiones_service.dominio.modelo.FichaMedicacion;
@@ -4218,9 +4403,9 @@ import java.util.List;
 public interface FichaMedicacionRepository extends MongoRepository<FichaMedicacion, String> {
     List<FichaMedicacion> findByPacienteId(String pacienteId);
 }
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/dominio/modelo/ResumenTraslado.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.dominio.modelo;
 
 public record ResumenTraslado(
@@ -4229,9 +4414,9 @@ public record ResumenTraslado(
         String fecha) {
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/dominio/modelo/EstadoConsolidadoPaciente.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.dominio.modelo;
 
 import java.util.List;
@@ -4247,9 +4432,9 @@ public record EstadoConsolidadoPaciente(
         List<FichaAdmision> admisiones,
         List<FichaMedicacion> medicaciones) {
 }
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/dominio/modelo/FichaMedicacion.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.dominio.modelo;
 
 import org.springframework.data.annotation.Id;
@@ -4341,9 +4526,9 @@ public class FichaMedicacion {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/dominio/modelo/FichaAdmision.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.dominio.modelo;
 
 import org.springframework.data.annotation.Id;
@@ -4462,9 +4647,9 @@ public class FichaAdmision {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/compartido/RecursoNoEncontradoException.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.compartido;
 
 public class RecursoNoEncontradoException extends RuntimeException {
@@ -4473,9 +4658,9 @@ public class RecursoNoEncontradoException extends RuntimeException {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/compartido/ServicioNoDisponibleException.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.compartido;
 
 public class ServicioNoDisponibleException extends RuntimeException {
@@ -4484,9 +4669,9 @@ public class ServicioNoDisponibleException extends RuntimeException {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/compartido/GlobalExceptionHandler.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.compartido;
 
 import org.springframework.http.HttpStatus;
@@ -4583,10 +4768,52 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(cuerpo);
     }
 }
-====================
+========================================
+ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/infraestructura/seguridad/ManejadorErroresSeguridad.java
+========================================
+package co.edu.uptc.consultas_admisiones_service.infraestructura.seguridad; // ← ajusta por servicio
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+@Component
+public class ManejadorErroresSeguridad implements AuthenticationEntryPoint, AccessDeniedHandler {
+
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException ex) throws IOException {
+        response.setHeader("WWW-Authenticate", "Bearer");
+        escribir(response, HttpStatus.UNAUTHORIZED,
+                "Token ausente, inválido o expirado. Inicia sesión en /api/auth/login.");
+    }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+            AccessDeniedException ex) throws IOException {
+        escribir(response, HttpStatus.FORBIDDEN, "Tu rol no tiene permiso para realizar esta acción.");
+    }
+
+    private void escribir(HttpServletResponse response, HttpStatus status, String mensaje) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(
+                "{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"%s\",\"mensaje\":\"%s\"}"
+                        .formatted(LocalDateTime.now(), status.value(), status.getReasonPhrase(), mensaje));
+    }
+}
+
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/infraestructura/seguridad/SecurityConfig.java
-====================
-// consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/infraestructura/seguridad/SecurityConfig.java
+========================================
 package co.edu.uptc.consultas_admisiones_service.infraestructura.seguridad;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -4631,10 +4858,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, ManejadorErroresSeguridad manejador)
+            throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(manejador)
+                        .accessDeniedHandler(manejador))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/status").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/consultas/admisiones/reporte/**")
@@ -4643,14 +4874,16 @@ public class SecurityConfig {
                         .hasAnyAuthority("ROLE_MEDICO", "ROLE_ADMISIONES", "ROLE_ADMINISTRADOR")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(manejador)
+                        .accessDeniedHandler(manejador)
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/infraestructura/entrada/controlador/StatusController.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.infraestructura.entrada.controlador;
 
 import org.springframework.http.ResponseEntity;
@@ -4672,9 +4905,9 @@ public class StatusController {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/infraestructura/entrada/controlador/ConsultaAdmisionController.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.infraestructura.entrada.controlador;
 
 import co.edu.uptc.consultas_admisiones_service.compartido.RecursoNoEncontradoException;
@@ -4744,9 +4977,9 @@ public class ConsultaAdmisionController {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/infraestructura/entrada/mensajeria/ProyeccionMedicacionListener.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.infraestructura.entrada.mensajeria;
 
 import co.edu.uptc.consultas_admisiones_service.dominio.proyeccion.ProyectorFichasMedicacion;
@@ -4768,9 +5001,9 @@ public class ProyeccionMedicacionListener {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/infraestructura/entrada/mensajeria/ProyeccionListener.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.infraestructura.entrada.mensajeria;
 
 import co.edu.uptc.consultas_admisiones_service.dominio.proyeccion.ProyectorFichasAdmision;
@@ -4802,9 +5035,9 @@ public class ProyeccionListener {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/infraestructura/configuracion/TopicosConfig.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service.infraestructura.configuracion;
 
 import org.apache.kafka.clients.admin.NewTopic;
@@ -4836,9 +5069,9 @@ public class TopicosConfig {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admisiones_service/ConsultasAdmisionesServiceApplication.java
-====================
+========================================
 package co.edu.uptc.consultas_admisiones_service;
 
 import org.springframework.boot.SpringApplication;
@@ -4853,9 +5086,9 @@ public class ConsultasAdmisionesServiceApplication {
 
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/pom.xml
-====================
+========================================
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -4998,9 +5231,9 @@ ARCHIVO: ./auth_service/pom.xml
 
 </project>
 
-====================
+========================================
 ARCHIVO: ./auth_service/docker-compose.yml
-====================
+========================================
 # auth-service/docker-compose.yml
 services:
   auth-db:
@@ -5014,9 +5247,9 @@ services:
       - "5436:5432"
     restart: always
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/test/java/co/edu/uptc/auth_service/AuthServiceApplicationTests.java
-====================
+========================================
 package co.edu.uptc.auth_service;
 
 import org.junit.jupiter.api.Test;
@@ -5031,9 +5264,19 @@ class AuthServiceApplicationTests {
 
 }
 
-====================
+========================================
+ARCHIVO: ./auth_service/src/main/resources/db/migration/V1__crear_tabla_usuarios.sql
+========================================
+-- auth-service/src/main/resources/db/migration/V1__crear_tabla_usuarios.sql
+CREATE TABLE usuarios (
+    id VARCHAR(36) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL
+);
+========================================
 ARCHIVO: ./auth_service/src/main/resources/application.yaml
-====================
+========================================
 # auth-service/src/main/resources/application.yaml
 server:
   port: 8085
@@ -5056,9 +5299,9 @@ spring:
 seguridad:
   admin-inicial:
     email: ${ADMIN_INICIAL_EMAIL:admin@hospital.com}
-    password: ${ADMIN_INICIAL_PASSWORD:CambiaEstaClave123!}
+    password: ${ADMIN_INICIAL_PASSWORD:123456789}
   jwt:
-    secret: ${JWT_SECRET:cambia-este-secreto-de-al-menos-32-caracteres-para-produccion}
+    secret: ${t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
     expiracion-ms: 7200000
 
 eureka:
@@ -5069,9 +5312,9 @@ eureka:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
 
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/AuthServiceApplication.java
-====================
+========================================
 package co.edu.uptc.auth_service;
 
 import org.springframework.boot.SpringApplication;
@@ -5086,9 +5329,9 @@ public class AuthServiceApplication {
 
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/dominio/Usuario.java
-====================
+========================================
 // auth-service/src/main/java/co/edu/uptc/auth_service/dominio/Usuario.java
 package co.edu.uptc.auth_service.dominio;
 
@@ -5137,9 +5380,9 @@ public class Usuario {
         return rol;
     }
 }
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/dominio/Rol.java
-====================
+========================================
 // auth-service/src/main/java/co/edu/uptc/auth_service/dominio/Rol.java
 package co.edu.uptc.auth_service.dominio;
 
@@ -5150,9 +5393,9 @@ public enum Rol {
     FARMACEUTICO,
     ADMINISTRADOR
 }
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/compartido/CorreoYaRegistradoException.java
-====================
+========================================
 // compartido/CorreoYaRegistradoException.java
 package co.edu.uptc.auth_service.compartido;
 
@@ -5161,9 +5404,9 @@ public class CorreoYaRegistradoException extends RuntimeException {
         super(mensaje);
     }
 }
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/compartido/GlobalExceptionHandler.java
-====================
+========================================
 // compartido/GlobalExceptionHandler.java
 package co.edu.uptc.auth_service.compartido;
 
@@ -5218,9 +5461,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(cuerpo);
     }
 }
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/compartido/CredencialesInvalidasException.java
-====================
+========================================
 // compartido/CredencialesInvalidasException.java
 package co.edu.uptc.auth_service.compartido;
 
@@ -5230,9 +5473,9 @@ public class CredencialesInvalidasException extends RuntimeException {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/aplicacion/RepositorioUsuarios.java
-====================
+========================================
 // aplicacion/RepositorioUsuarios.java
 package co.edu.uptc.auth_service.aplicacion;
 
@@ -5247,9 +5490,9 @@ public interface RepositorioUsuarios {
     Optional<Usuario> buscarPorEmail(String email);
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/aplicacion/RegistroUsuarioService.java
-====================
+========================================
 // aplicacion/RegistroUsuarioService.java
 package co.edu.uptc.auth_service.aplicacion;
 
@@ -5291,17 +5534,17 @@ public class RegistroUsuarioService {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/aplicacion/ResultadoAutenticacion.java
-====================
+========================================
 // aplicacion/ResultadoAutenticacion.java
 package co.edu.uptc.auth_service.aplicacion;
 
 public record ResultadoAutenticacion(String token, String rol, long expiraEnSegundos) {
 }
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/aplicacion/AutenticacionService.java
-====================
+========================================
 // aplicacion/AutenticacionService.java
 package co.edu.uptc.auth_service.aplicacion;
 
@@ -5338,9 +5581,9 @@ public class AutenticacionService {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/salida/persistencia/UsuarioJpaRepository.java
-====================
+========================================
 // infraestructura/salida/persistencia/UsuarioJpaRepository.java
 package co.edu.uptc.auth_service.infraestructura.salida.persistencia;
 
@@ -5353,9 +5596,9 @@ public interface UsuarioJpaRepository extends JpaRepository<Usuario, String> {
 
     Optional<Usuario> findByEmail(String email);
 }
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/salida/persistencia/RepositorioUsuariosJpaAdapter.java
-====================
+========================================
 // infraestructura/salida/persistencia/RepositorioUsuariosJpaAdapter.java
 package co.edu.uptc.auth_service.infraestructura.salida.persistencia;
 
@@ -5389,10 +5632,52 @@ public class RepositorioUsuariosJpaAdapter implements RepositorioUsuarios {
     }
 }
 
-====================
+========================================
+ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/seguridad/ManejadorErroresSeguridad.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.seguridad; // ← ajusta por servicio
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+@Component
+public class ManejadorErroresSeguridad implements AuthenticationEntryPoint, AccessDeniedHandler {
+
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException ex) throws IOException {
+        response.setHeader("WWW-Authenticate", "Bearer");
+        escribir(response, HttpStatus.UNAUTHORIZED,
+                "Token ausente, inválido o expirado. Inicia sesión en /api/auth/login.");
+    }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+            AccessDeniedException ex) throws IOException {
+        escribir(response, HttpStatus.FORBIDDEN, "Tu rol no tiene permiso para realizar esta acción.");
+    }
+
+    private void escribir(HttpServletResponse response, HttpStatus status, String mensaje) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(
+                "{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"%s\",\"mensaje\":\"%s\"}"
+                        .formatted(LocalDateTime.now(), status.value(), status.getReasonPhrase(), mensaje));
+    }
+}
+
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/seguridad/SecurityConfig.java
-====================
-// auth-service/src/main/java/co/edu/uptc/auth_service/infraestructura/seguridad/SecurityConfig.java
+========================================
 package co.edu.uptc.auth_service.infraestructura.seguridad;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -5437,23 +5722,29 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, ManejadorErroresSeguridad manejador)
+            throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(manejador)
+                        .accessDeniedHandler(manejador))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/usuarios").hasAuthority("ROLE_ADMINISTRADOR")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(manejador)
+                        .accessDeniedHandler(manejador)
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
     }
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/seguridad/JwtService.java
-====================
+========================================
 // infraestructura/seguridad/JwtService.java
 package co.edu.uptc.auth_service.infraestructura.seguridad;
 
@@ -5496,9 +5787,9 @@ public class JwtService {
         return expiracionMs / 1000;
     }
 }
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/seguridad/SeguridadConfig.java
-====================
+========================================
 // infraestructura/seguridad/SeguridadConfig.java
 package co.edu.uptc.auth_service.infraestructura.seguridad;
 
@@ -5516,9 +5807,9 @@ public class SeguridadConfig {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/entrada/rest/dto/RegistroRequest.java
-====================
+========================================
 // infraestructura/entrada/rest/dto/RegistroRequest.java
 package co.edu.uptc.auth_service.infraestructura.entrada.rest.dto;
 
@@ -5533,9 +5824,9 @@ public record RegistroRequest(
         @NotNull Rol rol) {
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/entrada/rest/dto/LoginRequest.java
-====================
+========================================
 // infraestructura/entrada/rest/dto/LoginRequest.java
 package co.edu.uptc.auth_service.infraestructura.entrada.rest.dto;
 
@@ -5544,27 +5835,27 @@ import jakarta.validation.constraints.NotBlank;
 public record LoginRequest(@NotBlank String email, @NotBlank String password) {
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/entrada/rest/dto/LoginResponse.java
-====================
+========================================
 // infraestructura/entrada/rest/dto/LoginResponse.java
 package co.edu.uptc.auth_service.infraestructura.entrada.rest.dto;
 
 public record LoginResponse(String token, String rol, long expiraEnSegundos) {
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/entrada/rest/dto/UsuarioResponse.java
-====================
+========================================
 // infraestructura/entrada/rest/dto/UsuarioResponse.java
 package co.edu.uptc.auth_service.infraestructura.entrada.rest.dto;
 
 public record UsuarioResponse(String id, String email, String rol) {
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/entrada/rest/AuthController.java
-====================
+========================================
 package co.edu.uptc.auth_service.infraestructura.entrada.rest;
 
 import co.edu.uptc.auth_service.aplicacion.AutenticacionService;
@@ -5609,9 +5900,9 @@ public class AuthController {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/arranque/SembradorAdministradorInicial.java
-====================
+========================================
 // auth-service/src/main/java/co/edu/uptc/auth_service/infraestructura/arranque/SembradorAdministradorInicial.java
 package co.edu.uptc.auth_service.infraestructura.arranque;
 
@@ -5671,9 +5962,9 @@ public class SembradorAdministradorInicial implements ApplicationRunner {
     }
 }
 
-====================
+========================================
 ARCHIVO: ./gateway/pom.xml
-====================
+========================================
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -5753,9 +6044,9 @@ ARCHIVO: ./gateway/pom.xml
 
 </project>
 
-====================
+========================================
 ARCHIVO: ./gateway/src/test/java/co/edu/uptc/gateway/GatewayApplicationTests.java
-====================
+========================================
 package co.edu.uptc.gateway;
 
 import org.junit.jupiter.api.Test;
@@ -5770,9 +6061,9 @@ class GatewayApplicationTests {
 
 }
 
-====================
+========================================
 ARCHIVO: ./gateway/src/main/resources/application.yaml
-====================
+========================================
 server:
   port: 8000
 
@@ -5807,7 +6098,7 @@ spring:
 
 seguridad:
   jwt:
-    secret: ${JWT_SECRET:cambia-este-secreto-de-al-menos-32-caracteres-para-produccion}
+    secret: ${t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
 
 eureka:
   instance:
@@ -5815,10 +6106,54 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
-====================
+========================================
+ARCHIVO: ./gateway/src/main/java/co/edu/uptc/gateway/seguridad/ManejadorErroresSeguridad.java
+========================================
+package co.edu.uptc.gateway.seguridad;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+
+@Component
+public class ManejadorErroresSeguridad implements ServerAuthenticationEntryPoint, ServerAccessDeniedHandler {
+
+    @Override
+    public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
+        exchange.getResponse().getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
+        return escribir(exchange, HttpStatus.UNAUTHORIZED,
+                "Token ausente, inválido o expirado. Inicia sesión en /api/auth/login.");
+    }
+
+    @Override
+    public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException ex) {
+        return escribir(exchange, HttpStatus.FORBIDDEN, "Tu rol no tiene permiso para realizar esta acción.");
+    }
+
+    private Mono<Void> escribir(ServerWebExchange exchange, HttpStatus status, String mensaje) {
+        var response = exchange.getResponse();
+        response.setStatusCode(status);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        byte[] cuerpo = "{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"%s\",\"mensaje\":\"%s\"}"
+                .formatted(LocalDateTime.now(), status.value(), status.getReasonPhrase(), mensaje)
+                .getBytes(StandardCharsets.UTF_8);
+        return response.writeWith(Mono.just(response.bufferFactory().wrap(cuerpo)));
+    }
+}
+
+========================================
 ARCHIVO: ./gateway/src/main/java/co/edu/uptc/gateway/seguridad/SecurityConfig.java
-====================
-// gateway/src/main/java/co/edu/uptc/gateway/seguridad/SecurityConfig.java
+========================================
 package co.edu.uptc.gateway.seguridad;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -5828,9 +6163,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Flux;
 
@@ -5861,9 +6196,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
+            ManejadorErroresSeguridad manejador) {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(manejador)
+                        .accessDeniedHandler(manejador))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/auth/usuarios").hasAuthority("ROLE_ADMINISTRADOR")
@@ -5872,6 +6211,8 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.PUT, "/api/admisiones/*/alta").hasAuthority("ROLE_MEDICO")
                         .pathMatchers(HttpMethod.POST, "/api/admisiones/inventario-camas")
                         .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ADMISIONES")
+                        .pathMatchers(HttpMethod.GET, "/api/admisiones/inventario-camas/reporte-ocupacion")
+                        .hasAuthority("ROLE_ADMINISTRADOR")
                         .pathMatchers(HttpMethod.GET, "/api/admisiones/**")
                         .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_MEDICO", "ROLE_ADMINISTRADOR")
                         .pathMatchers(HttpMethod.GET, "/api/consultas/admisiones/reporte/**")
@@ -5886,14 +6227,16 @@ public class SecurityConfig {
                         .pathMatchers("/api/laboratorio/**").hasAnyAuthority("ROLE_MEDICO", "ROLE_LABORATORIO")
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(manejador)
+                        .accessDeniedHandler(manejador)
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
     }
 }
 
-====================
+========================================
 ARCHIVO: ./gateway/src/main/java/co/edu/uptc/gateway/GatewayApplication.java
-====================
+========================================
 package co.edu.uptc.gateway;
 
 import org.springframework.boot.SpringApplication;
@@ -5907,3 +6250,4 @@ public class GatewayApplication {
 	}
 
 }
+
