@@ -1,7 +1,8 @@
 package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador;
 
 import co.edu.uptc.admisiones_service.aplicacion.AdmisionUseCase;
-import co.edu.uptc.admisiones_service.dominio.Admision;
+import co.edu.uptc.admisiones_service.infraestructura.entrada.controlador.dto.AdmisionResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,22 +19,24 @@ public class AdmisionController {
     }
 
     @PostMapping("/ingreso")
-    public ResponseEntity<Admision> registrarIngreso(
+    public ResponseEntity<AdmisionResponse> registrarIngreso(
             @RequestParam String pacienteId,
             @RequestParam String sedeId,
             @RequestParam String servicio) {
-        Admision admision = admisionUseCase.registrarIngreso(pacienteId, sedeId, servicio);
-        return ResponseEntity.ok(admision);
+        var admision = admisionUseCase.registrarIngreso(pacienteId, sedeId, servicio);
+        return ResponseEntity.status(HttpStatus.CREATED).body(AdmisionResponse.desde(admision));
     }
 
     @GetMapping
-    public ResponseEntity<List<Admision>> listarTodas() {
-        return ResponseEntity.ok(admisionUseCase.listarTodas());
+    public ResponseEntity<List<AdmisionResponse>> listarTodas() {
+        return ResponseEntity.ok(admisionUseCase.listarTodas().stream()
+                .map(AdmisionResponse::desde)
+                .toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Admision> buscarPorId(@PathVariable String id) {
-        return ResponseEntity.ok(admisionUseCase.buscarPorId(id));
+    public ResponseEntity<AdmisionResponse> buscarPorId(@PathVariable String id) {
+        return ResponseEntity.ok(AdmisionResponse.desde(admisionUseCase.buscarPorId(id)));
     }
 
     @PutMapping("/{id}/traslado")

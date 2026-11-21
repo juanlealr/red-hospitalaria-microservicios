@@ -1,6 +1,8 @@
 package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.admisiones_service.dominio.Admision;
+import co.edu.uptc.admisiones_service.dominio.EstadoAdmision;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -11,4 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * (paquete aplicacion) solo conoce RepositorioAdmisiones.
  */
 public interface AdmisionJpaRepository extends JpaRepository<Admision, String> {
+    boolean existsByPacienteIdAndEstado(String pacienteId, EstadoAdmision estado);
 }

@@ -10,6 +10,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException; // reemplaza el import de orm
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -76,6 +78,16 @@ public class GlobalExceptionHandler {
             ObjectOptimisticLockingFailureException ex) {
         return construirRespuesta(HttpStatus.CONFLICT,
                 "El inventario de camas cambió mientras procesábamos tu solicitud. Intenta de nuevo.");
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> manejarIntegridad(DataIntegrityViolationException ex) {
+        String causa = String.valueOf(ex.getMostSpecificCause().getMessage());
+        if (causa.contains("ux_admision_activa_por_paciente")) {
+            return construirRespuesta(HttpStatus.CONFLICT,
+                    "El paciente ya tiene una admisión activa. Debe darse de alta antes de registrar un nuevo ingreso.");
+        }
+        return construirRespuesta(HttpStatus.CONFLICT, "La operación viola una restricción de datos.");
     }
 
     // --- catch-all, ahora sí al final de verdad ---

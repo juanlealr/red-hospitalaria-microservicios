@@ -40,6 +40,13 @@ public class AdmisionService implements AdmisionUseCase {
     @Override
     @Transactional
     public Admision registrarIngreso(String pacienteId, String sedeId, String servicio) {
+
+        if (pacienteId != null && repositorioAdmisiones.existeActivaDelPaciente(pacienteId)) {
+            throw new IllegalStateException(
+                    "El paciente %s ya tiene una admisión activa. Debe darse de alta antes de registrar un nuevo ingreso."
+                            .formatted(pacienteId));
+        }
+
         DisponibilidadCama disponibilidad = inventarioCamasUseCase.consultarDisponibilidad(sedeId, servicio);
 
         Admision admision = admisionFactory.registrarIngreso(pacienteId, sedeId, disponibilidad);

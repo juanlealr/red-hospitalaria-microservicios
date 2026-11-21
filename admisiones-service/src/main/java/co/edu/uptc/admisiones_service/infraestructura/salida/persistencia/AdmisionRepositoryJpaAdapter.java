@@ -2,6 +2,8 @@ package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
 
 import co.edu.uptc.admisiones_service.aplicacion.RepositorioAdmisiones;
 import co.edu.uptc.admisiones_service.dominio.Admision;
+import co.edu.uptc.admisiones_service.dominio.EstadoAdmision;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -36,5 +38,10 @@ public class AdmisionRepositoryJpaAdapter implements RepositorioAdmisiones {
     @Override
     public Admision guardar(Admision admision) {
         return admisionJpaRepository.save(admision);
+    }
+
+    @Override
+    public boolean existeActivaDelPaciente(String pacienteId) {
+        return admisionJpaRepository.existsByPacienteIdAndEstado(pacienteId, EstadoAdmision.ACTIVA);
     }
 }

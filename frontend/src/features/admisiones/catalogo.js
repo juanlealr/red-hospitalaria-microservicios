@@ -19,3 +19,14 @@ export function nivelOcupacion(i) {
     if (p >= 70) return { clase: 'alto', texto: 'Alta' };
     return { clase: 'ok', texto: 'Disponible' };
 }
+
+export function resumenPorSede(inventario) {
+    const mapa = new Map();
+    inventario.forEach((i) => {
+        const acum = mapa.get(i.sedeId) ?? { sedeId: i.sedeId, camasTotales: 0, camasOcupadas: 0 };
+        acum.camasTotales += i.camasTotales;
+        acum.camasOcupadas += i.camasOcupadas;
+        mapa.set(i.sedeId, acum);
+    });
+    return [...mapa.values()].sort((a, b) => a.sedeId.localeCompare(b.sedeId));
+}

@@ -22,4 +22,6 @@ public interface RepositorioAdmisiones {
     Optional<Admision> buscarPorId(String id);
 
     Admision guardar(Admision admision);
+
+    boolean existeActivaDelPaciente(String pacienteId);
 }

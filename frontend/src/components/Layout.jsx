@@ -5,7 +5,8 @@ const ENLACES = {
     ADMISIONES: [['/camas', 'Disponibilidad'], ['/admisiones/nueva', 'Nueva admisión'],
     ['/admisiones', 'Admisiones'], ['/capacidad', 'Capacidad']],
     MEDICO: [['/admisiones', 'Admisiones'], ['/paciente', 'Paciente consolidado']],
-    ADMINISTRADOR: [['/reporte', 'Reporte de ocupación'], ['/capacidad', 'Capacidad'], ['/usuarios', 'Usuarios']],
+    ADMINISTRADOR: [['/reporte', 'Reporte de ocupación'], ['/camas', 'Disponibilidad'],
+    ['/admisiones', 'Admisiones'], ['/capacidad', 'Capacidad'], ['/usuarios', 'Usuarios']],
     LABORATORIO: [],
     FARMACEUTICO: [],
 };
