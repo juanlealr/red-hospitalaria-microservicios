@@ -5,7 +5,16 @@ import java.util.List;
 
 public interface AdmisionUseCase {
 
-    Admision registrarIngreso(String pacienteId, String sedeId, String servicio);
+    Admision registrarIngreso(
+            String pacienteId,
+            String sedeId,
+            String servicio,
+            String medicoTratante,
+            String motivoIngreso);
+
+    Admision verificarCoberturaAdmision(String admisionId);
+
+    int consultarCoberturaPaciente(String pacienteId);
 
     void trasladarPaciente(String admisionId, String sedeDestinoId, String servicioDestino);
 

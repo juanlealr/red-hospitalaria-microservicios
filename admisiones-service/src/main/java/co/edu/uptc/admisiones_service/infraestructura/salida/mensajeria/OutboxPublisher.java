@@ -36,7 +36,7 @@ public class OutboxPublisher {
                 log.info("Outbox: Evento {} ({}) publicado en tópico '{}'", evento.getId(), evento.getTipo(), topico);
             } catch (Exception e) {
                 log.warn("Outbox: No se pudo enviar el evento {} (se reintentará): {}", evento.getId(), e.getMessage());
-                return; // Mantiene orden estricto interrumpiendo el lote
+                return;
             }
         }
     }
@@ -44,6 +44,7 @@ public class OutboxPublisher {
     private String determinarTopico(String tipoEvento) {
         return switch (tipoEvento) {
             case "PacienteIngresado" -> "admisiones.ingresos-registrados";
+            case "CoberturaPacienteVerificada" -> "admisiones.cobertura-verificada";
             case "PacienteTrasladado" -> "admisiones.pacientes-trasladados";
             case "PacienteDadoDeAlta" -> "admisiones.paciente-dado-alta";
             default -> "admisiones.eventos-generales";

@@ -30,6 +30,12 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+admisiones:
+  aseguradora:
+    url: ${ASEGURADORA_URL:http://localhost:9095/api/aseguradora}
+    connect-timeout-ms: 2000
+    read-timeout-ms: 3000
+
 eureka:
   instance:
     prefer-ip-address: true

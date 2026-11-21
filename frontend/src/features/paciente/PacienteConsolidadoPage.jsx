@@ -76,7 +76,12 @@ export default function PacienteConsolidadoPage() {
                                 <BadgeEstado estado={a.estado} />
                             </div>
                             <dl className="datos">
-                                <dt>Sede actual</dt><dd>{a.sedeActualId}</dd>
+                                <dt>Ubicación actual</dt>
+                                <dd>{a.sedeActualId}{a.servicioActual ? ` · ${a.servicioActual}` : ''}</dd>
+                                <dt>Médico tratante</dt><dd>{a.medicoTratante ?? '—'}</dd>
+                                <dt>Motivo de ingreso</dt><dd>{a.motivoIngreso ?? '—'}</dd>
+                                <dt>Cobertura</dt>
+                                <dd>{a.coberturaPorcentaje == null ? 'Sin verificar' : `${a.coberturaPorcentaje}%`}</dd>
                                 <dt>Alta</dt><dd>{fechaHora(a.fechaAlta)}</dd>
                                 <dt>Traslados</dt><dd>{a.totalTraslados}</dd>
                             </dl>
@@ -85,7 +90,9 @@ export default function PacienteConsolidadoPage() {
                                     {a.traslados.map((t, i) => (
                                         <li key={`${a.admisionId}-${i}`}>
                                             <strong>Traslado</strong>
-                                            <span>{t.sedeOrigenId} → {t.sedeDestinoId}</span>
+                                            <span>
+                                                {t.sedeOrigenId}{t.servicioOrigen ? ` · ${t.servicioOrigen}` : ''} → {t.sedeDestinoId}{t.servicioDestino ? ` · ${t.servicioDestino}` : ''}
+                                            </span>
                                             <small>{fechaHora(t.fecha)}</small>
                                         </li>
                                     ))}

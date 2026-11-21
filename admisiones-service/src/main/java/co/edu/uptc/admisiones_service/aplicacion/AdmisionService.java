@@ -3,14 +3,17 @@ package co.edu.uptc.admisiones_service.aplicacion;
 import co.edu.uptc.admisiones_service.compartido.RecursoNoEncontradoException;
 import co.edu.uptc.admisiones_service.dominio.Admision;
 import co.edu.uptc.admisiones_service.dominio.DisponibilidadCama;
-import co.edu.uptc.admisiones_service.infraestructura.salida.laboratorio.VerificadorLaboratorioGrpcAdapter;
 import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEvent;
 import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEventRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdmisionService implements AdmisionUseCase {
@@ -18,28 +21,39 @@ public class AdmisionService implements AdmisionUseCase {
     private final RepositorioAdmisiones repositorioAdmisiones;
     private final AdmisionFactory admisionFactory;
     private final TrasladoPacienteService trasladoPacienteService;
-    private final VerificadorLaboratorioGrpcAdapter verificadorLaboratorioGrpc;
+    private final VerificadorLaboratorioPuerto verificadorLaboratorio;
+    private final ConsultaCoberturaExterna consultaCoberturaExterna;
     private final OutboxEventRepository outboxRepository;
     private final InventarioCamasUseCase inventarioCamasUseCase;
+    private final ObjectMapper objectMapper;
 
     public AdmisionService(
             RepositorioAdmisiones repositorioAdmisiones,
             AdmisionFactory admisionFactory,
             TrasladoPacienteService trasladoPacienteService,
-            VerificadorLaboratorioGrpcAdapter verificadorLaboratorioGrpc,
+            VerificadorLaboratorioPuerto verificadorLaboratorio,
+            ConsultaCoberturaExterna consultaCoberturaExterna,
             OutboxEventRepository outboxRepository,
-            InventarioCamasUseCase inventarioCamasUseCase) {
+            InventarioCamasUseCase inventarioCamasUseCase,
+            ObjectMapper objectMapper) {
         this.repositorioAdmisiones = repositorioAdmisiones;
         this.admisionFactory = admisionFactory;
         this.trasladoPacienteService = trasladoPacienteService;
-        this.verificadorLaboratorioGrpc = verificadorLaboratorioGrpc;
+        this.verificadorLaboratorio = verificadorLaboratorio;
+        this.consultaCoberturaExterna = consultaCoberturaExterna;
         this.outboxRepository = outboxRepository;
         this.inventarioCamasUseCase = inventarioCamasUseCase;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     @Transactional
-    public Admision registrarIngreso(String pacienteId, String sedeId, String servicio) {
+    public Admision registrarIngreso(
+            String pacienteId,
+            String sedeId,
+            String servicio,
+            String medicoTratante,
+            String motivoIngreso) {
 
         if (pacienteId != null && repositorioAdmisiones.existeActivaDelPaciente(pacienteId)) {
             throw new IllegalStateException(
@@ -49,23 +63,51 @@ public class AdmisionService implements AdmisionUseCase {
 
         DisponibilidadCama disponibilidad = inventarioCamasUseCase.consultarDisponibilidad(sedeId, servicio);
 
-        Admision admision = admisionFactory.registrarIngreso(pacienteId, sedeId, disponibilidad);
+        Admision admision = admisionFactory.registrarIngreso(
+                pacienteId, sedeId, medicoTratante, motivoIngreso, disponibilidad);
         Admision guardada = repositorioAdmisiones.guardar(admision);
 
         inventarioCamasUseCase.ocuparCama(sedeId, servicio);
 
-        String payload = """
-                {
-                    "admisionId": "%s",
-                    "pacienteId": "%s",
-                    "sedeInicialId": "%s",
-                    "servicioInicial": "%s",
-                    "fechaIngreso": "%s"
-                }""".formatted(guardada.id(), guardada.pacienteId(), guardada.sedeActualId(),
-                guardada.servicioActual(), guardada.fechaIngreso());
+        Map<String, Object> evento = new LinkedHashMap<>();
+        evento.put("admisionId", guardada.id());
+        evento.put("pacienteId", guardada.pacienteId());
+        evento.put("sedeInicialId", guardada.sedeActualId());
+        evento.put("servicioInicial", guardada.servicioActual());
+        evento.put("medicoTratante", guardada.medicoTratante());
+        evento.put("motivoIngreso", guardada.motivoIngreso());
+        evento.put("fechaIngreso", guardada.fechaIngreso().toString());
 
-        outboxRepository.save(new OutboxEvent(guardada.pacienteId(), "PacienteIngresado", payload));
+        outboxRepository.save(new OutboxEvent(guardada.pacienteId(), "PacienteIngresado", serializar(evento)));
         return guardada;
+    }
+
+    @Override
+    @Transactional
+    public Admision verificarCoberturaAdmision(String admisionId) {
+        Admision admision = buscarPorId(admisionId);
+        int porcentaje = consultaCoberturaExterna.consultarPorcentajeCobertura(admision.pacienteId());
+        admision.registrarCobertura(porcentaje);
+        Admision guardada = repositorioAdmisiones.guardar(admision);
+
+        Map<String, Object> evento = new LinkedHashMap<>();
+        evento.put("admisionId", guardada.id());
+        evento.put("pacienteId", guardada.pacienteId());
+        evento.put("coberturaPorcentaje", porcentaje);
+        evento.put("fechaVerificacion", LocalDateTime.now().toString());
+
+        outboxRepository.save(
+                new OutboxEvent(guardada.pacienteId(), "CoberturaPacienteVerificada", serializar(evento)));
+        return guardada;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int consultarCoberturaPaciente(String pacienteId) {
+        if (pacienteId == null || pacienteId.isBlank()) {
+            throw new IllegalArgumentException("El id del paciente es obligatorio.");
+        }
+        return consultaCoberturaExterna.consultarPorcentajeCobertura(pacienteId.trim());
     }
 
     @Override
@@ -85,16 +127,16 @@ public class AdmisionService implements AdmisionUseCase {
         inventarioCamasUseCase.liberarCama(sedeOrigenId, servicioOrigen);
         inventarioCamasUseCase.ocuparCama(sedeDestinoId, servicioDestino);
 
-        String payload = """
-                {
-                    "admisionId": "%s",
-                    "pacienteId": "%s",
-                    "sedeOrigenId": "%s",
-                    "sedeDestinoId": "%s",
-                    "fechaTraslado": "%s"
-                }""".formatted(admision.id(), admision.pacienteId(), sedeOrigenId, sedeDestinoId, fechaTraslado);
+        Map<String, Object> evento = new LinkedHashMap<>();
+        evento.put("admisionId", admision.id());
+        evento.put("pacienteId", admision.pacienteId());
+        evento.put("sedeOrigenId", sedeOrigenId);
+        evento.put("servicioOrigen", servicioOrigen);
+        evento.put("sedeDestinoId", sedeDestinoId);
+        evento.put("servicioDestino", servicioDestino);
+        evento.put("fechaTraslado", fechaTraslado.toString());
 
-        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteTrasladado", payload));
+        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteTrasladado", serializar(evento)));
     }
 
     @Override
@@ -102,7 +144,7 @@ public class AdmisionService implements AdmisionUseCase {
     public void darDeAlta(String admisionId) {
         Admision admision = buscarPorId(admisionId);
 
-        boolean ordenesPendientes = verificadorLaboratorioGrpc.tieneOrdenesPendientes(admision.pacienteId());
+        boolean ordenesPendientes = verificadorLaboratorio.tieneOrdenesPendientes(admision.pacienteId());
 
         LocalDateTime fechaAlta = LocalDateTime.now();
         admision.darDeAlta(ordenesPendientes, fechaAlta);
@@ -110,15 +152,13 @@ public class AdmisionService implements AdmisionUseCase {
 
         inventarioCamasUseCase.liberarCama(admision.sedeActualId(), admision.servicioActual());
 
-        String payload = """
-                {
-                    "admisionId": "%s",
-                    "pacienteId": "%s",
-                    "sedeId": "%s",
-                    "fechaAlta": "%s"
-                }""".formatted(admision.id(), admision.pacienteId(), admision.sedeActualId(), fechaAlta);
+        Map<String, Object> evento = new LinkedHashMap<>();
+        evento.put("admisionId", admision.id());
+        evento.put("pacienteId", admision.pacienteId());
+        evento.put("sedeId", admision.sedeActualId());
+        evento.put("fechaAlta", fechaAlta.toString());
 
-        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteDadoDeAlta", payload));
+        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteDadoDeAlta", serializar(evento)));
     }
 
     @Override
@@ -132,5 +172,13 @@ public class AdmisionService implements AdmisionUseCase {
     @Transactional(readOnly = true)
     public List<Admision> listarTodas() {
         return repositorioAdmisiones.listarTodos();
+    }
+
+    private String serializar(Map<String, Object> datos) {
+        try {
+            return objectMapper.writeValueAsString(datos);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("No se pudo serializar el evento de admisión.", e);
+        }
     }
 }

@@ -1,0 +1,222 @@
+
+[1m== A. AUTENTICACIÓN — login ==[0m
+  [32mOK   [0m A01 login admin semilla
+  [32mOK   [0m A02 login devuelve rol ADMINISTRADOR
+  [32mOK   [0m A03 login devuelve expiraEnSegundos > 0
+  [32mOK   [0m A04 contraseña incorrecta -> 401
+  [32mOK   [0m A05 correo inexistente -> 401
+  [32mOK   [0m A06 mismo mensaje para correo y clave malos (no filtra cuál falló)
+  [32mOK   [0m A07 cuerpo vacío {} -> 400
+  [32mOK   [0m A08 sin password -> 400
+  [32mOK   [0m A09 password en blanco -> 400
+  [31mFALLA[0m A10 JSON mal formado -> 400 (si da 500: falta handler en auth)  (esperado 400, obtuvo 500)  {"timestamp":"2026-11-21T12:22:53.613021","status":500,"error":"Internal Server Error","mensaje":"Error interno del servidor: JSON parse error: Unexpected end-o
+  [32mOK   [0m A11 inyección SQL en email -> 401 (no 500)
+
+[1m== B. AUTENTICACIÓN — crear usuarios (solo ADMINISTRADOR) ==[0m
+  [32mOK   [0m B01 admin crea usuario ADMISIONES -> 201
+  [32mOK   [0m B02 respuesta trae el rol ADMISIONES
+  [32mOK   [0m B03 respuesta NO expone password/hash
+  [32mOK   [0m B04 login de ADMISIONES -> 200
+  [32mOK   [0m B05 token de ADMISIONES trae rol correcto
+  [32mOK   [0m B01 admin crea usuario MEDICO -> 201
+  [32mOK   [0m B02 respuesta trae el rol MEDICO
+  [32mOK   [0m B03 respuesta NO expone password/hash
+  [32mOK   [0m B04 login de MEDICO -> 200
+  [32mOK   [0m B05 token de MEDICO trae rol correcto
+  [32mOK   [0m B01 admin crea usuario LABORATORIO -> 201
+  [32mOK   [0m B02 respuesta trae el rol LABORATORIO
+  [32mOK   [0m B03 respuesta NO expone password/hash
+  [32mOK   [0m B04 login de LABORATORIO -> 200
+  [32mOK   [0m B05 token de LABORATORIO trae rol correcto
+  [32mOK   [0m B01 admin crea usuario FARMACEUTICO -> 201
+  [32mOK   [0m B02 respuesta trae el rol FARMACEUTICO
+  [32mOK   [0m B03 respuesta NO expone password/hash
+  [32mOK   [0m B04 login de FARMACEUTICO -> 200
+  [32mOK   [0m B05 token de FARMACEUTICO trae rol correcto
+  [32mOK   [0m B01 admin crea usuario ADMINISTRADOR -> 201
+  [32mOK   [0m B02 respuesta trae el rol ADMINISTRADOR
+  [32mOK   [0m B03 respuesta NO expone password/hash
+  [32mOK   [0m B04 login de ADMINISTRADOR -> 200
+  [32mOK   [0m B05 token de ADMINISTRADOR trae rol correcto
+  [32mOK   [0m B06 correo duplicado -> 409
+  [31mFALLA[0m B07 correo duplicado con otras MAYÚSCULAS -> 409 (si da 201: bug de case-sensitivity)  (esperado 409, obtuvo 201)  {"id":"eae933e5-692a-449d-a5b3-eed5521a99c3","email":"MEDICO.1795281772@HOSPITAL.TEST","rol":"MEDICO"}
+  [32mOK   [0m B08 clave de 7 caracteres -> 400
+  [32mOK   [0m B09 clave de 8 caracteres (límite) -> 201
+  [32mOK   [0m B10 correo con formato inválido -> 400
+  [32mOK   [0m B11 sin rol -> 400
+  [31mFALLA[0m B12 rol inexistente -> 400 (si da 500: falta handler de enum inválido)  (esperado 400, obtuvo 500)  {"timestamp":"2026-11-21T12:22:54.766823","status":500,"error":"Internal Server Error","mensaje":"Error interno del servidor: JSON parse error: Cannot deseriali
+  [32mOK   [0m B13 sin password -> 400
+  [32mOK   [0m B14 crear usuario SIN token -> 401
+  [32mOK   [0m B15 ADMISIONES intenta crear usuario -> 403
+  [32mOK   [0m B15 MEDICO intenta crear usuario -> 403
+  [32mOK   [0m B15 LABORATORIO intenta crear usuario -> 403
+  [32mOK   [0m B15 FARMACEUTICO intenta crear usuario -> 403
+  [32mOK   [0m B16 autoescalada: MEDICO no puede crearse un admin
+
+[1m== C. AUTENTICACIÓN — validez del token ==[0m
+  [32mOK   [0m C01 sin token -> 401
+  [32mOK   [0m C02 token basura -> 401
+  [32mOK   [0m C04 payload alterado con firma original -> 401
+  [32mOK   [0m C05 token alg=none sin firma -> 401
+  [32mOK   [0m C06 firma truncada -> 401
+  [32mOK   [0m C08 admisiones-service directo (8080) sin token -> 401 (defensa en profundidad)
+  [32mOK   [0m C09 admisiones-service directo con token falsificado -> 401
+  [32mOK   [0m C10 /api/status público en el servicio -> 200
+  (C11 token EXPIRADO: prueba manual — ver plan, pon expiracion-ms=5000)
+
+[1m== D. AUTORIZACIÓN — matriz rol × endpoint (vía gateway) ==[0m
+  [32mOK   [0m D01 POST ingreso — ADMISIONES debe poder
+  [32mOK   [0m D01 POST ingreso — MEDICO NO debe poder
+  [32mOK   [0m D01 POST ingreso — LABORATORIO NO debe poder
+  [32mOK   [0m D01 POST ingreso — FARMACEUTICO NO debe poder
+  [32mOK   [0m D01 POST ingreso — ADMINISTRADOR NO debe poder
+  [32mOK   [0m D02 PUT traslado — ADMISIONES NO debe poder
+  [32mOK   [0m D02 PUT traslado — MEDICO debe poder
+  [32mOK   [0m D02 PUT traslado — LABORATORIO NO debe poder
+  [32mOK   [0m D02 PUT traslado — FARMACEUTICO NO debe poder
+  [32mOK   [0m D02 PUT traslado — ADMINISTRADOR NO debe poder
+  [32mOK   [0m D03 PUT alta — ADMISIONES NO debe poder
+  [32mOK   [0m D03 PUT alta — MEDICO debe poder
+  [32mOK   [0m D03 PUT alta — LABORATORIO NO debe poder
+  [32mOK   [0m D03 PUT alta — FARMACEUTICO NO debe poder
+  [32mOK   [0m D03 PUT alta — ADMINISTRADOR NO debe poder
+  [32mOK   [0m D04 POST inventario-camas — ADMISIONES debe poder
+  [32mOK   [0m D04 POST inventario-camas — MEDICO NO debe poder
+  [32mOK   [0m D04 POST inventario-camas — LABORATORIO NO debe poder
+  [32mOK   [0m D04 POST inventario-camas — FARMACEUTICO NO debe poder
+  [32mOK   [0m D04 POST inventario-camas — ADMINISTRADOR debe poder
+  [32mOK   [0m D05 GET reporte-ocupacion — ADMISIONES NO debe poder
+  [32mOK   [0m D05 GET reporte-ocupacion — MEDICO NO debe poder
+  [32mOK   [0m D05 GET reporte-ocupacion — LABORATORIO NO debe poder
+  [32mOK   [0m D05 GET reporte-ocupacion — FARMACEUTICO NO debe poder
+  [32mOK   [0m D05 GET reporte-ocupacion — ADMINISTRADOR debe poder
+  [32mOK   [0m D06 GET admisiones — ADMISIONES debe poder
+  [32mOK   [0m D06 GET admisiones — MEDICO debe poder
+  [32mOK   [0m D06 GET admisiones — LABORATORIO NO debe poder
+  [32mOK   [0m D06 GET admisiones — FARMACEUTICO NO debe poder
+  [32mOK   [0m D06 GET admisiones — ADMINISTRADOR debe poder
+  [32mOK   [0m D07 GET inventario todas — ADMISIONES debe poder
+  [32mOK   [0m D07 GET inventario todas — MEDICO debe poder
+  [32mOK   [0m D07 GET inventario todas — LABORATORIO NO debe poder
+  [32mOK   [0m D07 GET inventario todas — FARMACEUTICO NO debe poder
+  [32mOK   [0m D07 GET inventario todas — ADMINISTRADOR debe poder
+  [32mOK   [0m D08 GET consultas admisiones — ADMISIONES debe poder
+  [32mOK   [0m D08 GET consultas admisiones — MEDICO debe poder
+  [32mOK   [0m D08 GET consultas admisiones — LABORATORIO NO debe poder
+  [32mOK   [0m D08 GET consultas admisiones — FARMACEUTICO NO debe poder
+  [32mOK   [0m D08 GET consultas admisiones — ADMINISTRADOR debe poder
+  [32mOK   [0m D09 GET consultas reporte — ADMISIONES NO debe poder
+  [32mOK   [0m D09 GET consultas reporte — MEDICO NO debe poder
+  [32mOK   [0m D09 GET consultas reporte — LABORATORIO NO debe poder
+  [32mOK   [0m D09 GET consultas reporte — FARMACEUTICO NO debe poder
+  [32mOK   [0m D09 GET consultas reporte — ADMINISTRADOR debe poder
+  [32mOK   [0m D10 POST usuarios — ADMISIONES NO debe poder
+  [32mOK   [0m D10 POST usuarios — MEDICO NO debe poder
+  [32mOK   [0m D10 POST usuarios — LABORATORIO NO debe poder
+  [32mOK   [0m D10 POST usuarios — FARMACEUTICO NO debe poder
+  [32mOK   [0m D10 POST usuarios — ADMINISTRADOR debe poder
+
+[1m== E. ADMISIONES — capacidad de camas (HU-02 / carga de inventario) ==[0m
+  [32mOK   [0m E01 ADMISIONES registra S1/URGENCIAS=1 -> 201
+  [32mOK   [0m E02 ADMINISTRADOR registra S1/UCI=1 -> 201
+  [32mOK   [0m E03 S2/URGENCIAS=2 -> 201
+  [32mOK   [0m E04 S3/URGENCIAS=1 -> 201
+  [32mOK   [0m E05 S3/UCI=2 -> 201
+  [32mOK   [0m E06 capacidad negativa -> 400
+  [32mOK   [0m E07 sede vacía -> 400
+  [32mOK   [0m E08 servicio vacío -> 400
+  [32mOK   [0m E09 total no numérico -> 400
+  [32mOK   [0m E11 listar todas (HU-02) -> 200
+  [32mOK   [0m E12 la lista incluye las 2 filas de S1
+  [32mOK   [0m E13 disponibilidad por sede y servicio -> 200
+  [31mFALLA[0m E14 camasDisponibles = 1  (esperado 1, obtuvo null)  {"sedeId":"SEDE1_1795281772","servicio":"URGENCIAS","camasTotales":1,"camasOcupadas":0}
+  [32mOK   [0m E15 por sede -> 200
+  [32mOK   [0m E16 por sede devuelve 2 servicios
+  [32mOK   [0m E17 sede/servicio inexistente -> 404
+  [32mOK   [0m E18 falta parámetro servicio -> 400
+
+[1m== F. ADMISIONES — HU-01 registrar ingreso ==[0m
+  [32mOK   [0m F01 ingreso paciente A en S1/URGENCIAS -> 201
+  [32mOK   [0m F02 estado ACTIVA
+  [32mOK   [0m F03 sede y servicio correctos
+  [32mOK   [0m F04 sin traslados al inicio
+  [32mOK   [0m F05 la cama quedó ocupada (disponibles=0)
+  [32mOK   [0m F05b camasOcupadas = 1
+  [32mOK   [0m F06 sin cama libre -> 409
+  [31mFALLA[0m F07 paciente con admisión ACTIVA no puede reingresar -> 409  (esperado 409, obtuvo 201)  {"id":"04dae85c-753f-4126-a1e3-6f0ed5eb980b","pacienteId":"PAC1795281772A","sedeActualId":"SEDE2_1795281772","servicioActual":"URGENCIAS","estado":"ACTIVA","fec
+  [32mOK   [0m F08 sede sin inventario -> 404
+  [32mOK   [0m F09 servicio sin inventario -> 404
+  [32mOK   [0m F10 paciente en blanco -> 400
+  [32mOK   [0m F11 falta pacienteId -> 400
+  [32mOK   [0m F12 falta sedeId -> 400
+  [32mOK   [0m F13 MEDICO no puede registrar ingreso -> 403
+  [32mOK   [0m F14 ADMINISTRADOR no puede registrar ingreso -> 403
+  [32mOK   [0m F15 GET admisión por id -> 200
+  [32mOK   [0m F16 GET admisión inexistente -> 404
+  [32mOK   [0m F17 listar admisiones -> 200
+  [32mOK   [0m F18 la lista contiene la admisión A
+  [32mOK   [0m F19 bajar capacidad por debajo de las ocupadas -> 400
+
+[1m== G. ADMISIONES — HU-03 traslado ==[0m
+  [32mOK   [0m G01 traslado A: S1/URG -> S2/URG -> 204
+  [32mOK   [0m G02 origen liberado (ocupadas=0)
+  [31mFALLA[0m G03 destino ocupado (ocupadas=1)  (esperado 1, obtuvo 2)  {"sedeId":"SEDE2_1795281772","servicio":"URGENCIAS","camasTotales":2,"camasOcupadas":2}
+  [32mOK   [0m G04 historial conserva 1 traslado
+  [32mOK   [0m G05 sede actual = S2
+  [32mOK   [0m G06 el traslado guarda origen y destino
+  [31mFALLA[0m G07 trasladar al mismo sitio -> 400  (esperado 400, obtuvo 409)  {"timestamp":"2026-11-21T12:22:56.315734","status":409,"error":"Conflict","mensaje":"No se puede trasladar: no hay cama confirmada disponible en la sede destino
+  [32mOK   [0m G08 (prep) ingreso C en S1/URG (ya libre) -> 201
+  [32mOK   [0m G09 traslado entre servicios de la misma sede -> 204
+  [32mOK   [0m G10 (prep) ingreso D en S1/URG -> 201
+  [32mOK   [0m G11 destino SIN cama (UCI llena) -> 409 [HU-03 criterio 1]
+  [32mOK   [0m G12 el traslado rechazado NO altera la admisión (sigue en URGENCIAS, 0 traslados)
+  [32mOK   [0m G13 destino sin inventario -> 404
+  [32mOK   [0m G14 admisión inexistente -> 404
+  [32mOK   [0m G15 falta servicioDestino -> 400
+  [32mOK   [0m G16 ADMISIONES no puede trasladar -> 403
+  [32mOK   [0m G17 ADMINISTRADOR no puede trasladar -> 403
+  [32mOK   [0m G18 sin token -> 401
+
+[1m== H. ADMISIONES — HU-10 reporte de ocupación (S1: 2 camas, ambas ocupadas) ==[0m
+  [32mOK   [0m H01 reporte S1 como ADMINISTRADOR -> 200
+  [32mOK   [0m H02 camasTotales=2
+  [32mOK   [0m H03 camasOcupadas=2
+  [32mOK   [0m H04 camasLibres=0
+  [31mFALLA[0m H05 porcentajeOcupacion=100  (esperado 100, obtuvo 100.0)  {"sedeId":"SEDE1_1795281772","camasTotales":2,"camasOcupadas":2,"camasLibres":0,"porcentajeOcupacion":100.0,"servicios":[{"servicio":"UCI","camasTotales":1,"cam
+  [32mOK   [0m H06 detalle por servicio (2 filas)
+  [32mOK   [0m H07 reporte S2 (1 de 2 ocupada)
+  [31mFALLA[0m H08 porcentaje S2 = 50  (esperado 50, obtuvo 100.0)  {"sedeId":"SEDE2_1795281772","camasTotales":2,"camasOcupadas":2,"camasLibres":0,"porcentajeOcupacion":100.0,"servicios":[{"servicio":"URGENCIAS","camasTotales":
+  [32mOK   [0m H09 sede inexistente -> 404
+  [32mOK   [0m H10 falta sedeId -> 400
+  [32mOK   [0m H11 ADMISIONES no ve el reporte -> 403
+  [32mOK   [0m H12 subir capacidad S1/URG a 3 -> 201 (actualiza, no duplica)
+  [32mOK   [0m H13 S1 sigue teniendo 2 filas
+
+[1m== I. ADMISIONES — HU-09 alta médica (requiere laboratorio-service) ==[0m
+  [32mOK   [0m I01 ADMISIONES no puede dar de alta -> 403
+  [32mOK   [0m I02 alta de admisión inexistente -> 404 (o 503 si lab caído)
+  [33mSKIP [0m I03 alta A -> 503: laboratorio-service no responde (válido; prueba el camino feliz con el lab arriba)
+  (I10 alta RECHAZADA por orden de laboratorio pendiente: prueba manual — ver plan)
+
+[1m== J. CONCURRENCIA e INTEGRIDAD ==[0m
+  [32mOK   [0m J01 2 ingresos simultáneos, 1 sola cama -> uno 201 y otro 409
+  [32mOK   [0m J02 ocupadas = 1 (nunca 2)
+  [32mOK   [0m J03 mismo paciente 2 veces a la vez -> uno 201 y otro 409
+  [32mOK   [0m J04 solo 1 cama UCI ocupada (el perdedor no deja la cama tomada)
+  [32mOK   [0m J05 paciente con comilla doble en el ID -> 201 (revisa luego que el evento llegue a consultas)
+
+[1m== K. HU-08 consultas / CQRS (consistencia eventual vía Kafka, espera 8 s) ==[0m
+  [32mOK   [0m K01 consolidado del paciente A -> 200
+  [32mOK   [0m K02 1 ficha ACTIVA con 1 traslado
+  [32mOK   [0m K04 ficha por id de admisión -> 200
+  [32mOK   [0m K05 ficha inexistente -> 404
+  [32mOK   [0m K06 filtro ?estado=activa (minúsculas) -> 200
+  [32mOK   [0m K07 por paciente -> 200
+  [32mOK   [0m K08 consolidado de paciente desconocido -> 200 con listas vacías
+  [32mOK   [0m K09 listas vacías
+  [32mOK   [0m K10 reporte consultas ocupación S1 (ADMIN)
+  [32mOK   [0m K11 el read-model coincide con el write-model (2 activas en S1)
+  [32mOK   [0m K12 la ficha del paciente con comilla (J05) llegó a consultas
+  [31mFALLA[0m K13 ...y tiene 1 ficha (si 0: el evento con comilla rompió el JSON del outbox)  (esperado 1, obtuvo 0)  []
+
+[1mRESULTADO: 185 OK · 10 FALLAS · 1 omitidas[0m

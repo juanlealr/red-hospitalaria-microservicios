@@ -17,6 +17,9 @@ public class Admision {
     private String pacienteId;
     private String sedeActualId;
     private String servicioActual;
+    private String medicoTratante;
+    private String motivoIngreso;
+    private Integer coberturaPorcentaje;
 
     @Enumerated(EnumType.STRING)
     private EstadoAdmision estado;
@@ -32,14 +35,33 @@ public class Admision {
         // exigido por Hibernate
     }
 
-    public Admision(String id, String pacienteId, String sedeInicialId, String servicioInicial,
+    public Admision(
+            String id,
+            String pacienteId,
+            String sedeInicialId,
+            String servicioInicial,
+            String medicoTratante,
+            String motivoIngreso,
             LocalDateTime fechaIngreso) {
         this.id = id;
         this.pacienteId = pacienteId;
         this.sedeActualId = sedeInicialId;
         this.servicioActual = servicioInicial;
+        this.medicoTratante = medicoTratante;
+        this.motivoIngreso = motivoIngreso;
         this.estado = EstadoAdmision.ACTIVA;
         this.fechaIngreso = fechaIngreso;
+    }
+
+    public void registrarCobertura(int porcentaje) {
+        if (estado != EstadoAdmision.ACTIVA) {
+            throw new IllegalStateException("Solo se puede verificar cobertura en una admisión activa.");
+        }
+        if (porcentaje < 0 || porcentaje > 100) {
+            throw new IllegalArgumentException(
+                    "El porcentaje de cobertura debe estar entre 0 y 100 (recibido: %d).".formatted(porcentaje));
+        }
+        this.coberturaPorcentaje = porcentaje;
     }
 
     public void registrarTraslado(String sedeDestinoId, String servicioDestino, LocalDateTime fecha) {
@@ -78,6 +100,18 @@ public class Admision {
 
     public String servicioActual() {
         return servicioActual;
+    }
+
+    public String medicoTratante() {
+        return medicoTratante;
+    }
+
+    public String motivoIngreso() {
+        return motivoIngreso;
+    }
+
+    public Integer coberturaPorcentaje() {
+        return coberturaPorcentaje;
     }
 
     public EstadoAdmision estado() {

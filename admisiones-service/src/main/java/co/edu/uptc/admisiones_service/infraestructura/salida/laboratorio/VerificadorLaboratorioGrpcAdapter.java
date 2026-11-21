@@ -1,5 +1,6 @@
 package co.edu.uptc.admisiones_service.infraestructura.salida.laboratorio;
 
+import co.edu.uptc.admisiones_service.aplicacion.VerificadorLaboratorioPuerto;
 import co.edu.uptc.admisiones_service.compartido.ServicioNoDisponibleException;
 import co.edu.uptc.admisiones_service.grpc.LaboratorioGrpcGrpc.LaboratorioGrpcBlockingStub;
 import co.edu.uptc.admisiones_service.grpc.OrdenesPendientesRequest;
@@ -15,7 +16,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class VerificadorLaboratorioGrpcAdapter {
+public class VerificadorLaboratorioGrpcAdapter implements VerificadorLaboratorioPuerto {
 
     private static final Logger log = LoggerFactory.getLogger(VerificadorLaboratorioGrpcAdapter.class);
     private final LaboratorioGrpcBlockingStub stub;
@@ -34,6 +35,7 @@ public class VerificadorLaboratorioGrpcAdapter {
                 e -> log.warn("Circuit Breaker laboratorio-service: {}", e.getStateTransition()));
     }
 
+    @Override
     public boolean tieneOrdenesPendientes(String pacienteId) {
         try {
             return circuitBreaker.executeSupplier(() -> {

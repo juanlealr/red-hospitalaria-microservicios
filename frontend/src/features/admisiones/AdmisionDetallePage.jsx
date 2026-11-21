@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { darDeAlta, obtenerAdmision, trasladarAdmision } from './api';
+import { darDeAlta, obtenerAdmision, trasladarAdmision, verificarCoberturaAdmision } from './api';
 import BadgeEstado from './BadgeEstado';
 import { libres, sedesDe } from './catalogo';
 import { fechaHora } from './formato';
@@ -72,6 +72,13 @@ export default function AdmisionDetallePage() {
         }
     }
 
+    function verificarCobertura() {
+        ejecutar(
+            () => verificarCoberturaAdmision(id),
+            'Cobertura verificada con la aseguradora externa y asociada a la admisión.',
+        );
+    }
+
     function trasladar(e) {
         e.preventDefault();
         ejecutar(async () => {
@@ -98,6 +105,7 @@ export default function AdmisionDetallePage() {
 
     const activa = admision.estado === 'ACTIVA';
     const esMedico = usuario.rol === 'MEDICO';
+    const esAdmisiones = usuario.rol === 'ADMISIONES';
     const sedes = sedesDe(inventario);
     const opcionesServicio = inventario.filter((i) => i.sedeId === sedeDestino);
 
@@ -122,6 +130,10 @@ export default function AdmisionDetallePage() {
             <div className="tarjeta" style={{ marginBottom: 24 }}>
                 <dl className="datos">
                     <dt>Ubicación actual</dt><dd>{admision.sedeActualId} · {admision.servicioActual}</dd>
+                    <dt>Médico tratante</dt><dd>{admision.medicoTratante}</dd>
+                    <dt>Motivo de ingreso</dt><dd>{admision.motivoIngreso}</dd>
+                    <dt>Cobertura aseguradora</dt>
+                    <dd>{admision.coberturaPorcentaje == null ? 'Sin verificar' : `${admision.coberturaPorcentaje}%`}</dd>
                     <dt>Fecha de ingreso</dt><dd>{fechaHora(admision.fechaIngreso)}</dd>
                     <dt>Fecha de alta</dt><dd>{fechaHora(admision.fechaAlta)}</dd>
                     <dt>Traslados</dt><dd>{admision.traslados.length}</dd>
@@ -140,6 +152,18 @@ export default function AdmisionDetallePage() {
             </ol>
 
             {errorAccion && <p className="error" role="alert">{errorAccion}</p>}
+
+            {activa && esAdmisiones && (
+                <div className="tarjeta" style={{ marginBottom: 24 }}>
+                    <h2>Verificación de cobertura</h2>
+                    <p className="subtitulo">
+                        Consulta el porcentaje cubierto por la aseguradora externa para este paciente (HU-07).
+                    </p>
+                    <button className="boton" type="button" disabled={ocupado} onClick={verificarCobertura}>
+                        {ocupado ? 'Consultando aseguradora…' : 'Verificar cobertura con aseguradora'}
+                    </button>
+                </div>
+            )}
 
             {activa && esMedico && (
                 <div className="paneles">

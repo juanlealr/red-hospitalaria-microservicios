@@ -18,6 +18,11 @@ public class ProyeccionListener {
         proyector.alIngresarPaciente(mensaje);
     }
 
+    @KafkaListener(topics = "admisiones.cobertura-verificada")
+    public void coberturaVerificada(String mensaje) {
+        proyector.alVerificarCobertura(mensaje);
+    }
+
     @KafkaListener(topics = "admisiones.pacientes-trasladados")
     public void pacienteTrasladado(String mensaje) {
         proyector.alTrasladarPaciente(mensaje);

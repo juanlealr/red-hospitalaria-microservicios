@@ -14,6 +14,11 @@ public class TopicosConfig {
     }
 
     @Bean
+    public NewTopic admisionesCoberturaVerificada() {
+        return TopicBuilder.name("admisiones.cobertura-verificada").partitions(3).replicas(1).build();
+    }
+
+    @Bean
     public NewTopic admisionesPacientesTrasladados() {
         return TopicBuilder.name("admisiones.pacientes-trasladados").partitions(3).replicas(1).build();
     }

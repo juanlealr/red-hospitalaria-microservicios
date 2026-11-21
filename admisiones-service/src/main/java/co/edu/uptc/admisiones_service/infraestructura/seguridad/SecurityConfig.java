@@ -53,6 +53,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/status").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/admisiones/ingreso").hasAuthority("ROLE_ADMISIONES")
+                        .requestMatchers(HttpMethod.POST, "/api/admisiones/*/verificar-cobertura")
+                        .hasAuthority("ROLE_ADMISIONES")
+                        .requestMatchers(HttpMethod.GET, "/api/admisiones/cobertura/*")
+                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_ADMINISTRADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/admisiones/*/traslado").hasAuthority("ROLE_MEDICO")
                         .requestMatchers(HttpMethod.PUT, "/api/admisiones/*/alta").hasAuthority("ROLE_MEDICO")
                         .requestMatchers(HttpMethod.POST, "/api/admisiones/inventario-camas")

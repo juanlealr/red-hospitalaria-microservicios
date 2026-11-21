@@ -18,13 +18,31 @@ public class AdmisionController {
         this.admisionUseCase = admisionUseCase;
     }
 
+    public record CoberturaPacienteResponse(String pacienteId, int porcentajeCobertura) {
+    }
+
     @PostMapping("/ingreso")
     public ResponseEntity<AdmisionResponse> registrarIngreso(
             @RequestParam String pacienteId,
             @RequestParam String sedeId,
-            @RequestParam String servicio) {
-        var admision = admisionUseCase.registrarIngreso(pacienteId, sedeId, servicio);
+            @RequestParam String servicio,
+            @RequestParam String medicoTratante,
+            @RequestParam String motivoIngreso) {
+        var admision = admisionUseCase.registrarIngreso(
+                pacienteId, sedeId, servicio, medicoTratante, motivoIngreso);
         return ResponseEntity.status(HttpStatus.CREATED).body(AdmisionResponse.desde(admision));
+    }
+
+    @GetMapping("/cobertura/{pacienteId}")
+    public ResponseEntity<CoberturaPacienteResponse> consultarCoberturaPaciente(@PathVariable String pacienteId) {
+        int porcentaje = admisionUseCase.consultarCoberturaPaciente(pacienteId);
+        return ResponseEntity.ok(new CoberturaPacienteResponse(pacienteId, porcentaje));
+    }
+
+    @PostMapping("/{id}/verificar-cobertura")
+    public ResponseEntity<AdmisionResponse> verificarCoberturaAdmision(@PathVariable String id) {
+        var admision = admisionUseCase.verificarCoberturaAdmision(id);
+        return ResponseEntity.ok(AdmisionResponse.desde(admision));
     }
 
     @GetMapping

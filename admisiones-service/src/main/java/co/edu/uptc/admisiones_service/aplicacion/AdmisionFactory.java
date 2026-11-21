@@ -10,12 +10,23 @@ import java.util.UUID;
 @Component
 public class AdmisionFactory {
 
-    public Admision registrarIngreso(String pacienteId, String sedeId, DisponibilidadCama disponibilidadSede) {
+    public Admision registrarIngreso(
+            String pacienteId,
+            String sedeId,
+            String medicoTratante,
+            String motivoIngreso,
+            DisponibilidadCama disponibilidadSede) {
         if (pacienteId == null || pacienteId.isBlank()) {
             throw new IllegalArgumentException("Se requiere el id del paciente para registrar el ingreso.");
         }
         if (sedeId == null || sedeId.isBlank()) {
             throw new IllegalArgumentException("Se requiere la sede de ingreso.");
+        }
+        if (medicoTratante == null || medicoTratante.isBlank()) {
+            throw new IllegalArgumentException("Se requiere el médico tratante para registrar el ingreso.");
+        }
+        if (motivoIngreso == null || motivoIngreso.isBlank()) {
+            throw new IllegalArgumentException("Se requiere el motivo de ingreso.");
         }
         if (!disponibilidadSede.sedeId().equals(sedeId)) {
             throw new IllegalArgumentException(
@@ -26,6 +37,13 @@ public class AdmisionFactory {
         }
 
         String id = UUID.randomUUID().toString();
-        return new Admision(id, pacienteId, sedeId, disponibilidadSede.servicio(), LocalDateTime.now());
+        return new Admision(
+                id,
+                pacienteId,
+                sedeId,
+                disponibilidadSede.servicio(),
+                medicoTratante.trim(),
+                motivoIngreso.trim(),
+                LocalDateTime.now());
     }
 }

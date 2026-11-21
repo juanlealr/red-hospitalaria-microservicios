@@ -2,8 +2,17 @@ import { api } from '../../api/cliente';
 
 export const listarInventario = () => api('/api/admisiones/inventario-camas/todas');
 
-export const registrarIngreso = ({ pacienteId, sedeId, servicio }) =>
-    api('/api/admisiones/ingreso', { metodo: 'POST', params: { pacienteId, sedeId, servicio } });
+export const registrarIngreso = ({ pacienteId, sedeId, servicio, medicoTratante, motivoIngreso }) =>
+    api('/api/admisiones/ingreso', {
+        metodo: 'POST',
+        params: { pacienteId, sedeId, servicio, medicoTratante, motivoIngreso },
+    });
+
+export const consultarCoberturaPaciente = (pacienteId) =>
+    api(`/api/admisiones/cobertura/${encodeURIComponent(pacienteId)}`);
+
+export const verificarCoberturaAdmision = (id) =>
+    api(`/api/admisiones/${encodeURIComponent(id)}/verificar-cobertura`, { metodo: 'POST' });
 
 export const listarAdmisiones = () => api('/api/admisiones');
 
