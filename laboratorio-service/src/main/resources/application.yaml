@@ -1,0 +1,34 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: laboratorio-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/laboratorio_db
+    username: laboratorio
+    password: laboratorio
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  grpc:
+    server:
+      # Puerto al que apunta el cliente de admisiones-service (static://localhost:9091)
+      port: 9091
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+seguridad:
+  jwt:
+    # Debe ser el MISMO secreto que usan auth_service y admisiones-service.
+    secret: ${JWT_SECRET:t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
