@@ -13,6 +13,7 @@ const ESTADO_MEDICACION = {
 export default function PacienteConsolidadoPage() {
     const { pacienteId } = useParams();
     const navegar = useNavigate();
+
     const [busqueda, setBusqueda] = useState(pacienteId ?? '');
     const [version, setVersion] = useState(0);
     const [resultado, setResultado] = useState(null);
@@ -50,12 +51,22 @@ export default function PacienteConsolidadoPage() {
 
             <form className="filtros" onSubmit={buscar}>
                 <label htmlFor="paciente">Paciente</label>
-                <input id="paciente" placeholder="Documento o ID" value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)} style={{ width: 260 }} />
+                <input
+                    id="paciente"
+                    placeholder="Documento o ID"
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    style={{ width: 260 }}
+                />
                 <button className="boton" type="submit" disabled={!busqueda.trim()}>Consultar</button>
                 {pacienteId && (
-                    <button type="button" className="boton-secundario"
-                        onClick={() => setVersion((v) => v + 1)}>Actualizar</button>
+                    <button
+                        type="button"
+                        className="boton-secundario"
+                        onClick={() => setVersion((v) => v + 1)}
+                    >
+                        Actualizar
+                    </button>
                 )}
             </form>
 
@@ -76,23 +87,17 @@ export default function PacienteConsolidadoPage() {
                                 <BadgeEstado estado={a.estado} />
                             </div>
                             <dl className="datos">
-                                <dt>Ubicación actual</dt>
-                                <dd>{a.sedeActualId}{a.servicioActual ? ` · ${a.servicioActual}` : ''}</dd>
-                                <dt>Médico tratante</dt><dd>{a.medicoTratante ?? '—'}</dd>
-                                <dt>Motivo de ingreso</dt><dd>{a.motivoIngreso ?? '—'}</dd>
-                                <dt>Cobertura</dt>
-                                <dd>{a.coberturaPorcentaje == null ? 'Sin verificar' : `${a.coberturaPorcentaje}%`}</dd>
+                                <dt>Sede actual</dt><dd>{a.sedeActualId}</dd>
                                 <dt>Alta</dt><dd>{fechaHora(a.fechaAlta)}</dd>
                                 <dt>Traslados</dt><dd>{a.totalTraslados}</dd>
                             </dl>
+
                             {a.traslados?.length > 0 && (
                                 <ol className="linea-tiempo" style={{ marginTop: 16, marginBottom: 0 }}>
                                     {a.traslados.map((t, i) => (
                                         <li key={`${a.admisionId}-${i}`}>
                                             <strong>Traslado</strong>
-                                            <span>
-                                                {t.sedeOrigenId}{t.servicioOrigen ? ` · ${t.servicioOrigen}` : ''} → {t.sedeDestinoId}{t.servicioDestino ? ` · ${t.servicioDestino}` : ''}
-                                            </span>
+                                            <span>{t.sedeOrigenId} → {t.sedeDestinoId}</span>
                                             <small>{fechaHora(t.fecha)}</small>
                                         </li>
                                     ))}

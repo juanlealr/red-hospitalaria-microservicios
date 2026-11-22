@@ -30,8 +30,13 @@ export default function Layout() {
                     ))}
                 </nav>
                 <div className="sesion">
-                    <span title={usuario.email}>{usuario.rol}</span>
-                    <button className="boton-link" onClick={salir}>Salir</button>
+                    <span className="rol-badge" title={usuario.email}>
+                        <span className="rol-punto" />
+                        {usuario.rol}
+                    </span>
+                    <button type="button" className="boton-cerrar-sesion" onClick={salir}>
+                        CERRAR SESIÓN
+                    </button>
                 </div>
             </header>
             <main className="contenido"><Outlet /></main>

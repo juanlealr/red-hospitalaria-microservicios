@@ -26,6 +26,7 @@ public class AdmisionService implements AdmisionUseCase {
     private final OutboxEventRepository outboxRepository;
     private final InventarioCamasUseCase inventarioCamasUseCase;
     private final ObjectMapper objectMapper;
+    private final GeneradorIdPaciente generadorIdPaciente;
 
     public AdmisionService(
             RepositorioAdmisiones repositorioAdmisiones,
@@ -35,7 +36,8 @@ public class AdmisionService implements AdmisionUseCase {
             ConsultaCoberturaExterna consultaCoberturaExterna,
             OutboxEventRepository outboxRepository,
             InventarioCamasUseCase inventarioCamasUseCase,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            GeneradorIdPaciente generadorIdPaciente) {
         this.repositorioAdmisiones = repositorioAdmisiones;
         this.admisionFactory = admisionFactory;
         this.trasladoPacienteService = trasladoPacienteService;
@@ -44,6 +46,7 @@ public class AdmisionService implements AdmisionUseCase {
         this.outboxRepository = outboxRepository;
         this.inventarioCamasUseCase = inventarioCamasUseCase;
         this.objectMapper = objectMapper;
+        this.generadorIdPaciente = generadorIdPaciente;
     }
 
     @Override
@@ -54,6 +57,12 @@ public class AdmisionService implements AdmisionUseCase {
             String servicio,
             String medicoTratante,
             String motivoIngreso) {
+
+        if (pacienteId == null || pacienteId.isBlank()) {
+            pacienteId = generadorIdPaciente.siguiente();
+        } else {
+            pacienteId = pacienteId.trim();
+        }
 
         if (pacienteId != null && repositorioAdmisiones.existeActivaDelPaciente(pacienteId)) {
             throw new IllegalStateException(

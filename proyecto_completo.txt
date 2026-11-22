@@ -2,19 +2,21 @@
 ARCHIVO: ./frontend/index.html
 ========================================
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
+<html lang="es">
 
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RedSalud · Gestión Hospitalaria</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>
 ========================================
 ARCHIVO: ./frontend/vite.config.js
 ========================================
@@ -123,8 +125,52 @@ h1 {
 .sesion {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: .85rem;
+    gap: 14px;
+    padding-left: 18px;
+    border-left: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.rol-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255, 205, 46, 0.14);
+    border: 1px solid rgba(255, 205, 46, 0.55);
+    color: var(--amarillo);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    user-select: none;
+}
+
+.rol-punto {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--amarillo);
+}
+
+.boton-cerrar-sesion {
+    background: #d32f2f;
+    color: var(--blanco);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    cursor: pointer;
+    transition: background-color .15s ease, transform .1s ease;
+}
+
+.boton-cerrar-sesion:hover {
+    background: var(--error);
+}
+
+.boton-cerrar-sesion:active {
+    transform: scale(0.98);
 }
 
 .marca {
@@ -574,6 +620,358 @@ h2 {
     background: #bbb;
 }
 
+.modal-fondo {
+    position: fixed;
+    inset: 0;
+    background: rgba(27, 27, 27, 0.55);
+    backdrop-filter: blur(2px);
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    z-index: 1000;
+    animation: aparecerModal .15s ease-out;
+}
+
+.modal-ventana {
+    width: 100%;
+    max-width: 480px;
+    border-left: 0;
+    border-top: 6px solid var(--ok);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    padding: 24px 28px;
+}
+
+.modal-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.modal-titulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.15rem;
+}
+
+.modal-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e8f5e9;
+    color: var(--ok);
+    font-size: .85rem;
+}
+
+.modal-cerrar-x {
+    background: none;
+    border: 0;
+    color: var(--gris);
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 2px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.modal-cerrar-x:hover {
+    background: var(--crema);
+    color: var(--negro);
+}
+
+.clave-box {
+    background: var(--crema);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--borde);
+}
+
+.modal-pie {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.modal-pie .boton {
+    padding: 10px 18px;
+    font-size: .9rem;
+}
+
+@keyframes aparecerModal {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Reporte de ocupación mejorado */
+.reporte-cabecera {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.metrica-detalle {
+    display: block;
+    margin-top: 6px;
+    font-size: .82rem;
+    color: var(--gris);
+}
+
+.metrica-destacada {
+    border-color: rgba(46, 125, 50, 0.35);
+}
+
+.valor-ok {
+    color: var(--ok);
+}
+
+.sedes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.sede-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+}
+
+.sede-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sede-nombre {
+    margin: 0;
+    font-size: 1.05rem;
+    letter-spacing: .02em;
+}
+
+.sede-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: .8rem;
+    color: var(--gris);
+}
+
+.estado-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.estado-punto {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.estado-pill.ok {
+    background: #e8f5e9;
+    color: var(--ok);
+    border: 1px solid rgba(46, 125, 50, 0.28);
+}
+
+.estado-pill.alto {
+    background: #fff8e1;
+    color: #9a5b00;
+    border: 1px solid rgba(255, 193, 7, 0.45);
+}
+
+.estado-pill.critico {
+    background: #ffebee;
+    color: var(--error);
+    border: 1px solid rgba(198, 40, 40, 0.28);
+}
+
+.estado-pill.sin-camas {
+    background: var(--crema);
+    color: var(--gris);
+    border: 1px solid var(--borde);
+}
+
+.sede-disponibilidad {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sede-libres-num {
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-right: 8px;
+}
+
+.sede-libres-num.ok {
+    color: var(--ok);
+}
+
+.sede-libres-num.alto {
+    color: #9a5b00;
+}
+
+.sede-libres-num.critico {
+    color: var(--error);
+}
+
+.sede-libres-texto {
+    font-size: .92rem;
+    font-weight: 600;
+    color: var(--negro);
+}
+
+.sede-ocupacion-tag {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--gris);
+    background: var(--crema);
+    padding: 3px 9px;
+    border-radius: 6px;
+}
+
+.barra-capacidad {
+    width: 100%;
+    height: 9px;
+    border-radius: 999px;
+    background: #e9e5dc;
+    overflow: hidden;
+}
+
+.barra-capacidad.con-disponibilidad {
+    background: #dcedc8;
+}
+
+.barra-capacidad-relleno {
+    height: 100%;
+    border-radius: 999px;
+    transition: width .25s ease;
+}
+
+.barra-capacidad-relleno.ok {
+    background: var(--ok);
+}
+
+.barra-capacidad-relleno.alto {
+    background: #f59e0b;
+}
+
+.barra-capacidad-relleno.critico {
+    background: var(--error);
+}
+
+.barra-leyenda {
+    display: flex;
+    justify-content: space-between;
+    font-size: .78rem;
+    color: var(--gris);
+    margin-top: -6px;
+}
+
+.sede-servicios-lista {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--borde);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sede-servicio-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: .84rem;
+}
+
+.sede-servicio-nombre {
+    font-weight: 600;
+    color: var(--negro);
+}
+
+.sede-servicio-cupo {
+    font-weight: 700;
+}
+
+.sede-servicio-cupo.ok {
+    color: var(--ok);
+}
+
+.sede-servicio-cupo.alto {
+    color: #9a5b00;
+}
+
+.sede-servicio-cupo.critico {
+    color: var(--error);
+}
+
+.libres-celda {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.libres-num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.libres-ok {
+    color: #2e7d32;
+}
+
+.libres-alto {
+    color: #8a6100;
+}
+
+.libres-critico {
+    color: var(--error);
+}
+
+.libres-neutro {
+    color: var(--gris);
+}
+
+.barra-fina {
+    height: 6px;
+    max-width: 180px;
+}
+
+.check-filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.leyenda-camas {
+    margin-top: 14px;
+}
+
 @media print {
 
     .barra,
@@ -589,6 +987,135 @@ h2 {
     .contenido {
         padding: 0;
     }
+}
+
+.libres-celda {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.libres-num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.libres-ok {
+    color: #2e7d32;
+}
+
+.libres-alto {
+    color: #8a6100;
+}
+
+.libres-critico {
+    color: var(--error);
+}
+
+.libres-neutro {
+    color: var(--gris);
+}
+
+.barra-fina {
+    height: 6px;
+    max-width: 180px;
+}
+
+.leyenda-camas {
+    margin-top: 14px;
+}
+
+.filtros .check-filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.filtros .check-filtro input {
+    width: auto;
+    padding: 0;
+    margin: 0;
+    flex: none;
+}
+
+.id-asignado {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.modo-paciente {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.modo-paciente button {
+    flex: 1;
+    padding: 10px 14px;
+    font: inherit;
+    font-weight: 600;
+    background: var(--blanco);
+    border: 2px solid var(--borde);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.modo-paciente button[aria-pressed="true"] {
+    background: var(--amarillo);
+    border-color: var(--amarillo);
+}
+
+.lista-pacientes {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    border: 2px solid var(--borde);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--blanco);
+}
+
+.lista-pacientes li+li {
+    border-top: 1px solid var(--borde);
+}
+
+.lista-pacientes li button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 14px;
+    background: none;
+    border: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.lista-pacientes li button:hover:not(:disabled) {
+    background: #fff6dc;
+}
+
+.lista-pacientes li button:disabled {
+    color: var(--gris);
+    cursor: not-allowed;
+}
+
+.paciente-elegido {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+    border-radius: 10px;
 }
 ========================================
 ARCHIVO: ./frontend/src/features/auth/AuthContext.jsx
@@ -666,7 +1193,7 @@ export function rutaInicial(rol) {
 ========================================
 ARCHIVO: ./frontend/src/features/auth/UsuariosPage.jsx
 ========================================
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { crearUsuario } from './api';
 
 const ROLES = [
@@ -693,9 +1220,42 @@ export default function UsuariosPage() {
     const [ultimo, setUltimo] = useState(null);
     const [creados, setCreados] = useState([]);
 
+    useEffect(() => {
+        if (!ultimo) return undefined;
+        const manejarTecla = (e) => {
+            if (e.key === 'Escape') setUltimo(null);
+        };
+        window.addEventListener('keydown', manejarTecla);
+        return () => window.removeEventListener('keydown', manejarTecla);
+    }, [ultimo]);
+
+    function validarFormulario() {
+        const correoLimpio = email.trim();
+        if (!correoLimpio) {
+            return 'El correo es obligatorio.';
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoLimpio)) {
+            return 'Ingresa un correo electrónico válido.';
+        }
+        if (!rol) {
+            return 'Selecciona un rol.';
+        }
+        if (password.length < 8) {
+            return 'La contraseña debe tener al menos 8 caracteres.';
+        }
+        return '';
+    }
+
     async function enviar(e) {
         e.preventDefault();
         if (enviando) return;
+
+        const errorValidacion = validarFormulario();
+        if (errorValidacion) {
+            setError(errorValidacion);
+            return;
+        }
+
         setError('');
         setEnviando(true);
         try {
@@ -719,37 +1279,105 @@ export default function UsuariosPage() {
             <p className="subtitulo">Crea cuentas para el personal. No existe registro público.</p>
 
             {ultimo && (
-                <div className="tarjeta exito" style={{ marginBottom: 24 }}>
-                    <strong>Usuario creado</strong>
-                    <dl>
-                        <dt>Correo</dt><dd>{ultimo.email}</dd>
-                        <dt>Rol</dt><dd>{ultimo.rol}</dd>
-                        <dt>Clave temporal</dt><dd className="mono">{ultimo.claveTemporal}</dd>
-                    </dl>
-                    <p className="nota">Entrégale la clave por un canal seguro. No se vuelve a mostrar.</p>
+                <div
+                    className="modal-fondo"
+                    onClick={() => setUltimo(null)}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-usuario-titulo"
+                >
+                    <div className="tarjeta exito modal-ventana" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-cabecera">
+                            <strong id="modal-usuario-titulo" className="modal-titulo">
+                                <span className="modal-check">✓</span>
+                                Usuario creado
+                            </strong>
+                            <button
+                                type="button"
+                                className="modal-cerrar-x"
+                                onClick={() => setUltimo(null)}
+                                aria-label="Cerrar aviso"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <dl>
+                            <dt>Correo</dt><dd>{ultimo.email}</dd>
+                            <dt>Rol</dt><dd>{ultimo.rol}</dd>
+                            <dt>Clave temporal</dt><dd><span className="clave-box mono">{ultimo.claveTemporal}</span></dd>
+                        </dl>
+
+                        <p className="nota">Entrégale la clave por un canal seguro. No se vuelve a mostrar.</p>
+
+                        <div className="modal-pie">
+                            <button type="button" className="boton" onClick={() => setUltimo(null)}>
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
-            <form className="formulario" onSubmit={enviar}>
+            <form className="formulario" onSubmit={enviar} noValidate>
                 <label htmlFor="u-email">Correo</label>
-                <input id="u-email" type="email" required value={email}
-                    onChange={(e) => setEmail(e.target.value)} />
+                <input
+                    id="u-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (error) setError('');
+                    }}
+                />
 
                 <label htmlFor="u-rol">Rol</label>
-                <select id="u-rol" required value={rol} onChange={(e) => setRol(e.target.value)}>
+                <select
+                    id="u-rol"
+                    required
+                    value={rol}
+                    onChange={(e) => {
+                        setRol(e.target.value);
+                        if (error) setError('');
+                    }}
+                >
                     <option value="" disabled>Selecciona un rol</option>
                     {ROLES.map(([valor, texto]) => <option key={valor} value={valor}>{texto}</option>)}
                 </select>
 
                 <label htmlFor="u-clave">Clave (mínimo 8 caracteres)</label>
-                <input id="u-clave" type={verClave ? 'text' : 'password'} required minLength={8}
-                    autoComplete="new-password" value={password}
-                    onChange={(e) => setPassword(e.target.value)} />
+                <input
+                    id="u-clave"
+                    type={verClave ? 'text' : 'password'}
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (error) setError('');
+                    }}
+                />
                 <div className="acciones" style={{ marginTop: 8 }}>
-                    <button type="button" className="boton-secundario"
-                        onClick={() => { setPassword(generarClave()); setVerClave(true); }}>Generar clave</button>
-                    <button type="button" className="boton-secundario"
-                        onClick={() => setVerClave((v) => !v)}>{verClave ? 'Ocultar' : 'Mostrar'}</button>
+                    <button
+                        type="button"
+                        className="boton-secundario"
+                        onClick={() => {
+                            setPassword(generarClave());
+                            setVerClave(true);
+                            if (error) setError('');
+                        }}
+                    >
+                        Generar clave
+                    </button>
+                    <button
+                        type="button"
+                        className="boton-secundario"
+                        onClick={() => setVerClave((v) => !v)}
+                    >
+                        {verClave ? 'Ocultar' : 'Mostrar'}
+                    </button>
                 </div>
 
                 {error && <p className="error" role="alert">{error}</p>}
@@ -871,6 +1499,7 @@ const ESTADO_MEDICACION = {
 export default function PacienteConsolidadoPage() {
     const { pacienteId } = useParams();
     const navegar = useNavigate();
+
     const [busqueda, setBusqueda] = useState(pacienteId ?? '');
     const [version, setVersion] = useState(0);
     const [resultado, setResultado] = useState(null);
@@ -908,12 +1537,22 @@ export default function PacienteConsolidadoPage() {
 
             <form className="filtros" onSubmit={buscar}>
                 <label htmlFor="paciente">Paciente</label>
-                <input id="paciente" placeholder="Documento o ID" value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)} style={{ width: 260 }} />
+                <input
+                    id="paciente"
+                    placeholder="Documento o ID"
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    style={{ width: 260 }}
+                />
                 <button className="boton" type="submit" disabled={!busqueda.trim()}>Consultar</button>
                 {pacienteId && (
-                    <button type="button" className="boton-secundario"
-                        onClick={() => setVersion((v) => v + 1)}>Actualizar</button>
+                    <button
+                        type="button"
+                        className="boton-secundario"
+                        onClick={() => setVersion((v) => v + 1)}
+                    >
+                        Actualizar
+                    </button>
                 )}
             </form>
 
@@ -938,6 +1577,7 @@ export default function PacienteConsolidadoPage() {
                                 <dt>Alta</dt><dd>{fechaHora(a.fechaAlta)}</dd>
                                 <dt>Traslados</dt><dd>{a.totalTraslados}</dd>
                             </dl>
+
                             {a.traslados?.length > 0 && (
                                 <ol className="linea-tiempo" style={{ marginTop: 16, marginBottom: 0 }}>
                                     {a.traslados.map((t, i) => (
@@ -1068,6 +1708,7 @@ export function porcentaje(i) {
     return i.camasTotales === 0 ? 0 : Math.round((i.camasOcupadas * 100) / i.camasTotales);
 }
 
+// Para pantallas de gestión (capacidad, reporte): mira qué tan LLENO está el servicio.
 export function nivelOcupacion(i) {
     if (i.camasTotales === 0) return { clase: 'neutro', texto: 'Sin camas' };
     const p = porcentaje(i);
@@ -1075,6 +1716,19 @@ export function nivelOcupacion(i) {
     if (p >= 70) return { clase: 'alto', texto: 'Alta' };
     return { clase: 'ok', texto: 'Disponible' };
 }
+
+// Para la pantalla de Disponibilidad: mira qué tanto se PUEDE ADMITIR.
+// Así nunca se lee "25 % disponible" cuando en realidad hay 75 % libre.
+export function estadoDisponibilidad(i) {
+    const l = libres(i);
+    if (i.camasTotales === 0) return { clase: 'neutro', texto: 'Sin camas registradas' };
+    if (l <= 0) return { clase: 'critico', texto: 'Sin camas libres' };
+    if (l / i.camasTotales <= 0.3) return { clase: 'alto', texto: l === 1 ? 'Última cama' : 'Pocas camas' };
+    return { clase: 'ok', texto: 'Hay camas' };
+}
+
+export const porcentajeLibre = (i) =>
+    i.camasTotales === 0 ? 0 : Math.round((libres(i) * 100) / i.camasTotales);
 
 export function resumenPorSede(inventario) {
     const mapa = new Map();
@@ -1089,40 +1743,85 @@ export function resumenPorSede(inventario) {
 ========================================
 ARCHIVO: ./frontend/src/features/admisiones/CapacidadPage.jsx
 ========================================
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useAuth } from '../auth/AuthContext';
 import { registrarCapacidad } from './api';
-import { libres, sedesDe } from './catalogo';
+import { libres } from './catalogo';
 import { useInventario } from './useInventario';
 
+const SERVICIOS_SUGERIDOS = ['URGENCIAS', 'UCI', 'HOSPITALIZACION', 'PEDIATRIA', 'CIRUGIA'];
+
 export default function CapacidadPage() {
-    const { inventario, cargando, error: errorInventario, recargar } = useInventario(0);
-    const [sedeId, setSedeId] = useState('');
+    const { usuario } = useAuth();
+    const puedeEditar = usuario?.rol === 'ADMINISTRADOR';
+
+    const { inventario, cargando, error: errorCarga, recargar } = useInventario(0);
+    const [sede, setSede] = useState('');
     const [servicio, setServicio] = useState('');
     const [camasTotales, setCamasTotales] = useState('');
+    const [editando, setEditando] = useState(false);
     const [enviando, setEnviando] = useState(false);
     const [error, setError] = useState('');
-    const [aviso, setAviso] = useState('');
+    const [guardado, setGuardado] = useState(null);
 
-    const serviciosConocidos = [...new Set(inventario.map((i) => i.servicio))].sort();
+    const sedesExistentes = useMemo(
+        () => [...new Set(inventario.map((i) => i.sedeId))].sort((a, b) => a.localeCompare(b, 'es')),
+        [inventario],
+    );
+
+    function limpiarFormulario() {
+        setSede('');
+        setServicio('');
+        setCamasTotales('');
+        setEditando(false);
+        setError('');
+    }
+
+    function cargarParaEditar(item) {
+        setSede(item.sedeId);
+        setServicio(item.servicio);
+        setCamasTotales(String(item.camasTotales));
+        setEditando(true);
+        setError('');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     async function enviar(e) {
         e.preventDefault();
-        if (enviando) return;
-        const sede = sedeId.trim().toUpperCase();
-        const serv = servicio.trim().toUpperCase();
-        const total = Number(camasTotales);
-        setError('');
-        setAviso('');
-        if (!Number.isInteger(total) || total < 0) {
+        if (!puedeEditar || enviando) return;
+
+        const sedeId = sede.trim().toUpperCase();
+        const servicioNormalizado = servicio.trim().toUpperCase();
+        const totales = Number(camasTotales);
+
+        if (!sedeId) { setError('Ingresa el nombre de la sede.'); return; }
+        if (!servicioNormalizado) { setError('Ingresa el nombre del servicio.'); return; }
+        if (camasTotales === '' || !Number.isInteger(totales) || totales < 0) {
             setError('El total de camas debe ser un número entero mayor o igual a 0.');
             return;
         }
+
+        const yaExistia = inventario.some(
+            (i) => i.sedeId === sedeId && i.servicio === servicioNormalizado,
+        );
+
+        setError('');
         setEnviando(true);
         try {
-            await registrarCapacidad({ sedeId: sede, servicio: serv, camasTotales: total });
-            setAviso(`Capacidad de ${sede} · ${serv} fijada en ${total} camas.`);
-            setCamasTotales('');
+            const resultado = await registrarCapacidad({
+                sedeId,
+                servicio: servicioNormalizado,
+                camasTotales: totales,
+            });
             await recargar();
+            limpiarFormulario();
+            setGuardado({
+                titulo: yaExistia ? 'Capacidad actualizada' : 'Sede y servicio registrados',
+                sedeId: resultado?.sedeId ?? sedeId,
+                servicio: resultado?.servicio ?? servicioNormalizado,
+                camasTotales: resultado?.camasTotales ?? totales,
+                camasLibres: resultado?.camasLibres ?? totales - (resultado?.camasOcupadas ?? 0),
+            });
         } catch (err) {
             setError(err.message);
         } finally {
@@ -1130,68 +1829,158 @@ export default function CapacidadPage() {
         }
     }
 
-    function editar(i) {
-        setSedeId(i.sedeId);
-        setServicio(i.servicio);
-        setCamasTotales(String(i.camasTotales));
-        setAviso('');
-        setError('');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
     return (
         <>
-            <h1>Capacidad de camas</h1>
-            <p className="subtitulo">Define cuántas camas tiene cada sede y servicio</p>
+            <h1>Capacidad</h1>
+            <p className="subtitulo">
+                {puedeEditar
+                    ? 'Define cuántas camas tiene cada sede y servicio'
+                    : 'Camas que tiene cada sede y servicio (solo consulta)'}
+            </p>
 
-            <form className="formulario" onSubmit={enviar}>
-                <label htmlFor="cap-sede">Sede</label>
-                <input id="cap-sede" required list="lista-sedes" value={sedeId}
-                    onChange={(e) => setSedeId(e.target.value)} />
-                <datalist id="lista-sedes">
-                    {sedesDe(inventario).map((s) => <option key={s} value={s} />)}
-                </datalist>
-
-                <label htmlFor="cap-servicio">Servicio</label>
-                <input id="cap-servicio" required list="lista-servicios" value={servicio}
-                    onChange={(e) => setServicio(e.target.value)} />
-                <datalist id="lista-servicios">
-                    {serviciosConocidos.map((s) => <option key={s} value={s} />)}
-                </datalist>
-
-                <label htmlFor="cap-total">Total de camas</label>
-                <input id="cap-total" type="number" min="0" step="1" required value={camasTotales}
-                    onChange={(e) => setCamasTotales(e.target.value)} />
-
-                {error && <p className="error" role="alert">{error}</p>}
-                {aviso && <p className="aviso-ok" role="status" style={{ marginTop: 16 }}>{aviso}</p>}
-
-                <div className="acciones">
-                    <button className="boton" type="submit" disabled={enviando}>
-                        {enviando ? 'Guardando…' : 'Guardar capacidad'}
-                    </button>
+            {guardado && (
+                <div
+                    className="modal-fondo"
+                    onClick={() => setGuardado(null)}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-sede-titulo"
+                >
+                    <div className="tarjeta exito modal-ventana" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-cabecera">
+                            <strong id="modal-sede-titulo" className="modal-titulo">
+                                <span className="modal-check">✓</span>
+                                {guardado.titulo}
+                            </strong>
+                            <button
+                                type="button"
+                                className="modal-cerrar-x"
+                                onClick={() => setGuardado(null)}
+                                aria-label="Cerrar aviso"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <dl>
+                            <dt>Sede</dt><dd>{guardado.sedeId}</dd>
+                            <dt>Servicio</dt><dd>{guardado.servicio}</dd>
+                            <dt>Total de camas</dt><dd>{guardado.camasTotales}</dd>
+                            <dt>Camas libres</dt><dd>{guardado.camasLibres}</dd>
+                        </dl>
+                        <div className="modal-pie">
+                            <button type="button" className="boton" onClick={() => setGuardado(null)}>
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <p className="nota">Si la sede y el servicio ya existen, se actualiza el total. No puede ser menor que las camas ocupadas.</p>
-            </form>
+            )}
 
-            <h2 style={{ marginTop: 40 }}>Inventario actual</h2>
-            {errorInventario && <p className="error" role="alert">{errorInventario}</p>}
+            {puedeEditar && (
+                <form className="formulario" onSubmit={enviar} noValidate>
+                    <label htmlFor="cap-sede">Sede</label>
+                    <input
+                        id="cap-sede"
+                        type="text"
+                        list="lista-sedes"
+                        value={sede}
+                        onChange={(e) => { setSede(e.target.value); setError(''); }}
+                    />
+                    <datalist id="lista-sedes">
+                        {sedesExistentes.map((s) => <option key={s} value={s} />)}
+                    </datalist>
+
+                    <label htmlFor="cap-servicio">Servicio</label>
+                    <input
+                        id="cap-servicio"
+                        type="text"
+                        list="lista-servicios"
+                        value={servicio}
+                        onChange={(e) => { setServicio(e.target.value); setError(''); }}
+                    />
+                    <datalist id="lista-servicios">
+                        {SERVICIOS_SUGERIDOS.map((s) => <option key={s} value={s} />)}
+                    </datalist>
+
+                    <label htmlFor="cap-totales">Total de camas</label>
+                    <input
+                        id="cap-totales"
+                        type="number"
+                        min={0}
+                        value={camasTotales}
+                        onChange={(e) => { setCamasTotales(e.target.value); setError(''); }}
+                    />
+
+                    {error && <p className="error" role="alert">{error}</p>}
+
+                    <div className="acciones">
+                        <button className="boton" type="submit" disabled={enviando}>
+                            {enviando ? 'Guardando…' : 'Guardar capacidad'}
+                        </button>
+                        {editando && (
+                            <button
+                                type="button"
+                                className="boton-secundario"
+                                onClick={limpiarFormulario}
+                                disabled={enviando}
+                            >
+                                Cancelar
+                            </button>
+                        )}
+                    </div>
+
+                    <p className="nota">
+                        Si la sede y el servicio ya existen, se actualiza el total. No puede ser menor que las camas ocupadas.
+                    </p>
+                </form>
+            )}
+
+            <h2 style={{ marginTop: puedeEditar ? 40 : 24 }}>Inventario actual</h2>
+
+            {errorCarga && <p className="error" role="alert">{errorCarga}</p>}
             {cargando && <p className="subtitulo">Cargando…</p>}
-            {inventario.length > 0 && (
-                <table className="tabla">
-                    <thead>
-                        <tr><th>Sede</th><th>Servicio</th><th>Totales</th><th>Ocupadas</th><th>Libres</th><th /></tr>
-                    </thead>
-                    <tbody>
-                        {inventario.map((i) => (
-                            <tr key={`${i.sedeId}|${i.servicio}`}>
-                                <td>{i.sedeId}</td><td>{i.servicio}</td>
-                                <td>{i.camasTotales}</td><td>{i.camasOcupadas}</td><td>{libres(i)}</td>
-                                <td><button type="button" className="boton-link boton-link-oscuro" onClick={() => editar(i)}>Editar</button></td>
+
+            {!cargando && !errorCarga && inventario.length === 0 ? (
+                <div className="tarjeta">
+                    <p className="subtitulo" style={{ margin: 0 }}>Aún no hay sedes ni camas registradas.</p>
+                </div>
+            ) : (
+                inventario.length > 0 && (
+                    <table className="tabla">
+                        <thead>
+                            <tr>
+                                <th>Sede</th>
+                                <th>Servicio</th>
+                                <th>Totales</th>
+                                <th>Ocupadas</th>
+                                <th>Libres</th>
+                                {puedeEditar && <th />}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {inventario.map((item) => (
+                                <tr key={`${item.sedeId}|${item.servicio}`}>
+                                    <td>{item.sedeId}</td>
+                                    <td>{item.servicio}</td>
+                                    <td>{item.camasTotales}</td>
+                                    <td>{item.camasOcupadas}</td>
+                                    <td>{libres(item)}</td>
+                                    {puedeEditar && (
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className="boton-link"
+                                                onClick={() => cargarParaEditar(item)}
+                                            >
+                                                Editar
+                                            </button>
+                                        </td>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )
             )}
         </>
     );
@@ -1199,20 +1988,59 @@ export default function CapacidadPage() {
 ========================================
 ARCHIVO: ./frontend/src/features/admisiones/NuevaAdmisionPage.jsx
 ========================================
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { registrarIngreso } from './api';
+import { listarAdmisiones, registrarIngreso, verificarCoberturaAdmision } from './api';
 import { useInventario } from './useInventario';
 import { libres, sedesDe } from './catalogo';
+import { fechaHora } from './formato';
 
 export default function NuevaAdmisionPage() {
     const { inventario, cargando, error: errorInventario, recargar } = useInventario();
-    const [pacienteId, setPacienteId] = useState('');
+
+    const [modo, setModo] = useState('nuevo'); // 'nuevo' | 'existente'
+    const [busqueda, setBusqueda] = useState('');
+    const [pacienteElegido, setPacienteElegido] = useState('');
+    const [admisiones, setAdmisiones] = useState([]);
+
     const [sedeId, setSedeId] = useState('');
     const [servicio, setServicio] = useState('');
+    const [medicoTratante, setMedicoTratante] = useState('');
+    const [motivoIngreso, setMotivoIngreso] = useState('');
+    const [consultandoCob, setConsultandoCob] = useState(false);
+    const [errorCob, setErrorCob] = useState('');
     const [enviando, setEnviando] = useState(false);
     const [error, setError] = useState('');
     const [creada, setCreada] = useState(null);
+
+    const cargarPacientes = useCallback(() => {
+        listarAdmisiones().then(setAdmisiones).catch(() => setAdmisiones([]));
+    }, []);
+
+    useEffect(() => { cargarPacientes(); }, [cargarPacientes]);
+
+    // Pacientes conocidos: uno por ID, con su última actividad y si hoy está admitido.
+    const pacientes = useMemo(() => {
+        const mapa = new Map();
+        admisiones.forEach((a) => {
+            const p = mapa.get(a.pacienteId)
+                ?? { pacienteId: a.pacienteId, activa: false, ultima: null, sede: '', servicio: '' };
+            if (a.estado === 'ACTIVA') p.activa = true;
+            const fecha = a.fechaAlta ?? a.fechaIngreso;
+            if (!p.ultima || fecha > p.ultima) {
+                p.ultima = fecha;
+                p.sede = a.sedeActualId;
+                p.servicio = a.servicioActual;
+            }
+            mapa.set(a.pacienteId, p);
+        });
+        return [...mapa.values()].sort((x, y) => (y.ultima ?? '').localeCompare(x.ultima ?? ''));
+    }, [admisiones]);
+
+    const texto = busqueda.trim().toLowerCase();
+    const coincidencias = pacientes
+        .filter((p) => !texto || p.pacienteId.toLowerCase().includes(texto))
+        .slice(0, 6);
 
     const sedes = sedesDe(inventario);
     const serviciosDeSede = inventario.filter((i) => i.sedeId === sedeId);
@@ -1222,31 +2050,60 @@ export default function NuevaAdmisionPage() {
         setServicio('');
     }
 
+    function cambiarModo(nuevoModo) {
+        setModo(nuevoModo);
+        setPacienteElegido('');
+        setBusqueda('');
+        setError('');
+    }
+
     function otraAdmision() {
         setCreada(null);
-        setPacienteId('');
-        setSedeId('');
-        setServicio('');
+        setErrorCob('');
         setError('');
+    }
+
+    async function verificarCobertura(admisionId) {
+        setConsultandoCob(true);
+        setErrorCob('');
+        try {
+            setCreada(await verificarCoberturaAdmision(admisionId));
+        } catch (err) {
+            setErrorCob(`No se pudo verificar la cobertura: ${err.message}`);
+        } finally {
+            setConsultandoCob(false);
+        }
     }
 
     async function enviar(e) {
         e.preventDefault();
         if (enviando) return;
         setError('');
+        setErrorCob('');
         setEnviando(true);
         try {
             const admision = await registrarIngreso({
-                pacienteId: pacienteId.trim(),
+                pacienteId: modo === 'existente' ? pacienteElegido : '',
                 sedeId,
                 servicio,
+                medicoTratante: medicoTratante.trim(),
+                motivoIngreso: motivoIngreso.trim(),
             });
+            setModo('nuevo');
+            setPacienteElegido('');
+            setBusqueda('');
+            setSedeId('');
+            setServicio('');
+            setMedicoTratante('');
+            setMotivoIngreso('');
             setCreada(admision);
+            verificarCobertura(admision.id);
         } catch (err) {
             setError(err.message);
         } finally {
             setEnviando(false);
-            recargar(); // las camas libres cambiaron (o cambiaron mientras tanto)
+            recargar();
+            cargarPacientes();
         }
     }
 
@@ -1257,14 +2114,37 @@ export default function NuevaAdmisionPage() {
                 <p className="subtitulo">El paciente ya está ingresado y la cama fue ocupada.</p>
                 <div className="tarjeta exito">
                     <dl>
+                        <dt>ID del paciente</dt>
+                        <dd className="id-asignado">{creada.pacienteId}</dd>
                         <dt>N.º de admisión</dt><dd className="mono">{creada.id}</dd>
-                        <dt>Paciente</dt><dd>{creada.pacienteId}</dd>
                         <dt>Sede</dt><dd>{creada.sedeActualId}</dd>
                         <dt>Servicio</dt><dd>{creada.servicioActual}</dd>
-                        <dt>Fecha de ingreso</dt><dd>{new Date(creada.fechaIngreso).toLocaleString()}</dd>
+                        <dt>Médico tratante</dt><dd>{creada.medicoTratante}</dd>
+                        <dt>Motivo de ingreso</dt><dd>{creada.motivoIngreso}</dd>
+                        <dt>Cobertura aseguradora</dt>
+                        <dd>
+                            {consultandoCob
+                                ? 'Verificando…'
+                                : creada.coberturaPorcentaje == null
+                                    ? 'Sin verificar'
+                                    : `${creada.coberturaPorcentaje}%`}
+                        </dd>
+                        <dt>Fecha de ingreso</dt><dd>{fechaHora(creada.fechaIngreso)}</dd>
                     </dl>
+                    {errorCob && <p className="error" role="alert">{errorCob}</p>}
                     <div className="acciones">
-                        <button className="boton" onClick={otraAdmision}>Registrar otra admisión</button>
+                        {creada.coberturaPorcentaje == null && !consultandoCob && (
+                            <button
+                                className="boton-secundario"
+                                type="button"
+                                onClick={() => verificarCobertura(creada.id)}
+                            >
+                                Verificar cobertura
+                            </button>
+                        )}
+                        <button className="boton" type="button" onClick={otraAdmision}>
+                            Registrar otra admisión
+                        </button>
                         <Link className="boton-secundario" to="/camas">Ver disponibilidad</Link>
                     </div>
                 </div>
@@ -1273,6 +2153,9 @@ export default function NuevaAdmisionPage() {
     }
 
     const sinInventario = !cargando && !errorInventario && sedes.length === 0;
+    const formularioIncompleto =
+        (modo === 'existente' && !pacienteElegido)
+        || !sedeId || !servicio || !medicoTratante.trim() || !motivoIngreso.trim();
 
     return (
         <>
@@ -1287,36 +2170,150 @@ export default function NuevaAdmisionPage() {
             )}
 
             <form className="formulario" onSubmit={enviar}>
-                <label htmlFor="paciente">Paciente (documento o ID)</label>
-                <input id="paciente" required maxLength={60} value={pacienteId}
-                    onChange={(e) => setPacienteId(e.target.value)} />
+                <label>Paciente</label>
+                <div className="modo-paciente">
+                    <button
+                        type="button"
+                        aria-pressed={modo === 'nuevo'}
+                        onClick={() => cambiarModo('nuevo')}
+                        disabled={enviando}
+                    >
+                        Paciente nuevo
+                    </button>
+                    <button
+                        type="button"
+                        aria-pressed={modo === 'existente'}
+                        onClick={() => cambiarModo('existente')}
+                        disabled={enviando}
+                    >
+                        Paciente existente (reingreso)
+                    </button>
+                </div>
+
+                {modo === 'nuevo' && (
+                    <p className="nota">
+                        El sistema le asignará un ID nuevo al registrar (PAC-1002, PAC-1003…).
+                    </p>
+                )}
+
+                {modo === 'existente' && !pacienteElegido && (
+                    <>
+                        <input
+                            type="text"
+                            value={busqueda}
+                            onChange={(e) => setBusqueda(e.target.value)}
+                            placeholder="Busca por ID, por ejemplo PAC-1001"
+                            aria-label="Buscar paciente"
+                            autoFocus
+                        />
+                        {coincidencias.length === 0 ? (
+                            <p className="nota">
+                                {pacientes.length === 0
+                                    ? 'Aún no hay pacientes registrados.'
+                                    : 'Ningún paciente coincide con la búsqueda.'}
+                            </p>
+                        ) : (
+                            <ul className="lista-pacientes">
+                                {coincidencias.map((p) => (
+                                    <li key={p.pacienteId}>
+                                        <button
+                                            type="button"
+                                            disabled={p.activa}
+                                            onClick={() => setPacienteElegido(p.pacienteId)}
+                                        >
+                                            <strong>{p.pacienteId}</strong>
+                                            <span className="tenue">
+                                                {p.activa
+                                                    ? `Ya está admitido en ${p.sede} · ${p.servicio}`
+                                                    : `Última atención: ${p.sede} · ${fechaHora(p.ultima)}`}
+                                            </span>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </>
+                )}
+
+                {modo === 'existente' && pacienteElegido && (
+                    <div className="paciente-elegido">
+                        <span><strong>{pacienteElegido}</strong> · reingreso</span>
+                        <button
+                            type="button"
+                            className="boton-link"
+                            onClick={() => setPacienteElegido('')}
+                            disabled={enviando}
+                        >
+                            Cambiar
+                        </button>
+                    </div>
+                )}
 
                 <label htmlFor="sede">Sede</label>
-                <select id="sede" required value={sedeId} onChange={(e) => cambiarSede(e.target.value)}>
+                <select
+                    id="sede"
+                    value={sedeId}
+                    onChange={(e) => cambiarSede(e.target.value)}
+                    disabled={cargando || enviando || sinInventario}
+                    required
+                >
                     <option value="" disabled>Selecciona una sede</option>
-                    {sedes.map((s) => <option key={s} value={s}>{s}</option>)}
+                    {sedes.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                    ))}
                 </select>
 
                 <label htmlFor="servicio">Servicio</label>
-                <select id="servicio" required value={servicio} disabled={!sedeId}
-                    onChange={(e) => setServicio(e.target.value)}>
+                <select
+                    id="servicio"
+                    value={servicio}
+                    onChange={(e) => setServicio(e.target.value)}
+                    disabled={!sedeId || enviando}
+                    required
+                >
                     <option value="" disabled>
                         {sedeId ? 'Selecciona un servicio' : 'Elige primero una sede'}
                     </option>
-                    {serviciosDeSede.map((i) => (
-                        <option key={i.servicio} value={i.servicio} disabled={libres(i) === 0}>
-                            {i.servicio} — {libres(i) === 0 ? 'sin camas libres' : `${libres(i)} libres`}
-                        </option>
-                    ))}
+                    {serviciosDeSede.map((item) => {
+                        const disponibles = libres(item);
+                        return (
+                            <option key={item.servicio} value={item.servicio} disabled={disponibles === 0}>
+                                {item.servicio} — {disponibles} {disponibles === 1 ? 'libre' : 'libres'}
+                            </option>
+                        );
+                    })}
                 </select>
+
+                <label htmlFor="medico">Médico tratante</label>
+                <input
+                    id="medico"
+                    type="text"
+                    value={medicoTratante}
+                    onChange={(e) => setMedicoTratante(e.target.value)}
+                    disabled={enviando}
+                    required
+                />
+
+                <label htmlFor="motivo">Motivo de ingreso</label>
+                <textarea
+                    id="motivo"
+                    value={motivoIngreso}
+                    onChange={(e) => setMotivoIngreso(e.target.value)}
+                    disabled={enviando}
+                    required
+                />
 
                 {error && <p className="error" role="alert">{error}</p>}
 
                 <div className="acciones">
-                    <button className="boton" type="submit"
-                        disabled={enviando || !pacienteId.trim() || !sedeId || !servicio}>
-                        {enviando ? 'Registrando…' : 'Registrar'}
+                    <button
+                        type="submit"
+                        className="boton"
+                        disabled={enviando || formularioIncompleto || sinInventario}
+                    >
+                        {enviando ? 'Registrando…' : 'Registrar admisión'}
                     </button>
+                    <Link className="boton-secundario" to="/admisiones">Cancelar</Link>
                 </div>
             </form>
         </>
@@ -1413,342 +2410,510 @@ export default function AdmisionesPage() {
 ========================================
 ARCHIVO: ./frontend/src/features/admisiones/AdmisionDetallePage.jsx
 ========================================
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { darDeAlta, obtenerAdmision, trasladarAdmision } from './api';
-import BadgeEstado from './BadgeEstado';
-import { libres, sedesDe } from './catalogo';
+import { darDeAlta, listarInventario, obtenerAdmision, trasladarAdmision } from './api';
 import { fechaHora } from './formato';
-import { useInventario } from './useInventario';
-
-function construirLinea(a) {
-    const primero = a.traslados[0];
-    const eventos = [{
-        clave: 'ingreso',
-        titulo: 'Ingreso',
-        detalle: `${primero ? primero.sedeOrigenId : a.sedeActualId} · ${primero ? primero.servicioOrigen ?? '—' : a.servicioActual}`,
-        fecha: a.fechaIngreso,
-    }];
-    a.traslados.forEach((t, i) => eventos.push({
-        clave: `traslado-${i}`,
-        titulo: 'Traslado',
-        detalle: `${t.sedeOrigenId} · ${t.servicioOrigen ?? '—'}  →  ${t.sedeDestinoId} · ${t.servicioDestino ?? '—'}`,
-        fecha: t.fecha,
-    }));
-    if (a.fechaAlta) {
-        eventos.push({ clave: 'alta', titulo: 'Alta médica', detalle: a.sedeActualId, fecha: a.fechaAlta });
-    }
-    return eventos;
-}
 
 export default function AdmisionDetallePage() {
     const { id } = useParams();
     const { usuario } = useAuth();
-    const { inventario, recargar: recargarInventario } = useInventario();
+
+    // Requisito (HU-03 y HU-09): traslada y da de alta el MÉDICO.
+    // ADMISIONES y ADMINISTRADOR no ven los botones. Para cambiar quién puede, edita esta lista.
+    const ROLES_CLINICOS = ['MEDICO'];
+    const puedeGestionar = ROLES_CLINICOS.includes(usuario?.rol);
 
     const [admision, setAdmision] = useState(null);
+    const [inventario, setInventario] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
+    const [avisoOk, setAvisoOk] = useState('');
     const [sedeDestino, setSedeDestino] = useState('');
     const [servicioDestino, setServicioDestino] = useState('');
+    const [procesando, setProcesando] = useState(false);
     const [confirmandoAlta, setConfirmandoAlta] = useState(false);
-    const [ocupado, setOcupado] = useState(false);
-    const [errorAccion, setErrorAccion] = useState('');
-    const [aviso, setAviso] = useState('');
 
-    const cargar = useCallback(async () => {
+    const cargarDatos = useCallback(async () => {
         try {
-            setAdmision(await obtenerAdmision(id));
-            setError('');
+            const [adm, inv] = await Promise.all([
+                obtenerAdmision(id),
+                puedeGestionar ? listarInventario() : Promise.resolve([]),
+            ]);
+            setAdmision(adm);
+            setInventario(Array.isArray(inv) ? inv : []);
         } catch (err) {
-            setError(err.message);
+            setError(err.status === 404 ? 'Admisión no encontrada.' : err.message);
         } finally {
             setCargando(false);
         }
-    }, [id]);
+    }, [id, puedeGestionar]);
 
-    useEffect(() => { cargar(); }, [cargar]);
+    useEffect(() => { cargarDatos(); }, [cargarDatos]);
 
-    async function ejecutar(accion, mensajeOk) {
-        if (ocupado) return;
-        setOcupado(true);
-        setErrorAccion('');
-        setAviso('');
+    const sedes = useMemo(
+        () => [...new Set(inventario.map((i) => i.sedeId))].sort((a, b) => a.localeCompare(b, 'es')),
+        [inventario],
+    );
+    const serviciosDeSede = useMemo(
+        () => inventario
+            .filter((i) => i.sedeId === sedeDestino)
+            .map((i) => ({
+                servicio: i.servicio,
+                libres: i.camasLibres ?? Math.max(0, (i.camasTotales ?? 0) - (i.camasOcupadas ?? 0)),
+            }))
+            .sort((a, b) => a.servicio.localeCompare(b.servicio, 'es')),
+        [inventario, sedeDestino],
+    );
+
+    async function ejecutarTraslado(e) {
+        e.preventDefault();
+        if (procesando || !sedeDestino || !servicioDestino) return;
+        setError(''); setAvisoOk(''); setProcesando(true);
         try {
-            await accion();
-            setAviso(mensajeOk);
-            await cargar();
+            await trasladarAdmision(id, { sedeDestinoId: sedeDestino, servicioDestino });
+            setAvisoOk(`Paciente trasladado a ${sedeDestino} · ${servicioDestino}.`);
+            setSedeDestino(''); setServicioDestino('');
+            await cargarDatos();
         } catch (err) {
-            setErrorAccion(err.message);
+            setError(err.message);
         } finally {
-            setOcupado(false);
-            recargarInventario();
+            setProcesando(false);
         }
     }
 
-    function trasladar(e) {
-        e.preventDefault();
-        ejecutar(async () => {
-            await trasladarAdmision(id, { sedeDestinoId: sedeDestino, servicioDestino });
-            setSedeDestino('');
-            setServicioDestino('');
-        }, 'Traslado registrado correctamente.');
+    async function ejecutarAlta() {
+        if (procesando) return;
+        setError(''); setAvisoOk(''); setProcesando(true);
+        try {
+            await darDeAlta(id);
+            setConfirmandoAlta(false);
+            setAvisoOk('Alta registrada. La cama fue liberada.');
+            await cargarDatos();
+        } catch (err) {
+            setConfirmandoAlta(false);
+            setError(err.message);
+        } finally {
+            setProcesando(false);
+        }
     }
 
-    function alta() {
-        setConfirmandoAlta(false);
-        ejecutar(() => darDeAlta(id), 'Alta registrada. La cama fue liberada.');
-    }
+    if (cargando) return <p className="subtitulo">Cargando admisión…</p>;
 
-    if (cargando) return <p className="subtitulo">Cargando…</p>;
-    if (error || !admision) {
+    if (!admision) {
         return (
             <>
-                <p className="error" role="alert">{error || 'No se encontró la admisión.'}</p>
-                <Link to="/admisiones">← Volver a admisiones</Link>
+                <p><Link to="/admisiones" className="boton-link-oscuro">← Volver a admisiones</Link></p>
+                {error && <p className="error" role="alert">{error}</p>}
             </>
         );
     }
 
     const activa = admision.estado === 'ACTIVA';
-    const esMedico = usuario.rol === 'MEDICO';
-    const sedes = sedesDe(inventario);
-    const opcionesServicio = inventario.filter((i) => i.sedeId === sedeDestino);
+    const traslados = admision.traslados ?? [];
+    const sedeActual = admision.sedeActualId;
+    const servicioActual = admision.servicioActual;
+    const ingreso = traslados[0]
+        ? `${traslados[0].sedeOrigenId} · ${traslados[0].servicioOrigen}`
+        : `${sedeActual} · ${servicioActual}`;
 
     return (
         <>
-            <Link to="/admisiones">← Volver a admisiones</Link>
-            <div className="encabezado" style={{ marginTop: 12 }}>
+            <p><Link to="/admisiones" className="boton-link-oscuro">← Volver a admisiones</Link></p>
+
+            <div className="encabezado">
                 <div>
                     <h1>Admisión de {admision.pacienteId}</h1>
-                    <p className="subtitulo mono">{admision.id}</p>
-                    {esMedico && (
-                        <Link to={`/paciente/${encodeURIComponent(admision.pacienteId)}`}>
-                            Ver estado consolidado →
-                        </Link>
-                    )}
+                    <p className="mono subtitulo">{admision.id}</p>
                 </div>
-                <BadgeEstado estado={admision.estado} />
+                <span className={`badge ${activa ? 'badge-ok' : 'badge-neutro'}`}>
+                    <span className="badge-punto" />{activa ? 'Activa' : 'Dada de alta'}
+                </span>
             </div>
 
-            {aviso && <p className="aviso-ok" role="status">{aviso}</p>}
+            {usuario?.rol === 'MEDICO' && (
+                <p>
+                    <Link className="boton-link-oscuro" to={`/paciente/${encodeURIComponent(admision.pacienteId)}`}>
+                        Ver estado consolidado →
+                    </Link>
+                </p>
+            )}
 
-            <div className="tarjeta" style={{ marginBottom: 24 }}>
+            {avisoOk && <p className="aviso-ok" role="status">{avisoOk}</p>}
+
+            <div className="tarjeta">
                 <dl className="datos">
-                    <dt>Ubicación actual</dt><dd>{admision.sedeActualId} · {admision.servicioActual}</dd>
+                    <dt>Ubicación actual</dt><dd>{sedeActual} · {servicioActual}</dd>
+                    <dt>Médico tratante</dt><dd>{admision.medicoTratante || 'Sin especificar'}</dd>
+                    <dt>Motivo de ingreso</dt><dd>{admision.motivoIngreso || 'Sin especificar'}</dd>
+                    <dt>Cobertura aseguradora</dt>
+                    <dd>{admision.coberturaPorcentaje != null ? `${admision.coberturaPorcentaje}%` : 'Sin verificar'}</dd>
                     <dt>Fecha de ingreso</dt><dd>{fechaHora(admision.fechaIngreso)}</dd>
-                    <dt>Fecha de alta</dt><dd>{fechaHora(admision.fechaAlta)}</dd>
-                    <dt>Traslados</dt><dd>{admision.traslados.length}</dd>
+                    <dt>Fecha de alta</dt><dd>{admision.fechaAlta ? fechaHora(admision.fechaAlta) : '—'}</dd>
+                    <dt>Traslados</dt><dd>{traslados.length}</dd>
                 </dl>
             </div>
 
-            <h2>Historial del paciente</h2>
-            <ol className="linea-tiempo">
-                {construirLinea(admision).map((e) => (
-                    <li key={e.clave}>
-                        <strong>{e.titulo}</strong>
-                        <span>{e.detalle}</span>
-                        <small>{fechaHora(e.fecha)}</small>
+            <h2 style={{ marginTop: 28 }}>Historial del paciente</h2>
+            <ul className="linea-tiempo">
+                <li><strong>Ingreso</strong><span>{ingreso}</span><small>{fechaHora(admision.fechaIngreso)}</small></li>
+                {traslados.map((t, i) => (
+                    <li key={i}>
+                        <strong>Traslado</strong>
+                        <span>{t.sedeOrigenId} · {t.servicioOrigen} → {t.sedeDestinoId} · {t.servicioDestino}</span>
+                        <small>{fechaHora(t.fecha)}</small>
                     </li>
                 ))}
-            </ol>
+                {admision.fechaAlta && (
+                    <li><strong>Alta</strong><span>{sedeActual} · {servicioActual}</span><small>{fechaHora(admision.fechaAlta)}</small></li>
+                )}
+            </ul>
 
-            {errorAccion && <p className="error" role="alert">{errorAccion}</p>}
+            {error && <p className="error" role="alert">{error}</p>}
 
-            {activa && esMedico && (
-                <div className="paneles">
-                    <form className="tarjeta" onSubmit={trasladar}>
-                        <h2>Trasladar paciente</h2>
-                        <label htmlFor="sede-destino">Sede destino</label>
-                        <select id="sede-destino" required value={sedeDestino}
-                            onChange={(e) => { setSedeDestino(e.target.value); setServicioDestino(''); }}>
-                            <option value="" disabled>Selecciona una sede</option>
-                            {sedes.map((s) => <option key={s} value={s}>{s}</option>)}
-                        </select>
-
-                        <label htmlFor="servicio-destino">Servicio destino</label>
-                        <select id="servicio-destino" required value={servicioDestino} disabled={!sedeDestino}
-                            onChange={(e) => setServicioDestino(e.target.value)}>
-                            <option value="" disabled>
-                                {sedeDestino ? 'Selecciona un servicio' : 'Elige primero una sede'}
-                            </option>
-                            {opcionesServicio.map((i) => {
-                                const actual = i.sedeId === admision.sedeActualId && i.servicio === admision.servicioActual;
-                                const sinCama = libres(i) === 0;
-                                return (
-                                    <option key={i.servicio} value={i.servicio} disabled={actual || sinCama}>
-                                        {i.servicio} — {actual ? 'ubicación actual' : sinCama ? 'sin camas libres' : `${libres(i)} libres`}
-                                    </option>
-                                );
-                            })}
-                        </select>
-
-                        <div className="acciones">
-                            <button className="boton" type="submit"
-                                disabled={ocupado || !sedeDestino || !servicioDestino}>
-                                {ocupado ? 'Procesando…' : 'Trasladar'}
-                            </button>
-                        </div>
-                    </form>
-
-                    <div className="tarjeta">
-                        <h2>Alta médica</h2>
-                        <p className="subtitulo">
-                            Cierra la admisión y libera la cama. Se rechaza si el paciente tiene órdenes de
-                            laboratorio pendientes.
-                        </p>
-                        {!confirmandoAlta ? (
-                            <button className="boton boton-peligro" disabled={ocupado}
-                                onClick={() => setConfirmandoAlta(true)}>
-                                Dar de alta
-                            </button>
-                        ) : (
-                            <div className="confirmacion">
-                                <p><strong>¿Confirmas el alta de {admision.pacienteId}?</strong></p>
-                                <div className="acciones">
-                                    <button className="boton boton-peligro" disabled={ocupado} onClick={alta}>
-                                        Sí, dar de alta
-                                    </button>
-                                    <button className="boton-secundario" onClick={() => setConfirmandoAlta(false)}>
-                                        Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+            {!puedeGestionar && activa && (
+                <p className="nota">El traslado y el alta médica los realiza el personal médico.</p>
             )}
 
-            {activa && !esMedico && (
-                <p className="nota">Solo el personal médico puede trasladar o dar de alta a un paciente.</p>
+            {puedeGestionar && activa && (
+                <div className="paneles">
+                    <section className="tarjeta">
+                        <h2>Trasladar paciente</h2>
+                        <form onSubmit={ejecutarTraslado} noValidate>
+                            <label htmlFor="sede-destino">Sede destino</label>
+                            <select id="sede-destino" value={sedeDestino} disabled={procesando}
+                                onChange={(e) => { setSedeDestino(e.target.value); setServicioDestino(''); setError(''); }}>
+                                <option value="" disabled>Selecciona una sede</option>
+                                {sedes.map((s) => <option key={s} value={s}>{s}</option>)}
+                            </select>
+
+                            <label htmlFor="servicio-destino">Servicio destino</label>
+                            <select id="servicio-destino" value={servicioDestino} disabled={!sedeDestino || procesando}
+                                onChange={(e) => { setServicioDestino(e.target.value); setError(''); }}>
+                                <option value="" disabled>{sedeDestino ? 'Selecciona un servicio' : 'Elige primero una sede'}</option>
+                                {serviciosDeSede.map((s) => {
+                                    const esActual = sedeDestino === sedeActual && s.servicio === servicioActual;
+                                    return (
+                                        <option key={s.servicio} value={s.servicio} disabled={s.libres === 0 || esActual}>
+                                            {s.servicio} — {s.libres} {s.libres === 1 ? 'libre' : 'libres'}
+                                            {esActual ? ' (ubicación actual)' : ''}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+
+                            <div className="acciones">
+                                <button type="submit" className="boton" disabled={procesando || !sedeDestino || !servicioDestino}>
+                                    {procesando ? 'Trasladando…' : 'Trasladar'}
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section className="tarjeta">
+                        <h2>Alta médica</h2>
+                        <p className="nota">
+                            Cierra la admisión y libera la cama. Se rechaza si el paciente tiene órdenes de laboratorio pendientes.
+                        </p>
+                        <div className="acciones">
+                            {!confirmandoAlta ? (
+                                <button type="button" className="boton boton-peligro" disabled={procesando}
+                                    onClick={() => setConfirmandoAlta(true)}>
+                                    Dar de alta
+                                </button>
+                            ) : (
+                                <>
+                                    <button type="button" className="boton boton-peligro" disabled={procesando} onClick={ejecutarAlta}>
+                                        {procesando ? 'Procesando…' : 'Confirmar alta'}
+                                    </button>
+                                    <button type="button" className="boton-secundario" disabled={procesando}
+                                        onClick={() => setConfirmandoAlta(false)}>
+                                        Cancelar
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </section>
+                </div>
             )}
         </>
     );
 }
+
 ========================================
 ARCHIVO: ./frontend/src/features/admisiones/ReportePage.jsx
 ========================================
-import { useEffect, useState } from 'react';
-import { reporteOcupacion } from './api';
-import BarraOcupacion from './BarraOcupacion';
-import { nivelOcupacion, porcentaje, resumenPorSede } from './catalogo';
-import { useInventario } from './useInventario';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+function buscarJwtEnStorage(storage) {
+    if (!storage) return null;
+    for (let i = 0; i < storage.length; i += 1) {
+        const valor = storage.getItem(storage.key(i));
+        if (!valor) continue;
+        const limpio = valor.trim();
+        if (/^eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(limpio)) {
+            return limpio;
+        }
+        if (limpio.startsWith('{')) {
+            try {
+                const obj = JSON.parse(limpio);
+                for (const prop of ['token', 'accessToken', 'jwt', 'idToken']) {
+                    if (typeof obj?.[prop] === 'string' && obj[prop].startsWith('eyJ')) {
+                        return obj[prop];
+                    }
+                }
+            } catch {
+                // Ignorar si no es JSON válido
+            }
+        }
+    }
+    return null;
+}
+
+function obtenerToken() {
+    return buscarJwtEnStorage(window.sessionStorage) || buscarJwtEnStorage(window.localStorage);
+}
+
+function clasificarDisponibilidad(totales, ocupadas) {
+    if (totales <= 0) {
+        return {
+            clase: 'sin-camas',
+            etiqueta: 'Sin camas',
+            porcentajeOcupacion: 0,
+            porcentajeDisponible: 0,
+        };
+    }
+
+    const libres = Math.max(0, totales - ocupadas);
+    const porcentajeDisponible = Math.round((libres / totales) * 100);
+    const porcentajeOcupacion = 100 - porcentajeDisponible;
+
+    if (libres === 0) {
+        return {
+            clase: 'critico',
+            etiqueta: 'Sin disponibilidad',
+            porcentajeOcupacion: 100,
+            porcentajeDisponible: 0,
+        };
+    }
+    if (porcentajeDisponible <= 25) {
+        return {
+            clase: 'alto',
+            etiqueta: `${porcentajeDisponible}% disponible`,
+            porcentajeOcupacion,
+            porcentajeDisponible,
+        };
+    }
+    return {
+        clase: 'ok',
+        etiqueta: `${porcentajeDisponible}% disponible`,
+        porcentajeOcupacion,
+        porcentajeDisponible,
+    };
+}
 
 export default function ReportePage() {
-    const { inventario, cargando, error: errorInventario, recargar } = useInventario(30000);
-    const [sede, setSede] = useState('');
-    const [version, setVersion] = useState(0);
-    const [resultado, setResultado] = useState(null);
+    const [inventario, setInventario] = useState([]);
+    const [cargando, setCargando] = useState(true);
+    const [error, setError] = useState('');
+
+    const cargarReporte = useCallback(async () => {
+        setError('');
+        setCargando(true);
+        try {
+            const token = obtenerToken();
+            const respuesta = await fetch('/api/admisiones/inventario-camas/todas', {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            if (respuesta.status === 401) {
+                throw new Error('Tu sesión expiró (401). Cierra sesión e inicia nuevamente.');
+            }
+            if (!respuesta.ok) {
+                throw new Error(`No se pudo cargar el reporte (${respuesta.status})`);
+            }
+            const datos = await respuesta.json();
+            setInventario(Array.isArray(datos) ? datos : []);
+        } catch (err) {
+            setError(err.message || 'Error al consultar la disponibilidad de camas.');
+        } finally {
+            setCargando(false);
+        }
+    }, []);
 
     useEffect(() => {
-        if (!sede) return undefined;
-        let vigente = true;
-        reporteOcupacion(sede)
-            .then((datos) => { if (vigente) setResultado({ sede, datos, generado: new Date() }); })
-            .catch((err) => { if (vigente) setResultado({ sede, error: err.message }); });
-        return () => { vigente = false; };
-    }, [sede, version]);
+        cargarReporte();
+    }, [cargarReporte]);
 
-    const sedes = resumenPorSede(inventario);
-    const red = sedes.reduce(
-        (a, s) => ({ camasTotales: a.camasTotales + s.camasTotales, camasOcupadas: a.camasOcupadas + s.camasOcupadas }),
-        { camasTotales: 0, camasOcupadas: 0 },
-    );
-    const detalle = resultado?.sede === sede ? resultado : null;
+    const { resumenRed, sedes } = useMemo(() => {
+        const mapaSedes = new Map();
+        let totalesRed = 0;
+        let ocupadasRed = 0;
 
-    function actualizar() {
-        recargar();
-        setVersion((v) => v + 1);
-    }
+        for (const item of inventario) {
+            const sedeId = item.sedeId || 'SIN SEDE';
+            const totales = Number(item.camasTotales) || 0;
+            const ocupadas = Number(item.camasOcupadas) || 0;
+            const libres = item.camasLibres != null
+                ? Number(item.camasLibres)
+                : Math.max(0, totales - ocupadas);
+
+            totalesRed += totales;
+            ocupadasRed += ocupadas;
+
+            if (!mapaSedes.has(sedeId)) {
+                mapaSedes.set(sedeId, {
+                    sedeId,
+                    totales: 0,
+                    ocupadas: 0,
+                    libres: 0,
+                    servicios: [],
+                });
+            }
+
+            const grupo = mapaSedes.get(sedeId);
+            grupo.totales += totales;
+            grupo.ocupadas += ocupadas;
+            grupo.libres += libres;
+            grupo.servicios.push({
+                servicio: item.servicio,
+                totales,
+                ocupadas,
+                libres,
+                estado: clasificarDisponibilidad(totales, ocupadas),
+            });
+        }
+
+        const listaSedes = Array.from(mapaSedes.values())
+            .sort((a, b) => a.sedeId.localeCompare(b.sedeId, 'es'))
+            .map((sede) => ({
+                ...sede,
+                servicios: sede.servicios.sort((a, b) => a.servicio.localeCompare(b.servicio, 'es')),
+                estado: clasificarDisponibilidad(sede.totales, sede.ocupadas),
+            }));
+
+        const libresRed = Math.max(0, totalesRed - ocupadasRed);
+        const estadoRed = clasificarDisponibilidad(totalesRed, ocupadasRed);
+
+        return {
+            resumenRed: {
+                totales: totalesRed,
+                ocupadas: ocupadasRed,
+                libres: libresRed,
+                estado: estadoRed,
+            },
+            sedes: listaSedes,
+        };
+    }, [inventario]);
 
     return (
         <>
-            <div className="encabezado">
+            <div className="reporte-cabecera">
                 <div>
                     <h1>Reporte de ocupación</h1>
-                    <p className="subtitulo">Camas por sede en este momento</p>
+                    <p className="subtitulo">Disponibilidad de camas por sede en este momento</p>
                 </div>
-                <div className="acciones no-imprimir" style={{ marginTop: 0 }}>
-                    <button className="boton-secundario" onClick={actualizar}>Actualizar</button>
-                    <button className="boton-secundario" onClick={() => window.print()}>Imprimir</button>
+                <div className="reporte-acciones">
+                    <button
+                        type="button"
+                        className="boton-secundario"
+                        onClick={cargarReporte}
+                        disabled={cargando}
+                    >
+                        {cargando ? 'Actualizando…' : 'Actualizar'}
+                    </button>
+                    <button
+                        type="button"
+                        className="boton-secundario"
+                        onClick={() => window.print()}
+                    >
+                        Imprimir
+                    </button>
                 </div>
             </div>
 
-            {errorInventario && <p className="error" role="alert">{errorInventario}</p>}
-            {cargando && <p className="subtitulo">Cargando…</p>}
-            {!cargando && !errorInventario && sedes.length === 0 && (
-                <div className="tarjeta vacio"><p>Aún no hay camas registradas.</p></div>
-            )}
+            {error && <p className="error" role="alert">{error}</p>}
 
-            {sedes.length > 0 && (
-                <>
-                    <div className="tarjetas-resumen">
-                        <div className="tarjeta"><span className="tenue">Camas totales</span><strong className="cifra">{red.camasTotales}</strong></div>
-                        <div className="tarjeta"><span className="tenue">Ocupadas</span><strong className="cifra">{red.camasOcupadas}</strong></div>
-                        <div className="tarjeta"><span className="tenue">Libres</span><strong className="cifra">{red.camasTotales - red.camasOcupadas}</strong></div>
-                        <div className="tarjeta"><span className="tenue">Ocupación de la red</span><strong className="cifra">{porcentaje(red)}%</strong></div>
-                    </div>
+            <section className="reporte-metricas" aria-label="Resumen de la red">
+                <div className="reporte-metrica">
+                    <span className="reporte-metrica-etiqueta">Camas totales</span>
+                    <strong className="reporte-metrica-valor">{resumenRed.totales}</strong>
+                </div>
 
-                    <h2>Sedes</h2>
-                    <div className="tarjetas-resumen">
-                        {sedes.map((s) => {
-                            const nivel = nivelOcupacion(s);
-                            return (
-                                <button key={s.sedeId} type="button" aria-pressed={sede === s.sedeId}
-                                    className={`tarjeta sede-card ${sede === s.sedeId ? 'sede-activa' : ''}`}
-                                    onClick={() => setSede(s.sedeId)}>
-                                    <strong>{s.sedeId}</strong>
-                                    <span>{s.camasOcupadas} de {s.camasTotales} ocupadas</span>
-                                    <BarraOcupacion porcentaje={porcentaje(s)} clase={nivel.clase} />
-                                    <span className={`badge badge-${nivel.clase}`}>
-                                        <span className="badge-punto" />{porcentaje(s)}% · {nivel.texto}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </>
-            )}
+                <div className="reporte-metrica">
+                    <span className="reporte-metrica-etiqueta">Disponibles</span>
+                    <strong className="reporte-metrica-valor valor-ok">{resumenRed.libres}</strong>
+                </div>
 
-            {sede && (
-                <>
-                    <h2>Detalle de {sede}</h2>
-                    {detalle?.error && <p className="error" role="alert">{detalle.error}</p>}
-                    {!detalle && <p className="subtitulo">Cargando detalle…</p>}
-                    {detalle?.datos && (
-                        <>
-                            <table className="tabla">
-                                <thead>
-                                    <tr><th>Servicio</th><th>Totales</th><th>Ocupadas</th><th>Libres</th><th>Ocupación</th></tr>
-                                </thead>
-                                <tbody>
-                                    {detalle.datos.servicios.map((s) => {
-                                        const nivel = nivelOcupacion(s);
-                                        return (
-                                            <tr key={s.servicio}>
-                                                <td>{s.servicio}</td>
-                                                <td>{s.camasTotales}</td>
-                                                <td>{s.camasOcupadas}</td>
-                                                <td>{s.camasLibres}</td>
-                                                <td>
-                                                    <span className={`badge badge-${nivel.clase}`}>
-                                                        <span className="badge-punto" />{s.porcentajeOcupacion}% · {nivel.texto}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                            <p className="nota">
-                                Generado el {detalle.generado.toLocaleString()} ·
-                                Total sede: {detalle.datos.camasOcupadas}/{detalle.datos.camasTotales} camas ocupadas
-                                ({detalle.datos.porcentajeOcupacion}%)
-                            </p>
-                        </>
-                    )}
-                </>
+                <div className="reporte-metrica">
+                    <span className="reporte-metrica-etiqueta">Ocupadas</span>
+                    <strong className="reporte-metrica-valor">{resumenRed.ocupadas}</strong>
+                </div>
+
+                <div className="reporte-metrica">
+                    <span className="reporte-metrica-etiqueta">Disponibilidad</span>
+                    <strong className={`reporte-metrica-valor valor-${resumenRed.estado.clase}`}>
+                        {resumenRed.estado.porcentajeDisponible}%
+                    </strong>
+                </div>
+            </section>
+
+            <h2 style={{ marginTop: 32 }}>Sedes</h2>
+
+            {!cargando && sedes.length === 0 ? (
+                <div className="tarjeta">
+                    <p className="subtitulo" style={{ margin: 0 }}>
+                        No hay sedes ni camas configuradas en el inventario.
+                    </p>
+                </div>
+            ) : (
+                <div className="sedes-grid">
+                    {sedes.map((sede) => (
+                        <article key={sede.sedeId} className="tarjeta sede-card">
+                            <div className="sede-card-top">
+                                <h3 className="sede-nombre">{sede.sedeId}</h3>
+                                <span className={`estado-pill ${sede.estado.clase}`}>
+                                    <span className="estado-punto" />
+                                    {sede.estado.etiqueta}
+                                </span>
+                            </div>
+
+                            <div className="sede-disponibilidad">
+                                <strong className={`sede-libres-num ${sede.estado.clase}`}>
+                                    {sede.libres}
+                                </strong>
+                                <span className="sede-libres-texto">
+                                    {sede.libres === 1 ? 'cama libre' : 'camas libres'} de {sede.totales}
+                                </span>
+                            </div>
+
+                            <div
+                                className={`barra-capacidad ${sede.libres > 0 ? 'con-disponibilidad' : ''}`}
+                                role="progressbar"
+                                aria-valuenow={sede.estado.porcentajeDisponible}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-label={`Disponibilidad en ${sede.sedeId}: ${sede.estado.porcentajeDisponible}%`}
+                            >
+                                <div
+                                    className={`barra-capacidad-relleno ${sede.estado.clase}`}
+                                    style={{ width: `${sede.estado.porcentajeOcupacion}%` }}
+                                />
+                            </div>
+
+                            <ul className="sede-servicios-lista">
+                                {sede.servicios.map((srv) => (
+                                    <li key={srv.servicio} className="sede-servicio-item">
+                                        <span className="sede-servicio-nombre">{srv.servicio}</span>
+                                        <span className={`sede-servicio-cupo ${srv.estado.clase}`}>
+                                            {srv.libres} / {srv.totales} libres
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </article>
+                    ))}
+                </div>
             )}
         </>
     );
@@ -1760,8 +2925,17 @@ import { api } from '../../api/cliente';
 
 export const listarInventario = () => api('/api/admisiones/inventario-camas/todas');
 
-export const registrarIngreso = ({ pacienteId, sedeId, servicio }) =>
-    api('/api/admisiones/ingreso', { metodo: 'POST', params: { pacienteId, sedeId, servicio } });
+export const registrarIngreso = ({ pacienteId, sedeId, servicio, medicoTratante, motivoIngreso }) =>
+    api('/api/admisiones/ingreso', {
+        metodo: 'POST',
+        params: { pacienteId, sedeId, servicio, medicoTratante, motivoIngreso },
+    });
+
+export const consultarCoberturaPaciente = (pacienteId) =>
+    api(`/api/admisiones/cobertura/${encodeURIComponent(pacienteId)}`);
+
+export const verificarCoberturaAdmision = (id) =>
+    api(`/api/admisiones/${encodeURIComponent(id)}/verificar-cobertura`, { metodo: 'POST' });
 
 export const listarAdmisiones = () => api('/api/admisiones');
 
@@ -1791,24 +2965,27 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { useInventario } from './useInventario';
-import { libres, nivelOcupacion, porcentaje, sedesDe } from './catalogo';
+import { estadoDisponibilidad, libres, porcentajeLibre, sedesDe } from './catalogo';
 
 export default function CamasPage() {
     const { usuario } = useAuth();
     const { inventario, cargando, error, actualizado, recargar } = useInventario();
     const [sede, setSede] = useState('');
+    const [soloConCamas, setSoloConCamas] = useState(false);
 
     const sedes = sedesDe(inventario);
-    const filas = inventario.filter((i) => !sede || i.sedeId === sede);
-    const totalLibres = filas.reduce((suma, i) => suma + libres(i), 0);
-    const puedeGestionar = ['ADMISIONES', 'ADMINISTRADOR'].includes(usuario.rol);
+    const deLaSede = inventario.filter((i) => !sede || i.sedeId === sede);
+    const filas = deLaSede.filter((i) => !soloConCamas || libres(i) > 0);
+    const totalLibres = deLaSede.reduce((suma, i) => suma + libres(i), 0);
+    const totalCamas = deLaSede.reduce((suma, i) => suma + i.camasTotales, 0);
+    const puedeGestionar = usuario.rol === 'ADMINISTRADOR';
 
     return (
         <>
             <div className="encabezado">
                 <div>
                     <h1>Disponibilidad de camas</h1>
-                    <p className="subtitulo">Ocupación por sede y servicio</p>
+                    <p className="subtitulo">Camas libres por sede y servicio para decidir dónde admitir</p>
                 </div>
                 {usuario.rol === 'ADMISIONES' && (
                     <Link className="boton" to="/admisiones/nueva">+ Registrar admisión</Link>
@@ -1821,7 +2998,17 @@ export default function CamasPage() {
                     <option value="">Todas las sedes</option>
                     {sedes.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
-                <span className="resumen"><strong>{totalLibres}</strong> camas libres</span>
+                <label className="check-filtro">
+                    <input
+                        type="checkbox"
+                        checked={soloConCamas}
+                        onChange={(e) => setSoloConCamas(e.target.checked)}
+                    />
+                    Solo con camas libres
+                </label>
+                <span className="resumen">
+                    <strong>{totalLibres}</strong> camas libres de {totalCamas}
+                </span>
                 <button className="boton-secundario" onClick={recargar}>Actualizar</button>
                 {actualizado && (
                     <span className="nota">Actualizado {actualizado.toLocaleTimeString()}</span>
@@ -1831,11 +3018,15 @@ export default function CamasPage() {
             {error && <p className="error" role="alert">{error}</p>}
             {cargando && <p className="subtitulo">Cargando…</p>}
 
-            {!cargando && !error && filas.length === 0 && (
+            {!cargando && !error && deLaSede.length === 0 && (
                 <div className="tarjeta vacio">
                     <p>Aún no hay camas registradas.</p>
                     {puedeGestionar && <Link to="/capacidad">Registrar capacidad de camas</Link>}
                 </div>
+            )}
+
+            {!cargando && !error && deLaSede.length > 0 && filas.length === 0 && (
+                <div className="tarjeta vacio"><p>Ningún servicio tiene camas libres en este momento.</p></div>
             )}
 
             {filas.length > 0 && (
@@ -1845,21 +3036,37 @@ export default function CamasPage() {
                             <th>Sede</th>
                             <th>Servicio</th>
                             <th>Camas libres</th>
-                            <th>Ocupación</th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filas.map((i) => {
-                            const nivel = nivelOcupacion(i);
+                            const est = estadoDisponibilidad(i);
+                            const l = libres(i);
                             return (
                                 <tr key={`${i.sedeId}|${i.servicio}`}>
                                     <td>{i.sedeId}</td>
                                     <td>{i.servicio}</td>
-                                    <td>{libres(i)} <span className="tenue">de {i.camasTotales}</span></td>
                                     <td>
-                                        <span className={`badge badge-${nivel.clase}`}>
+                                        <div className="libres-celda">
+                                            <span className={`libres-num libres-${est.clase}`}>{l}</span>
+                                            <span className="tenue">de {i.camasTotales} libres</span>
+                                        </div>
+                                        <div
+                                            className="barra-ocupacion barra-fina"
+                                            role="img"
+                                            aria-label={`${l} de ${i.camasTotales} camas libres`}
+                                        >
+                                            <div
+                                                className={`relleno relleno-${est.clase}`}
+                                                style={{ width: `${porcentajeLibre(i)}%` }}
+                                            />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span className={`badge badge-${est.clase}`}>
                                             <span className="badge-punto" />
-                                            {porcentaje(i)}% · {nivel.texto}
+                                            {est.texto}
                                         </span>
                                     </td>
                                 </tr>
@@ -1868,6 +3075,10 @@ export default function CamasPage() {
                     </tbody>
                 </table>
             )}
+
+            <p className="nota leyenda-camas">
+                La barra muestra qué parte de las camas está libre. Verde: hay camas · Amarillo: quedan pocas · Rojo: sin camas libres.
+            </p>
         </>
     );
 }
@@ -1914,8 +3125,13 @@ export default function Layout() {
                     ))}
                 </nav>
                 <div className="sesion">
-                    <span title={usuario.email}>{usuario.rol}</span>
-                    <button className="boton-link" onClick={salir}>Salir</button>
+                    <span className="rol-badge" title={usuario.email}>
+                        <span className="rol-punto" />
+                        {usuario.rol}
+                    </span>
+                    <button type="button" className="boton-cerrar-sesion" onClick={salir}>
+                        CERRAR SESIÓN
+                    </button>
                 </div>
             </header>
             <main className="contenido"><Outlet /></main>
@@ -4645,6 +5861,25 @@ ARCHIVO: ./admisiones-service/src/main/resources/db/migration/V4__bloqueo_optimi
 -- admisiones-service/src/main/resources/db/migration/V4__bloqueo_optimista_inventario.sql
 ALTER TABLE inventario_camas ADD COLUMN version BIGINT NOT NULL DEFAULT 0;
 ========================================
+ARCHIVO: ./admisiones-service/src/main/resources/db/migration/V7__secuencia_paciente.sql
+========================================
+CREATE SEQUENCE paciente_secuencia START WITH 1001 INCREMENT BY 1;
+========================================
+ARCHIVO: ./admisiones-service/src/main/resources/db/migration/V6__agregar_medico_motivo_y_cobertura.sql
+========================================
+ALTER TABLE admisiones ADD COLUMN medico_tratante VARCHAR(150);
+UPDATE admisiones SET medico_tratante = 'Sin especificar' WHERE medico_tratante IS NULL;
+ALTER TABLE admisiones ALTER COLUMN medico_tratante SET NOT NULL;
+
+ALTER TABLE admisiones ADD COLUMN motivo_ingreso TEXT;
+UPDATE admisiones SET motivo_ingreso = 'Sin especificar' WHERE motivo_ingreso IS NULL;
+ALTER TABLE admisiones ALTER COLUMN motivo_ingreso SET NOT NULL;
+
+ALTER TABLE admisiones ADD COLUMN cobertura_porcentaje INT;
+ALTER TABLE admisiones
+    ADD CONSTRAINT chk_admisiones_cobertura
+    CHECK (cobertura_porcentaje IS NULL OR cobertura_porcentaje BETWEEN 0 AND 100);
+========================================
 ARCHIVO: ./admisiones-service/src/main/resources/db/migration/V3__agregar_servicio_e_inventario_camas.sql
 ========================================
 ALTER TABLE admisiones ADD COLUMN servicio_actual VARCHAR(100);
@@ -4732,6 +5967,12 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+admisiones:
+  aseguradora:
+    url: ${ASEGURADORA_URL:http://localhost:9095/api/aseguradora}
+    connect-timeout-ms: 2000
+    read-timeout-ms: 3000
+
 eureka:
   instance:
     prefer-ip-address: true
@@ -4765,6 +6006,9 @@ public class Admision {
     private String pacienteId;
     private String sedeActualId;
     private String servicioActual;
+    private String medicoTratante;
+    private String motivoIngreso;
+    private Integer coberturaPorcentaje;
 
     @Enumerated(EnumType.STRING)
     private EstadoAdmision estado;
@@ -4780,14 +6024,33 @@ public class Admision {
         // exigido por Hibernate
     }
 
-    public Admision(String id, String pacienteId, String sedeInicialId, String servicioInicial,
+    public Admision(
+            String id,
+            String pacienteId,
+            String sedeInicialId,
+            String servicioInicial,
+            String medicoTratante,
+            String motivoIngreso,
             LocalDateTime fechaIngreso) {
         this.id = id;
         this.pacienteId = pacienteId;
         this.sedeActualId = sedeInicialId;
         this.servicioActual = servicioInicial;
+        this.medicoTratante = medicoTratante;
+        this.motivoIngreso = motivoIngreso;
         this.estado = EstadoAdmision.ACTIVA;
         this.fechaIngreso = fechaIngreso;
+    }
+
+    public void registrarCobertura(int porcentaje) {
+        if (estado != EstadoAdmision.ACTIVA) {
+            throw new IllegalStateException("Solo se puede verificar cobertura en una admisión activa.");
+        }
+        if (porcentaje < 0 || porcentaje > 100) {
+            throw new IllegalArgumentException(
+                    "El porcentaje de cobertura debe estar entre 0 y 100 (recibido: %d).".formatted(porcentaje));
+        }
+        this.coberturaPorcentaje = porcentaje;
     }
 
     public void registrarTraslado(String sedeDestinoId, String servicioDestino, LocalDateTime fecha) {
@@ -4826,6 +6089,18 @@ public class Admision {
 
     public String servicioActual() {
         return servicioActual;
+    }
+
+    public String medicoTratante() {
+        return medicoTratante;
+    }
+
+    public String motivoIngreso() {
+        return motivoIngreso;
+    }
+
+    public Integer coberturaPorcentaje() {
+        return coberturaPorcentaje;
     }
 
     public EstadoAdmision estado() {
@@ -5180,7 +6455,16 @@ import java.util.List;
 
 public interface AdmisionUseCase {
 
-    Admision registrarIngreso(String pacienteId, String sedeId, String servicio);
+    Admision registrarIngreso(
+            String pacienteId,
+            String sedeId,
+            String servicio,
+            String medicoTratante,
+            String motivoIngreso);
+
+    Admision verificarCoberturaAdmision(String admisionId);
+
+    int consultarCoberturaPaciente(String pacienteId);
 
     void trasladarPaciente(String admisionId, String sedeDestinoId, String servicioDestino);
 
@@ -5192,6 +6476,16 @@ public interface AdmisionUseCase {
 }
 
 ========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/VerificadorLaboratorioPuerto.java
+========================================
+package co.edu.uptc.admisiones_service.aplicacion;
+
+public interface VerificadorLaboratorioPuerto {
+
+    boolean tieneOrdenesPendientes(String pacienteId);
+}
+
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/AdmisionService.java
 ========================================
 package co.edu.uptc.admisiones_service.aplicacion;
@@ -5199,14 +6493,17 @@ package co.edu.uptc.admisiones_service.aplicacion;
 import co.edu.uptc.admisiones_service.compartido.RecursoNoEncontradoException;
 import co.edu.uptc.admisiones_service.dominio.Admision;
 import co.edu.uptc.admisiones_service.dominio.DisponibilidadCama;
-import co.edu.uptc.admisiones_service.infraestructura.salida.laboratorio.VerificadorLaboratorioGrpcAdapter;
 import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEvent;
 import co.edu.uptc.admisiones_service.infraestructura.salida.persistencia.OutboxEventRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdmisionService implements AdmisionUseCase {
@@ -5214,28 +6511,48 @@ public class AdmisionService implements AdmisionUseCase {
     private final RepositorioAdmisiones repositorioAdmisiones;
     private final AdmisionFactory admisionFactory;
     private final TrasladoPacienteService trasladoPacienteService;
-    private final VerificadorLaboratorioGrpcAdapter verificadorLaboratorioGrpc;
+    private final VerificadorLaboratorioPuerto verificadorLaboratorio;
+    private final ConsultaCoberturaExterna consultaCoberturaExterna;
     private final OutboxEventRepository outboxRepository;
     private final InventarioCamasUseCase inventarioCamasUseCase;
+    private final ObjectMapper objectMapper;
+    private final GeneradorIdPaciente generadorIdPaciente;
 
     public AdmisionService(
             RepositorioAdmisiones repositorioAdmisiones,
             AdmisionFactory admisionFactory,
             TrasladoPacienteService trasladoPacienteService,
-            VerificadorLaboratorioGrpcAdapter verificadorLaboratorioGrpc,
+            VerificadorLaboratorioPuerto verificadorLaboratorio,
+            ConsultaCoberturaExterna consultaCoberturaExterna,
             OutboxEventRepository outboxRepository,
-            InventarioCamasUseCase inventarioCamasUseCase) {
+            InventarioCamasUseCase inventarioCamasUseCase,
+            ObjectMapper objectMapper,
+            GeneradorIdPaciente generadorIdPaciente) {
         this.repositorioAdmisiones = repositorioAdmisiones;
         this.admisionFactory = admisionFactory;
         this.trasladoPacienteService = trasladoPacienteService;
-        this.verificadorLaboratorioGrpc = verificadorLaboratorioGrpc;
+        this.verificadorLaboratorio = verificadorLaboratorio;
+        this.consultaCoberturaExterna = consultaCoberturaExterna;
         this.outboxRepository = outboxRepository;
         this.inventarioCamasUseCase = inventarioCamasUseCase;
+        this.objectMapper = objectMapper;
+        this.generadorIdPaciente = generadorIdPaciente;
     }
 
     @Override
     @Transactional
-    public Admision registrarIngreso(String pacienteId, String sedeId, String servicio) {
+    public Admision registrarIngreso(
+            String pacienteId,
+            String sedeId,
+            String servicio,
+            String medicoTratante,
+            String motivoIngreso) {
+
+        if (pacienteId == null || pacienteId.isBlank()) {
+            pacienteId = generadorIdPaciente.siguiente();
+        } else {
+            pacienteId = pacienteId.trim();
+        }
 
         if (pacienteId != null && repositorioAdmisiones.existeActivaDelPaciente(pacienteId)) {
             throw new IllegalStateException(
@@ -5245,23 +6562,51 @@ public class AdmisionService implements AdmisionUseCase {
 
         DisponibilidadCama disponibilidad = inventarioCamasUseCase.consultarDisponibilidad(sedeId, servicio);
 
-        Admision admision = admisionFactory.registrarIngreso(pacienteId, sedeId, disponibilidad);
+        Admision admision = admisionFactory.registrarIngreso(
+                pacienteId, sedeId, medicoTratante, motivoIngreso, disponibilidad);
         Admision guardada = repositorioAdmisiones.guardar(admision);
 
         inventarioCamasUseCase.ocuparCama(sedeId, servicio);
 
-        String payload = """
-                {
-                    "admisionId": "%s",
-                    "pacienteId": "%s",
-                    "sedeInicialId": "%s",
-                    "servicioInicial": "%s",
-                    "fechaIngreso": "%s"
-                }""".formatted(guardada.id(), guardada.pacienteId(), guardada.sedeActualId(),
-                guardada.servicioActual(), guardada.fechaIngreso());
+        Map<String, Object> evento = new LinkedHashMap<>();
+        evento.put("admisionId", guardada.id());
+        evento.put("pacienteId", guardada.pacienteId());
+        evento.put("sedeInicialId", guardada.sedeActualId());
+        evento.put("servicioInicial", guardada.servicioActual());
+        evento.put("medicoTratante", guardada.medicoTratante());
+        evento.put("motivoIngreso", guardada.motivoIngreso());
+        evento.put("fechaIngreso", guardada.fechaIngreso().toString());
 
-        outboxRepository.save(new OutboxEvent(guardada.pacienteId(), "PacienteIngresado", payload));
+        outboxRepository.save(new OutboxEvent(guardada.pacienteId(), "PacienteIngresado", serializar(evento)));
         return guardada;
+    }
+
+    @Override
+    @Transactional
+    public Admision verificarCoberturaAdmision(String admisionId) {
+        Admision admision = buscarPorId(admisionId);
+        int porcentaje = consultaCoberturaExterna.consultarPorcentajeCobertura(admision.pacienteId());
+        admision.registrarCobertura(porcentaje);
+        Admision guardada = repositorioAdmisiones.guardar(admision);
+
+        Map<String, Object> evento = new LinkedHashMap<>();
+        evento.put("admisionId", guardada.id());
+        evento.put("pacienteId", guardada.pacienteId());
+        evento.put("coberturaPorcentaje", porcentaje);
+        evento.put("fechaVerificacion", LocalDateTime.now().toString());
+
+        outboxRepository.save(
+                new OutboxEvent(guardada.pacienteId(), "CoberturaPacienteVerificada", serializar(evento)));
+        return guardada;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int consultarCoberturaPaciente(String pacienteId) {
+        if (pacienteId == null || pacienteId.isBlank()) {
+            throw new IllegalArgumentException("El id del paciente es obligatorio.");
+        }
+        return consultaCoberturaExterna.consultarPorcentajeCobertura(pacienteId.trim());
     }
 
     @Override
@@ -5281,16 +6626,16 @@ public class AdmisionService implements AdmisionUseCase {
         inventarioCamasUseCase.liberarCama(sedeOrigenId, servicioOrigen);
         inventarioCamasUseCase.ocuparCama(sedeDestinoId, servicioDestino);
 
-        String payload = """
-                {
-                    "admisionId": "%s",
-                    "pacienteId": "%s",
-                    "sedeOrigenId": "%s",
-                    "sedeDestinoId": "%s",
-                    "fechaTraslado": "%s"
-                }""".formatted(admision.id(), admision.pacienteId(), sedeOrigenId, sedeDestinoId, fechaTraslado);
+        Map<String, Object> evento = new LinkedHashMap<>();
+        evento.put("admisionId", admision.id());
+        evento.put("pacienteId", admision.pacienteId());
+        evento.put("sedeOrigenId", sedeOrigenId);
+        evento.put("servicioOrigen", servicioOrigen);
+        evento.put("sedeDestinoId", sedeDestinoId);
+        evento.put("servicioDestino", servicioDestino);
+        evento.put("fechaTraslado", fechaTraslado.toString());
 
-        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteTrasladado", payload));
+        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteTrasladado", serializar(evento)));
     }
 
     @Override
@@ -5298,7 +6643,7 @@ public class AdmisionService implements AdmisionUseCase {
     public void darDeAlta(String admisionId) {
         Admision admision = buscarPorId(admisionId);
 
-        boolean ordenesPendientes = verificadorLaboratorioGrpc.tieneOrdenesPendientes(admision.pacienteId());
+        boolean ordenesPendientes = verificadorLaboratorio.tieneOrdenesPendientes(admision.pacienteId());
 
         LocalDateTime fechaAlta = LocalDateTime.now();
         admision.darDeAlta(ordenesPendientes, fechaAlta);
@@ -5306,15 +6651,13 @@ public class AdmisionService implements AdmisionUseCase {
 
         inventarioCamasUseCase.liberarCama(admision.sedeActualId(), admision.servicioActual());
 
-        String payload = """
-                {
-                    "admisionId": "%s",
-                    "pacienteId": "%s",
-                    "sedeId": "%s",
-                    "fechaAlta": "%s"
-                }""".formatted(admision.id(), admision.pacienteId(), admision.sedeActualId(), fechaAlta);
+        Map<String, Object> evento = new LinkedHashMap<>();
+        evento.put("admisionId", admision.id());
+        evento.put("pacienteId", admision.pacienteId());
+        evento.put("sedeId", admision.sedeActualId());
+        evento.put("fechaAlta", fechaAlta.toString());
 
-        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteDadoDeAlta", payload));
+        outboxRepository.save(new OutboxEvent(admision.pacienteId(), "PacienteDadoDeAlta", serializar(evento)));
     }
 
     @Override
@@ -5329,8 +6672,15 @@ public class AdmisionService implements AdmisionUseCase {
     public List<Admision> listarTodas() {
         return repositorioAdmisiones.listarTodos();
     }
-}
 
+    private String serializar(Map<String, Object> datos) {
+        try {
+            return objectMapper.writeValueAsString(datos);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("No se pudo serializar el evento de admisión.", e);
+        }
+    }
+}
 ========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/CatalogoCamasPuerto.java
 ========================================
@@ -5412,12 +6762,23 @@ import java.util.UUID;
 @Component
 public class AdmisionFactory {
 
-    public Admision registrarIngreso(String pacienteId, String sedeId, DisponibilidadCama disponibilidadSede) {
+    public Admision registrarIngreso(
+            String pacienteId,
+            String sedeId,
+            String medicoTratante,
+            String motivoIngreso,
+            DisponibilidadCama disponibilidadSede) {
         if (pacienteId == null || pacienteId.isBlank()) {
             throw new IllegalArgumentException("Se requiere el id del paciente para registrar el ingreso.");
         }
         if (sedeId == null || sedeId.isBlank()) {
             throw new IllegalArgumentException("Se requiere la sede de ingreso.");
+        }
+        if (medicoTratante == null || medicoTratante.isBlank()) {
+            throw new IllegalArgumentException("Se requiere el médico tratante para registrar el ingreso.");
+        }
+        if (motivoIngreso == null || motivoIngreso.isBlank()) {
+            throw new IllegalArgumentException("Se requiere el motivo de ingreso.");
         }
         if (!disponibilidadSede.sedeId().equals(sedeId)) {
             throw new IllegalArgumentException(
@@ -5428,7 +6789,14 @@ public class AdmisionFactory {
         }
 
         String id = UUID.randomUUID().toString();
-        return new Admision(id, pacienteId, sedeId, disponibilidadSede.servicio(), LocalDateTime.now());
+        return new Admision(
+                id,
+                pacienteId,
+                sedeId,
+                disponibilidadSede.servicio(),
+                medicoTratante.trim(),
+                motivoIngreso.trim(),
+                LocalDateTime.now());
     }
 }
 
@@ -5516,6 +6884,25 @@ import java.util.List;
 public interface ListadoCamasUseCase {
     List<DisponibilidadCama> listarTodas();
 }
+========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/ConsultaCoberturaExterna.java
+========================================
+package co.edu.uptc.admisiones_service.aplicacion;
+
+public interface ConsultaCoberturaExterna {
+
+    int consultarPorcentajeCobertura(String pacienteId);
+}
+
+========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/GeneradorIdPaciente.java
+========================================
+package co.edu.uptc.admisiones_service.aplicacion;
+
+public interface GeneradorIdPaciente {
+    String siguiente();
+}
+
 ========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/aplicacion/GestionInventarioCamasService.java
 ========================================
@@ -5635,7 +7022,7 @@ public class OutboxPublisher {
                 log.info("Outbox: Evento {} ({}) publicado en tópico '{}'", evento.getId(), evento.getTipo(), topico);
             } catch (Exception e) {
                 log.warn("Outbox: No se pudo enviar el evento {} (se reintentará): {}", evento.getId(), e.getMessage());
-                return; // Mantiene orden estricto interrumpiendo el lote
+                return;
             }
         }
     }
@@ -5643,6 +7030,7 @@ public class OutboxPublisher {
     private String determinarTopico(String tipoEvento) {
         return switch (tipoEvento) {
             case "PacienteIngresado" -> "admisiones.ingresos-registrados";
+            case "CoberturaPacienteVerificada" -> "admisiones.cobertura-verificada";
             case "PacienteTrasladado" -> "admisiones.pacientes-trasladados";
             case "PacienteDadoDeAlta" -> "admisiones.paciente-dado-alta";
             default -> "admisiones.eventos-generales";
@@ -5851,10 +7239,34 @@ public interface InventarioCamasJpaRepository extends JpaRepository<InventarioCa
 }
 
 ========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/persistencia/GeneradorIdPacienteJpaAdapter.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.salida.persistencia;
+
+import co.edu.uptc.admisiones_service.aplicacion.GeneradorIdPaciente;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.stereotype.Component;
+
+@Component
+public class GeneradorIdPacienteJpaAdapter implements GeneradorIdPaciente {
+
+    @PersistenceContext
+    private EntityManager em;
+
+    @Override
+    public String siguiente() {
+        Number n = (Number) em.createNativeQuery("select nextval('paciente_secuencia')").getSingleResult();
+        return "PAC-" + n.longValue();
+    }
+}
+
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/laboratorio/VerificadorLaboratorioGrpcAdapter.java
 ========================================
 package co.edu.uptc.admisiones_service.infraestructura.salida.laboratorio;
 
+import co.edu.uptc.admisiones_service.aplicacion.VerificadorLaboratorioPuerto;
 import co.edu.uptc.admisiones_service.compartido.ServicioNoDisponibleException;
 import co.edu.uptc.admisiones_service.grpc.LaboratorioGrpcGrpc.LaboratorioGrpcBlockingStub;
 import co.edu.uptc.admisiones_service.grpc.OrdenesPendientesRequest;
@@ -5870,7 +7282,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class VerificadorLaboratorioGrpcAdapter {
+public class VerificadorLaboratorioGrpcAdapter implements VerificadorLaboratorioPuerto {
 
     private static final Logger log = LoggerFactory.getLogger(VerificadorLaboratorioGrpcAdapter.class);
     private final LaboratorioGrpcBlockingStub stub;
@@ -5889,6 +7301,7 @@ public class VerificadorLaboratorioGrpcAdapter {
                 e -> log.warn("Circuit Breaker laboratorio-service: {}", e.getStateTransition()));
     }
 
+    @Override
     public boolean tieneOrdenesPendientes(String pacienteId) {
         try {
             return circuitBreaker.executeSupplier(() -> {
@@ -5910,6 +7323,130 @@ public class VerificadorLaboratorioGrpcAdapter {
     }
 }
 
+========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/aseguradora/CoberturaAseguradoraRestAdapter.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.salida.aseguradora;
+
+import co.edu.uptc.admisiones_service.aplicacion.ConsultaCoberturaExterna;
+import co.edu.uptc.admisiones_service.compartido.ServicioNoDisponibleException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+
+import java.time.Duration;
+
+@Component
+@Profile("aseguradora-rest")
+public class CoberturaAseguradoraRestAdapter implements ConsultaCoberturaExterna {
+
+    private static final Logger log = LoggerFactory.getLogger(CoberturaAseguradoraRestAdapter.class);
+
+    private final RestClient restClient;
+    private final CircuitBreaker circuitBreaker;
+
+    public CoberturaAseguradoraRestAdapter(AseguradoraProperties properties) {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(Duration.ofMillis(properties.connectTimeoutMs()));
+        requestFactory.setReadTimeout(Duration.ofMillis(properties.readTimeoutMs()));
+
+        this.restClient = RestClient.builder()
+                .baseUrl(properties.url())
+                .requestFactory(requestFactory)
+                .build();
+
+        this.circuitBreaker = CircuitBreaker.of("aseguradora-admisiones",
+                CircuitBreakerConfig.custom()
+                        .slidingWindowSize(10)
+                        .minimumNumberOfCalls(5)
+                        .failureRateThreshold(50)
+                        .waitDurationInOpenState(Duration.ofSeconds(10))
+                        .build());
+        this.circuitBreaker.getEventPublisher().onStateTransition(
+                e -> log.warn("Circuit Breaker aseguradora: {}", e.getStateTransition()));
+    }
+
+    @Override
+    public int consultarPorcentajeCobertura(String pacienteId) {
+        try {
+            return circuitBreaker.executeSupplier(() -> {
+                CoberturaRespuesta respuesta = restClient.get()
+                        .uri("/cobertura/{pacienteId}", pacienteId)
+                        .retrieve()
+                        .body(CoberturaRespuesta.class);
+
+                if (respuesta == null || respuesta.porcentaje() == null) {
+                    throw new ServicioNoDisponibleException(
+                            "La aseguradora respondió sin porcentaje de cobertura.", null);
+                }
+                return respuesta.porcentaje();
+            });
+        } catch (CallNotPermittedException e) {
+            log.warn("Circuit Breaker ABIERTO: aseguradora no disponible");
+            throw new ServicioNoDisponibleException(
+                    "La aseguradora externa no está disponible (Circuito Abierto).", e);
+        } catch (RestClientException e) {
+            throw new ServicioNoDisponibleException(
+                    "No se pudo consultar la cobertura en la aseguradora externa.", e);
+        }
+    }
+}
+
+========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/aseguradora/CoberturaAseguradoraStubAdapter.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.salida.aseguradora;
+
+import co.edu.uptc.admisiones_service.aplicacion.ConsultaCoberturaExterna;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+@Component
+@Profile("!aseguradora-rest")
+public class CoberturaAseguradoraStubAdapter implements ConsultaCoberturaExterna {
+
+    @Override
+    public int consultarPorcentajeCobertura(String pacienteId) {
+        return 80;
+    }
+}
+
+========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/aseguradora/CoberturaRespuesta.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.salida.aseguradora;
+
+public record CoberturaRespuesta(Integer porcentaje) {
+}
+========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/salida/aseguradora/AseguradoraProperties.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.salida.aseguradora;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "admisiones.aseguradora")
+public record AseguradoraProperties(String url, int connectTimeoutMs, int readTimeoutMs) {
+
+    public AseguradoraProperties {
+        if (url == null || url.isBlank()) {
+            url = "http://localhost:9095/api/aseguradora";
+        }
+        if (connectTimeoutMs <= 0) {
+            connectTimeoutMs = 2000;
+        }
+        if (readTimeoutMs <= 0) {
+            readTimeoutMs = 3000;
+        }
+    }
+}
 ========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/seguridad/ManejadorErroresSeguridad.java
 ========================================
@@ -6011,14 +7548,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/status").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/admisiones/ingreso").hasAuthority("ROLE_ADMISIONES")
-                        .requestMatchers(HttpMethod.PUT, "/api/admisiones/*/traslado").hasAuthority("ROLE_MEDICO")
-                        .requestMatchers(HttpMethod.PUT, "/api/admisiones/*/alta").hasAuthority("ROLE_MEDICO")
+                        .requestMatchers(HttpMethod.POST, "/api/admisiones/*/verificar-cobertura")
+                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/admisiones/cobertura/*")
+                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/admisiones/*/traslado")
+                        .hasAnyAuthority("ROLE_MEDICO")
+                        .requestMatchers(HttpMethod.PUT, "/api/admisiones/*/alta")
+                        .hasAnyAuthority("ROLE_MEDICO")
                         .requestMatchers(HttpMethod.POST, "/api/admisiones/inventario-camas")
-                        .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ADMISIONES")
+                        .hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/api/admisiones/inventario-camas/reporte-ocupacion")
                         .hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/api/admisiones/**")
-                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_MEDICO", "ROLE_ADMINISTRADOR")
+                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_MEDICO")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .authenticationEntryPoint(manejador)
@@ -6095,6 +7638,9 @@ public record AdmisionResponse(
         String pacienteId,
         String sedeActualId,
         String servicioActual,
+        String medicoTratante,
+        String motivoIngreso,
+        Integer coberturaPorcentaje,
         String estado,
         String fechaIngreso,
         String fechaAlta,
@@ -6116,6 +7662,9 @@ public record AdmisionResponse(
                 a.pacienteId(),
                 a.sedeActualId(),
                 a.servicioActual(),
+                a.medicoTratante(),
+                a.motivoIngreso(),
+                a.coberturaPorcentaje(),
                 a.estado().name(),
                 String.valueOf(a.fechaIngreso()),
                 a.fechaAlta() == null ? null : a.fechaAlta().toString(),
@@ -6148,6 +7697,105 @@ public class StatusController {
 }
 
 ========================================
+ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/entrada/controlador/InventarioCamasDisponiblesAdvice.java
+========================================
+package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador;
+
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestControllerAdvice
+public class InventarioCamasDisponiblesAdvice implements ResponseBodyAdvice<Object> {
+
+    @Override
+    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+        return true;
+    }
+
+    @Override
+    public Object beforeBodyWrite(
+            Object body,
+            MethodParameter returnType,
+            MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType,
+            ServerHttpRequest request,
+            ServerHttpResponse response) {
+        if (body == null || !request.getURI().getPath().startsWith("/api/admisiones/inventario-camas")) {
+            return body;
+        }
+        if (body instanceof Iterable<?> lista) {
+            List<Object> resultado = new ArrayList<>();
+            for (Object item : lista) {
+                resultado.add(enriquecerElemento(item));
+            }
+            return resultado.toArray();
+        }
+        return enriquecerElemento(body);
+    }
+
+    private Object enriquecerElemento(Object item) {
+        if (item == null) {
+            return null;
+        }
+        Map<String, Object> mapa = new LinkedHashMap<>();
+        if (item instanceof Map<?, ?> original) {
+            original.forEach((k, v) -> mapa.put(String.valueOf(k), v));
+        } else {
+            Class<?> clazz = item.getClass();
+            if (clazz.isRecord()) {
+                for (RecordComponent rc : clazz.getRecordComponents()) {
+                    try {
+                        Method acc = rc.getAccessor();
+                        acc.setAccessible(true);
+                        mapa.put(rc.getName(), acc.invoke(item));
+                    } catch (Exception ignored) {
+                    }
+                }
+            } else {
+                for (Method m : clazz.getDeclaredMethods()) {
+                    if (m.getParameterCount() == 0) {
+                        String nombre = m.getName();
+                        if (nombre.startsWith("get") && nombre.length() > 3) {
+                            String prop = Character.toLowerCase(nombre.charAt(3)) + nombre.substring(4);
+                            try {
+                                m.setAccessible(true);
+                                mapa.put(prop, m.invoke(item));
+                            } catch (Exception ignored) {
+                            }
+                        } else if (!nombre.startsWith("set") && !nombre.equals("toString")
+                                && !nombre.equals("hashCode")) {
+                            try {
+                                m.setAccessible(true);
+                                mapa.put(nombre, m.invoke(item));
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (mapa.get("camasTotales") instanceof Number totales
+                && mapa.get("camasOcupadas") instanceof Number ocupadas) {
+            mapa.putIfAbsent("camasDisponibles", totales.intValue() - ocupadas.intValue());
+            return mapa;
+        }
+        return item;
+    }
+}
+
+========================================
 ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/infraestructura/entrada/controlador/AdmisionController.java
 ========================================
 package co.edu.uptc.admisiones_service.infraestructura.entrada.controlador;
@@ -6170,13 +7818,31 @@ public class AdmisionController {
         this.admisionUseCase = admisionUseCase;
     }
 
+    public record CoberturaPacienteResponse(String pacienteId, int porcentajeCobertura) {
+    }
+
     @PostMapping("/ingreso")
     public ResponseEntity<AdmisionResponse> registrarIngreso(
-            @RequestParam String pacienteId,
+            @RequestParam(required = false) String pacienteId,
             @RequestParam String sedeId,
-            @RequestParam String servicio) {
-        var admision = admisionUseCase.registrarIngreso(pacienteId, sedeId, servicio);
+            @RequestParam String servicio,
+            @RequestParam String medicoTratante,
+            @RequestParam String motivoIngreso) {
+        var admision = admisionUseCase.registrarIngreso(
+                pacienteId, sedeId, servicio, medicoTratante, motivoIngreso);
         return ResponseEntity.status(HttpStatus.CREATED).body(AdmisionResponse.desde(admision));
+    }
+
+    @GetMapping("/cobertura/{pacienteId}")
+    public ResponseEntity<CoberturaPacienteResponse> consultarCoberturaPaciente(@PathVariable String pacienteId) {
+        int porcentaje = admisionUseCase.consultarCoberturaPaciente(pacienteId);
+        return ResponseEntity.ok(new CoberturaPacienteResponse(pacienteId, porcentaje));
+    }
+
+    @PostMapping("/{id}/verificar-cobertura")
+    public ResponseEntity<AdmisionResponse> verificarCoberturaAdmision(@PathVariable String id) {
+        var admision = admisionUseCase.verificarCoberturaAdmision(id);
+        return ResponseEntity.ok(AdmisionResponse.desde(admision));
     }
 
     @GetMapping
@@ -6306,14 +7972,17 @@ ARCHIVO: ./admisiones-service/src/main/java/co/edu/uptc/admisiones_service/Admis
 package co.edu.uptc.admisiones_service;
 
 import co.edu.uptc.admisiones_service.grpc.LaboratorioGrpcGrpc.LaboratorioGrpcBlockingStub;
+import co.edu.uptc.admisiones_service.infraestructura.salida.aseguradora.AseguradoraProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.grpc.client.ImportGrpcClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @ImportGrpcClients(target = "laboratorio", types = LaboratorioGrpcBlockingStub.class)
 @EnableScheduling
+@EnableConfigurationProperties(AseguradoraProperties.class)
 public class AdmisionesServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AdmisionesServiceApplication.class, args);
@@ -6507,10 +8176,37 @@ public class ProyectorFichasAdmision {
             String admisionId = json.get("admisionId").asText();
             String pacienteId = json.get("pacienteId").asText();
             String sedeInicialId = json.get("sedeInicialId").asText();
+            String servicioInicial = textoONulo(json, "servicioInicial");
+            String medicoTratante = textoONulo(json, "medicoTratante");
+            String motivoIngreso = textoONulo(json, "motivoIngreso");
             String fechaIngreso = json.get("fechaIngreso").asText();
 
-            FichaAdmision ficha = repositorio.findById(admisionId)
-                    .orElseGet(() -> new FichaAdmision(admisionId, pacienteId, sedeInicialId, "ACTIVA", fechaIngreso));
+            FichaAdmision ficha = repositorio.findById(admisionId).orElse(null);
+            if (ficha == null) {
+                ficha = new FichaAdmision(
+                        admisionId,
+                        pacienteId,
+                        sedeInicialId,
+                        servicioInicial,
+                        medicoTratante,
+                        motivoIngreso,
+                        "ACTIVA",
+                        fechaIngreso);
+            } else {
+                // Si llegó antes un evento secundario (cobertura/traslado/alta), completamos
+                // los datos base sin perderlos
+                ficha.setPacienteId(pacienteId);
+                if (ficha.getTotalTraslados() == 0) {
+                    ficha.setSedeActualId(sedeInicialId);
+                    ficha.setServicioActual(servicioInicial);
+                }
+                ficha.setMedicoTratante(medicoTratante);
+                ficha.setMotivoIngreso(motivoIngreso);
+                if (ficha.getEstado() == null) {
+                    ficha.setEstado("ACTIVA");
+                }
+                ficha.setFechaIngreso(fechaIngreso);
+            }
 
             repositorio.save(ficha);
             log.info("Proyección CQRS: Ficha de admisión {} (Paciente {}) creada/actualizada", admisionId, pacienteId);
@@ -6519,27 +8215,56 @@ public class ProyectorFichasAdmision {
         }
     }
 
+    public synchronized void alVerificarCobertura(String mensajeJson) {
+        try {
+            JsonNode json = objectMapper.readTree(mensajeJson);
+            String admisionId = json.get("admisionId").asText();
+            String pacienteId = textoONulo(json, "pacienteId");
+            int porcentaje = json.get("coberturaPorcentaje").asInt();
+
+            FichaAdmision ficha = repositorio.findById(admisionId).orElseGet(() -> {
+                FichaAdmision nueva = new FichaAdmision();
+                nueva.setAdmisionId(admisionId);
+                nueva.setPacienteId(pacienteId);
+                nueva.setEstado("ACTIVA");
+                return nueva;
+            });
+
+            ficha.setCoberturaPorcentaje(porcentaje);
+            repositorio.save(ficha);
+            log.info("Proyección CQRS: Cobertura {}% proyectada en admisión {}", porcentaje, admisionId);
+        } catch (Exception e) {
+            log.error("Error al proyectar el evento CoberturaPacienteVerificada", e);
+        }
+    }
+
     public synchronized void alTrasladarPaciente(String mensajeJson) {
         try {
             JsonNode json = objectMapper.readTree(mensajeJson);
             String admisionId = json.get("admisionId").asText();
+            String pacienteId = textoONulo(json, "pacienteId");
             String sedeOrigenId = json.get("sedeOrigenId").asText();
+            String servicioOrigen = textoONulo(json, "servicioOrigen");
             String sedeDestinoId = json.get("sedeDestinoId").asText();
+            String servicioDestino = textoONulo(json, "servicioDestino");
             String fechaTraslado = json.get("fechaTraslado").asText();
 
-            FichaAdmision ficha = repositorio.findById(admisionId).orElse(null);
-            if (ficha != null) {
-                ResumenTraslado traslado = new ResumenTraslado(sedeOrigenId, sedeDestinoId, fechaTraslado);
-                boolean agregado = ficha.agregarTraslado(traslado);
-                if (agregado) {
-                    repositorio.save(ficha);
-                    log.info("Proyección CQRS: Traslado registrado en admisión {} a la sede {}", admisionId,
-                            sedeDestinoId);
-                } else {
-                    log.info("Proyección CQRS: Traslado duplicado ignorado para admisión {}", admisionId);
-                }
+            FichaAdmision ficha = repositorio.findById(admisionId).orElseGet(() -> {
+                FichaAdmision nueva = new FichaAdmision();
+                nueva.setAdmisionId(admisionId);
+                nueva.setPacienteId(pacienteId);
+                nueva.setEstado("ACTIVA");
+                return nueva;
+            });
+
+            ResumenTraslado traslado = new ResumenTraslado(
+                    sedeOrigenId, servicioOrigen, sedeDestinoId, servicioDestino, fechaTraslado);
+            boolean agregado = ficha.agregarTraslado(traslado);
+            if (agregado) {
+                repositorio.save(ficha);
+                log.info("Proyección CQRS: Traslado registrado en admisión {} a la sede {}", admisionId, sedeDestinoId);
             } else {
-                log.warn("Proyección CQRS: Traslado recibido antes de crear la admisión {}", admisionId);
+                log.info("Proyección CQRS: Traslado duplicado ignorado para admisión {}", admisionId);
             }
         } catch (Exception e) {
             log.error("Error al proyectar el evento PacienteTrasladado", e);
@@ -6550,19 +8275,26 @@ public class ProyectorFichasAdmision {
         try {
             JsonNode json = objectMapper.readTree(mensajeJson);
             String admisionId = json.get("admisionId").asText();
+            String pacienteId = textoONulo(json, "pacienteId");
             String fechaAlta = json.get("fechaAlta").asText();
 
-            FichaAdmision ficha = repositorio.findById(admisionId).orElse(null);
-            if (ficha != null) {
-                ficha.darDeAlta(fechaAlta);
-                repositorio.save(ficha);
-                log.info("Proyección CQRS: Admisión {} dada de alta en el modelo de lectura", admisionId);
-            } else {
-                log.warn("Proyección CQRS: Alta recibida para admisión no registrada {}", admisionId);
-            }
+            FichaAdmision ficha = repositorio.findById(admisionId).orElseGet(() -> {
+                FichaAdmision nueva = new FichaAdmision();
+                nueva.setAdmisionId(admisionId);
+                nueva.setPacienteId(pacienteId);
+                return nueva;
+            });
+
+            ficha.darDeAlta(fechaAlta);
+            repositorio.save(ficha);
+            log.info("Proyección CQRS: Admisión {} dada de alta en el modelo de lectura", admisionId);
         } catch (Exception e) {
             log.error("Error al proyectar el evento PacienteDadoDeAlta", e);
         }
+    }
+
+    private String textoONulo(JsonNode json, String campo) {
+        return json.hasNonNull(campo) ? json.get(campo).asText() : null;
     }
 }
 
@@ -6668,9 +8400,11 @@ ARCHIVO: ./consultas_admisiones_service/src/main/java/co/edu/uptc/consultas_admi
 package co.edu.uptc.consultas_admisiones_service.dominio.modelo;
 
 public record ResumenTraslado(
-        String sedeOrigenId,
-        String sedeDestinoId,
-        String fecha) {
+                String sedeOrigenId,
+                String servicioOrigen,
+                String sedeDestinoId,
+                String servicioDestino,
+                String fecha) {
 }
 
 ========================================
@@ -6795,6 +8529,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Document(collection = "fichas_admision")
 public class FichaAdmision {
@@ -6803,6 +8538,10 @@ public class FichaAdmision {
     private String admisionId;
     private String pacienteId;
     private String sedeActualId;
+    private String servicioActual;
+    private String medicoTratante;
+    private String motivoIngreso;
+    private Integer coberturaPorcentaje;
     private String estado; // ACTIVA, DADA_DE_ALTA
     private String fechaIngreso;
     private String fechaAlta;
@@ -6812,11 +8551,21 @@ public class FichaAdmision {
     public FichaAdmision() {
     }
 
-    public FichaAdmision(String admisionId, String pacienteId, String sedeActualId, String estado,
+    public FichaAdmision(
+            String admisionId,
+            String pacienteId,
+            String sedeActualId,
+            String servicioActual,
+            String medicoTratante,
+            String motivoIngreso,
+            String estado,
             String fechaIngreso) {
         this.admisionId = admisionId;
         this.pacienteId = pacienteId;
         this.sedeActualId = sedeActualId;
+        this.servicioActual = servicioActual;
+        this.medicoTratante = medicoTratante;
+        this.motivoIngreso = motivoIngreso;
         this.estado = estado;
         this.fechaIngreso = fechaIngreso;
         this.totalTraslados = 0;
@@ -6824,14 +8573,19 @@ public class FichaAdmision {
 
     public boolean agregarTraslado(ResumenTraslado traslado) {
         boolean duplicado = traslados.stream()
-                .anyMatch(t -> t.sedeOrigenId().equals(traslado.sedeOrigenId()) &&
-                        t.sedeDestinoId().equals(traslado.sedeDestinoId()) &&
-                        t.fecha().equals(traslado.fecha()));
+                .anyMatch(t -> Objects.equals(t.sedeOrigenId(), traslado.sedeOrigenId()) &&
+                        Objects.equals(t.servicioOrigen(), traslado.servicioOrigen()) &&
+                        Objects.equals(t.sedeDestinoId(), traslado.sedeDestinoId()) &&
+                        Objects.equals(t.servicioDestino(), traslado.servicioDestino()) &&
+                        Objects.equals(t.fecha(), traslado.fecha()));
         if (duplicado) {
             return false;
         }
         this.traslados.add(traslado);
         this.sedeActualId = traslado.sedeDestinoId();
+        if (traslado.servicioDestino() != null) {
+            this.servicioActual = traslado.servicioDestino();
+        }
         this.totalTraslados = this.traslados.size();
         return true;
     }
@@ -6863,6 +8617,38 @@ public class FichaAdmision {
 
     public void setSedeActualId(String sedeActualId) {
         this.sedeActualId = sedeActualId;
+    }
+
+    public String getServicioActual() {
+        return servicioActual;
+    }
+
+    public void setServicioActual(String servicioActual) {
+        this.servicioActual = servicioActual;
+    }
+
+    public String getMedicoTratante() {
+        return medicoTratante;
+    }
+
+    public void setMedicoTratante(String medicoTratante) {
+        this.medicoTratante = medicoTratante;
+    }
+
+    public String getMotivoIngreso() {
+        return motivoIngreso;
+    }
+
+    public void setMotivoIngreso(String motivoIngreso) {
+        this.motivoIngreso = motivoIngreso;
+    }
+
+    public Integer getCoberturaPorcentaje() {
+        return coberturaPorcentaje;
+    }
+
+    public void setCoberturaPorcentaje(Integer coberturaPorcentaje) {
+        this.coberturaPorcentaje = coberturaPorcentaje;
     }
 
     public String getEstado() {
@@ -7283,6 +9069,11 @@ public class ProyeccionListener {
         proyector.alIngresarPaciente(mensaje);
     }
 
+    @KafkaListener(topics = "admisiones.cobertura-verificada")
+    public void coberturaVerificada(String mensaje) {
+        proyector.alVerificarCobertura(mensaje);
+    }
+
     @KafkaListener(topics = "admisiones.pacientes-trasladados")
     public void pacienteTrasladado(String mensaje) {
         proyector.alTrasladarPaciente(mensaje);
@@ -7310,6 +9101,11 @@ public class TopicosConfig {
     @Bean
     public NewTopic admisionesIngresosRegistrados() {
         return TopicBuilder.name("admisiones.ingresos-registrados").partitions(3).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic admisionesCoberturaVerificada() {
+        return TopicBuilder.name("admisiones.cobertura-verificada").partitions(3).replicas(1).build();
     }
 
     @Bean
@@ -7892,6 +9688,120 @@ public class RepositorioUsuariosJpaAdapter implements RepositorioUsuarios {
 }
 
 ========================================
+ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/seguridad/NormalizadorEmailAuthFilter.java
+========================================
+package co.edu.uptc.auth_service.infraestructura.seguridad;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class NormalizadorEmailAuthFilter extends OncePerRequestFilter {
+
+    private static final Pattern PATRON_EMAIL = Pattern.compile("(\"email\"\\s*:\\s*\")([^\"]*)(\")");
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
+
+        String ruta = request.getRequestURI();
+        boolean esRutaAuth = "POST".equalsIgnoreCase(request.getMethod())
+                && ("/api/auth/login".equals(ruta) || "/api/auth/usuarios".equals(ruta));
+
+        if (!esRutaAuth) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        byte[] bytesOriginales = request.getInputStream().readAllBytes();
+        byte[] bytesProcesados = normalizarEmailSiEsJsonValido(bytesOriginales);
+
+        HttpServletRequest requestEnvuelto = new HttpServletRequestWrapper(request) {
+            @Override
+            public ServletInputStream getInputStream() {
+                ByteArrayInputStream bais = new ByteArrayInputStream(bytesProcesados);
+                return new ServletInputStream() {
+                    @Override
+                    public int read() {
+                        return bais.read();
+                    }
+
+                    @Override
+                    public boolean isFinished() {
+                        return bais.available() == 0;
+                    }
+
+                    @Override
+                    public boolean isReady() {
+                        return true;
+                    }
+
+                    @Override
+                    public void setReadListener(ReadListener readListener) {
+                    }
+                };
+            }
+
+            @Override
+            public BufferedReader getReader() {
+                return new BufferedReader(new InputStreamReader(getInputStream(), StandardCharsets.UTF_8));
+            }
+
+            @Override
+            public int getContentLength() {
+                return bytesProcesados.length;
+            }
+
+            @Override
+            public long getContentLengthLong() {
+                return bytesProcesados.length;
+            }
+        };
+
+        filterChain.doFilter(requestEnvuelto, response);
+    }
+
+    private byte[] normalizarEmailSiEsJsonValido(byte[] raw) {
+        if (raw.length == 0) {
+            return raw;
+        }
+        String texto = new String(raw, StandardCharsets.UTF_8);
+        String recorte = texto.trim();
+        if (!recorte.startsWith("{") || !recorte.endsWith("}")) {
+            return raw;
+        }
+        Matcher matcher = PATRON_EMAIL.matcher(texto);
+        if (matcher.find()) {
+            String emailNormalizado = matcher.group(2).trim().toLowerCase(Locale.ROOT);
+            String reemplazado = matcher.replaceFirst(
+                    Matcher.quoteReplacement(matcher.group(1) + emailNormalizado + matcher.group(3)));
+            return reemplazado.getBytes(StandardCharsets.UTF_8);
+        }
+        return raw;
+    }
+}
+========================================
 ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/seguridad/ManejadorErroresSeguridad.java
 ========================================
 package co.edu.uptc.auth_service.infraestructura.seguridad; // ← ajusta por servicio
@@ -8063,6 +9973,36 @@ public class SeguridadConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+}
+
+========================================
+ARCHIVO: ./auth_service/src/main/java/co/edu/uptc/auth_service/infraestructura/entrada/controlador/ManejadorJsonAuthAdvice.java
+========================================
+package co.edu.uptc.auth_service.infraestructura.entrada.controlador;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class ManejadorJsonAuthAdvice {
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> manejarJsonInvalido(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "status", 400,
+                "error", "Bad Request",
+                "mensaje", "Cuerpo JSON inválido o rol no reconocido."));
     }
 }
 
@@ -8466,19 +10406,26 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/auth/usuarios").hasAuthority("ROLE_ADMINISTRADOR")
                         .pathMatchers(HttpMethod.POST, "/api/admisiones/ingreso").hasAuthority("ROLE_ADMISIONES")
-                        .pathMatchers(HttpMethod.PUT, "/api/admisiones/*/traslado").hasAuthority("ROLE_MEDICO")
-                        .pathMatchers(HttpMethod.PUT, "/api/admisiones/*/alta").hasAuthority("ROLE_MEDICO")
+                        .pathMatchers(HttpMethod.POST, "/api/admisiones/*/verificar-cobertura")
+                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_ADMINISTRADOR")
+                        .pathMatchers(HttpMethod.GET, "/api/admisiones/cobertura/*")
+                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_ADMINISTRADOR")
+                        .pathMatchers(HttpMethod.PUT, "/api/admisiones/*/traslado")
+                        .hasAnyAuthority("ROLE_MEDICO")
+                        .pathMatchers(HttpMethod.PUT, "/api/admisiones/*/alta")
+                        .hasAnyAuthority("ROLE_MEDICO")
                         .pathMatchers(HttpMethod.POST, "/api/admisiones/inventario-camas")
-                        .hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_ADMISIONES")
+                        .hasAuthority("ROLE_ADMINISTRADOR")
                         .pathMatchers(HttpMethod.GET, "/api/admisiones/inventario-camas/reporte-ocupacion")
                         .hasAuthority("ROLE_ADMINISTRADOR")
                         .pathMatchers(HttpMethod.GET, "/api/admisiones/**")
-                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_MEDICO", "ROLE_ADMINISTRADOR")
+                        .hasAnyAuthority("ROLE_ADMISIONES", "ROLE_MEDICO")
                         .pathMatchers(HttpMethod.GET, "/api/consultas/admisiones/reporte/**")
                         .hasAuthority("ROLE_ADMINISTRADOR")
                         .pathMatchers("/api/consultas/admisiones/**")
                         .hasAnyAuthority("ROLE_MEDICO", "ROLE_ADMISIONES", "ROLE_ADMINISTRADOR")
-                        .pathMatchers(HttpMethod.POST, "/api/farmacia/solicitudes").hasAuthority("ROLE_FARMACEUTICO")
+                        .pathMatchers(HttpMethod.POST, "/api/farmacia/solicitudes")
+                        .hasAnyAuthority("ROLE_MEDICO", "ROLE_FARMACEUTICO")
                         .pathMatchers(HttpMethod.POST, "/api/farmacia/solicitudes/*/despachar")
                         .hasAuthority("ROLE_FARMACEUTICO")
                         .pathMatchers("/api/farmacia/**")

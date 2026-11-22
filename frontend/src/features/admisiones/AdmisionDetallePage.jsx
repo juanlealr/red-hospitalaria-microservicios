@@ -1,236 +1,229 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { darDeAlta, obtenerAdmision, trasladarAdmision, verificarCoberturaAdmision } from './api';
-import BadgeEstado from './BadgeEstado';
-import { libres, sedesDe } from './catalogo';
+import { darDeAlta, listarInventario, obtenerAdmision, trasladarAdmision } from './api';
 import { fechaHora } from './formato';
-import { useInventario } from './useInventario';
-
-function construirLinea(a) {
-    const primero = a.traslados[0];
-    const eventos = [{
-        clave: 'ingreso',
-        titulo: 'Ingreso',
-        detalle: `${primero ? primero.sedeOrigenId : a.sedeActualId} · ${primero ? primero.servicioOrigen ?? '—' : a.servicioActual}`,
-        fecha: a.fechaIngreso,
-    }];
-    a.traslados.forEach((t, i) => eventos.push({
-        clave: `traslado-${i}`,
-        titulo: 'Traslado',
-        detalle: `${t.sedeOrigenId} · ${t.servicioOrigen ?? '—'}  →  ${t.sedeDestinoId} · ${t.servicioDestino ?? '—'}`,
-        fecha: t.fecha,
-    }));
-    if (a.fechaAlta) {
-        eventos.push({ clave: 'alta', titulo: 'Alta médica', detalle: a.sedeActualId, fecha: a.fechaAlta });
-    }
-    return eventos;
-}
 
 export default function AdmisionDetallePage() {
     const { id } = useParams();
     const { usuario } = useAuth();
-    const { inventario, recargar: recargarInventario } = useInventario();
+
+    // Requisito (HU-03 y HU-09): traslada y da de alta el MÉDICO.
+    // ADMISIONES y ADMINISTRADOR no ven los botones. Para cambiar quién puede, edita esta lista.
+    const ROLES_CLINICOS = ['MEDICO'];
+    const puedeGestionar = ROLES_CLINICOS.includes(usuario?.rol);
 
     const [admision, setAdmision] = useState(null);
+    const [inventario, setInventario] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
+    const [avisoOk, setAvisoOk] = useState('');
     const [sedeDestino, setSedeDestino] = useState('');
     const [servicioDestino, setServicioDestino] = useState('');
+    const [procesando, setProcesando] = useState(false);
     const [confirmandoAlta, setConfirmandoAlta] = useState(false);
-    const [ocupado, setOcupado] = useState(false);
-    const [errorAccion, setErrorAccion] = useState('');
-    const [aviso, setAviso] = useState('');
 
-    const cargar = useCallback(async () => {
+    const cargarDatos = useCallback(async () => {
         try {
-            setAdmision(await obtenerAdmision(id));
-            setError('');
+            const [adm, inv] = await Promise.all([
+                obtenerAdmision(id),
+                puedeGestionar ? listarInventario() : Promise.resolve([]),
+            ]);
+            setAdmision(adm);
+            setInventario(Array.isArray(inv) ? inv : []);
         } catch (err) {
-            setError(err.message);
+            setError(err.status === 404 ? 'Admisión no encontrada.' : err.message);
         } finally {
             setCargando(false);
         }
-    }, [id]);
+    }, [id, puedeGestionar]);
 
-    useEffect(() => { cargar(); }, [cargar]);
+    useEffect(() => { cargarDatos(); }, [cargarDatos]);
 
-    async function ejecutar(accion, mensajeOk) {
-        if (ocupado) return;
-        setOcupado(true);
-        setErrorAccion('');
-        setAviso('');
+    const sedes = useMemo(
+        () => [...new Set(inventario.map((i) => i.sedeId))].sort((a, b) => a.localeCompare(b, 'es')),
+        [inventario],
+    );
+    const serviciosDeSede = useMemo(
+        () => inventario
+            .filter((i) => i.sedeId === sedeDestino)
+            .map((i) => ({
+                servicio: i.servicio,
+                libres: i.camasLibres ?? Math.max(0, (i.camasTotales ?? 0) - (i.camasOcupadas ?? 0)),
+            }))
+            .sort((a, b) => a.servicio.localeCompare(b.servicio, 'es')),
+        [inventario, sedeDestino],
+    );
+
+    async function ejecutarTraslado(e) {
+        e.preventDefault();
+        if (procesando || !sedeDestino || !servicioDestino) return;
+        setError(''); setAvisoOk(''); setProcesando(true);
         try {
-            await accion();
-            setAviso(mensajeOk);
-            await cargar();
+            await trasladarAdmision(id, { sedeDestinoId: sedeDestino, servicioDestino });
+            setAvisoOk(`Paciente trasladado a ${sedeDestino} · ${servicioDestino}.`);
+            setSedeDestino(''); setServicioDestino('');
+            await cargarDatos();
         } catch (err) {
-            setErrorAccion(err.message);
+            setError(err.message);
         } finally {
-            setOcupado(false);
-            recargarInventario();
+            setProcesando(false);
         }
     }
 
-    function verificarCobertura() {
-        ejecutar(
-            () => verificarCoberturaAdmision(id),
-            'Cobertura verificada con la aseguradora externa y asociada a la admisión.',
-        );
+    async function ejecutarAlta() {
+        if (procesando) return;
+        setError(''); setAvisoOk(''); setProcesando(true);
+        try {
+            await darDeAlta(id);
+            setConfirmandoAlta(false);
+            setAvisoOk('Alta registrada. La cama fue liberada.');
+            await cargarDatos();
+        } catch (err) {
+            setConfirmandoAlta(false);
+            setError(err.message);
+        } finally {
+            setProcesando(false);
+        }
     }
 
-    function trasladar(e) {
-        e.preventDefault();
-        ejecutar(async () => {
-            await trasladarAdmision(id, { sedeDestinoId: sedeDestino, servicioDestino });
-            setSedeDestino('');
-            setServicioDestino('');
-        }, 'Traslado registrado correctamente.');
-    }
+    if (cargando) return <p className="subtitulo">Cargando admisión…</p>;
 
-    function alta() {
-        setConfirmandoAlta(false);
-        ejecutar(() => darDeAlta(id), 'Alta registrada. La cama fue liberada.');
-    }
-
-    if (cargando) return <p className="subtitulo">Cargando…</p>;
-    if (error || !admision) {
+    if (!admision) {
         return (
             <>
-                <p className="error" role="alert">{error || 'No se encontró la admisión.'}</p>
-                <Link to="/admisiones">← Volver a admisiones</Link>
+                <p><Link to="/admisiones" className="boton-link-oscuro">← Volver a admisiones</Link></p>
+                {error && <p className="error" role="alert">{error}</p>}
             </>
         );
     }
 
     const activa = admision.estado === 'ACTIVA';
-    const esMedico = usuario.rol === 'MEDICO';
-    const esAdmisiones = usuario.rol === 'ADMISIONES';
-    const sedes = sedesDe(inventario);
-    const opcionesServicio = inventario.filter((i) => i.sedeId === sedeDestino);
+    const traslados = admision.traslados ?? [];
+    const sedeActual = admision.sedeActualId;
+    const servicioActual = admision.servicioActual;
+    const ingreso = traslados[0]
+        ? `${traslados[0].sedeOrigenId} · ${traslados[0].servicioOrigen}`
+        : `${sedeActual} · ${servicioActual}`;
 
     return (
         <>
-            <Link to="/admisiones">← Volver a admisiones</Link>
-            <div className="encabezado" style={{ marginTop: 12 }}>
+            <p><Link to="/admisiones" className="boton-link-oscuro">← Volver a admisiones</Link></p>
+
+            <div className="encabezado">
                 <div>
                     <h1>Admisión de {admision.pacienteId}</h1>
-                    <p className="subtitulo mono">{admision.id}</p>
-                    {esMedico && (
-                        <Link to={`/paciente/${encodeURIComponent(admision.pacienteId)}`}>
-                            Ver estado consolidado →
-                        </Link>
-                    )}
+                    <p className="mono subtitulo">{admision.id}</p>
                 </div>
-                <BadgeEstado estado={admision.estado} />
+                <span className={`badge ${activa ? 'badge-ok' : 'badge-neutro'}`}>
+                    <span className="badge-punto" />{activa ? 'Activa' : 'Dada de alta'}
+                </span>
             </div>
 
-            {aviso && <p className="aviso-ok" role="status">{aviso}</p>}
+            {usuario?.rol === 'MEDICO' && (
+                <p>
+                    <Link className="boton-link-oscuro" to={`/paciente/${encodeURIComponent(admision.pacienteId)}`}>
+                        Ver estado consolidado →
+                    </Link>
+                </p>
+            )}
 
-            <div className="tarjeta" style={{ marginBottom: 24 }}>
+            {avisoOk && <p className="aviso-ok" role="status">{avisoOk}</p>}
+
+            <div className="tarjeta">
                 <dl className="datos">
-                    <dt>Ubicación actual</dt><dd>{admision.sedeActualId} · {admision.servicioActual}</dd>
-                    <dt>Médico tratante</dt><dd>{admision.medicoTratante}</dd>
-                    <dt>Motivo de ingreso</dt><dd>{admision.motivoIngreso}</dd>
+                    <dt>Ubicación actual</dt><dd>{sedeActual} · {servicioActual}</dd>
+                    <dt>Médico tratante</dt><dd>{admision.medicoTratante || 'Sin especificar'}</dd>
+                    <dt>Motivo de ingreso</dt><dd>{admision.motivoIngreso || 'Sin especificar'}</dd>
                     <dt>Cobertura aseguradora</dt>
-                    <dd>{admision.coberturaPorcentaje == null ? 'Sin verificar' : `${admision.coberturaPorcentaje}%`}</dd>
+                    <dd>{admision.coberturaPorcentaje != null ? `${admision.coberturaPorcentaje}%` : 'Sin verificar'}</dd>
                     <dt>Fecha de ingreso</dt><dd>{fechaHora(admision.fechaIngreso)}</dd>
-                    <dt>Fecha de alta</dt><dd>{fechaHora(admision.fechaAlta)}</dd>
-                    <dt>Traslados</dt><dd>{admision.traslados.length}</dd>
+                    <dt>Fecha de alta</dt><dd>{admision.fechaAlta ? fechaHora(admision.fechaAlta) : '—'}</dd>
+                    <dt>Traslados</dt><dd>{traslados.length}</dd>
                 </dl>
             </div>
 
-            <h2>Historial del paciente</h2>
-            <ol className="linea-tiempo">
-                {construirLinea(admision).map((e) => (
-                    <li key={e.clave}>
-                        <strong>{e.titulo}</strong>
-                        <span>{e.detalle}</span>
-                        <small>{fechaHora(e.fecha)}</small>
+            <h2 style={{ marginTop: 28 }}>Historial del paciente</h2>
+            <ul className="linea-tiempo">
+                <li><strong>Ingreso</strong><span>{ingreso}</span><small>{fechaHora(admision.fechaIngreso)}</small></li>
+                {traslados.map((t, i) => (
+                    <li key={i}>
+                        <strong>Traslado</strong>
+                        <span>{t.sedeOrigenId} · {t.servicioOrigen} → {t.sedeDestinoId} · {t.servicioDestino}</span>
+                        <small>{fechaHora(t.fecha)}</small>
                     </li>
                 ))}
-            </ol>
+                {admision.fechaAlta && (
+                    <li><strong>Alta</strong><span>{sedeActual} · {servicioActual}</span><small>{fechaHora(admision.fechaAlta)}</small></li>
+                )}
+            </ul>
 
-            {errorAccion && <p className="error" role="alert">{errorAccion}</p>}
+            {error && <p className="error" role="alert">{error}</p>}
 
-            {activa && esAdmisiones && (
-                <div className="tarjeta" style={{ marginBottom: 24 }}>
-                    <h2>Verificación de cobertura</h2>
-                    <p className="subtitulo">
-                        Consulta el porcentaje cubierto por la aseguradora externa para este paciente (HU-07).
-                    </p>
-                    <button className="boton" type="button" disabled={ocupado} onClick={verificarCobertura}>
-                        {ocupado ? 'Consultando aseguradora…' : 'Verificar cobertura con aseguradora'}
-                    </button>
-                </div>
+            {!puedeGestionar && activa && (
+                <p className="nota">El traslado y el alta médica los realiza el personal médico.</p>
             )}
 
-            {activa && esMedico && (
+            {puedeGestionar && activa && (
                 <div className="paneles">
-                    <form className="tarjeta" onSubmit={trasladar}>
+                    <section className="tarjeta">
                         <h2>Trasladar paciente</h2>
-                        <label htmlFor="sede-destino">Sede destino</label>
-                        <select id="sede-destino" required value={sedeDestino}
-                            onChange={(e) => { setSedeDestino(e.target.value); setServicioDestino(''); }}>
-                            <option value="" disabled>Selecciona una sede</option>
-                            {sedes.map((s) => <option key={s} value={s}>{s}</option>)}
-                        </select>
+                        <form onSubmit={ejecutarTraslado} noValidate>
+                            <label htmlFor="sede-destino">Sede destino</label>
+                            <select id="sede-destino" value={sedeDestino} disabled={procesando}
+                                onChange={(e) => { setSedeDestino(e.target.value); setServicioDestino(''); setError(''); }}>
+                                <option value="" disabled>Selecciona una sede</option>
+                                {sedes.map((s) => <option key={s} value={s}>{s}</option>)}
+                            </select>
 
-                        <label htmlFor="servicio-destino">Servicio destino</label>
-                        <select id="servicio-destino" required value={servicioDestino} disabled={!sedeDestino}
-                            onChange={(e) => setServicioDestino(e.target.value)}>
-                            <option value="" disabled>
-                                {sedeDestino ? 'Selecciona un servicio' : 'Elige primero una sede'}
-                            </option>
-                            {opcionesServicio.map((i) => {
-                                const actual = i.sedeId === admision.sedeActualId && i.servicio === admision.servicioActual;
-                                const sinCama = libres(i) === 0;
-                                return (
-                                    <option key={i.servicio} value={i.servicio} disabled={actual || sinCama}>
-                                        {i.servicio} — {actual ? 'ubicación actual' : sinCama ? 'sin camas libres' : `${libres(i)} libres`}
-                                    </option>
-                                );
-                            })}
-                        </select>
+                            <label htmlFor="servicio-destino">Servicio destino</label>
+                            <select id="servicio-destino" value={servicioDestino} disabled={!sedeDestino || procesando}
+                                onChange={(e) => { setServicioDestino(e.target.value); setError(''); }}>
+                                <option value="" disabled>{sedeDestino ? 'Selecciona un servicio' : 'Elige primero una sede'}</option>
+                                {serviciosDeSede.map((s) => {
+                                    const esActual = sedeDestino === sedeActual && s.servicio === servicioActual;
+                                    return (
+                                        <option key={s.servicio} value={s.servicio} disabled={s.libres === 0 || esActual}>
+                                            {s.servicio} — {s.libres} {s.libres === 1 ? 'libre' : 'libres'}
+                                            {esActual ? ' (ubicación actual)' : ''}
+                                        </option>
+                                    );
+                                })}
+                            </select>
 
-                        <div className="acciones">
-                            <button className="boton" type="submit"
-                                disabled={ocupado || !sedeDestino || !servicioDestino}>
-                                {ocupado ? 'Procesando…' : 'Trasladar'}
-                            </button>
-                        </div>
-                    </form>
+                            <div className="acciones">
+                                <button type="submit" className="boton" disabled={procesando || !sedeDestino || !servicioDestino}>
+                                    {procesando ? 'Trasladando…' : 'Trasladar'}
+                                </button>
+                            </div>
+                        </form>
+                    </section>
 
-                    <div className="tarjeta">
+                    <section className="tarjeta">
                         <h2>Alta médica</h2>
-                        <p className="subtitulo">
-                            Cierra la admisión y libera la cama. Se rechaza si el paciente tiene órdenes de
-                            laboratorio pendientes.
+                        <p className="nota">
+                            Cierra la admisión y libera la cama. Se rechaza si el paciente tiene órdenes de laboratorio pendientes.
                         </p>
-                        {!confirmandoAlta ? (
-                            <button className="boton boton-peligro" disabled={ocupado}
-                                onClick={() => setConfirmandoAlta(true)}>
-                                Dar de alta
-                            </button>
-                        ) : (
-                            <div className="confirmacion">
-                                <p><strong>¿Confirmas el alta de {admision.pacienteId}?</strong></p>
-                                <div className="acciones">
-                                    <button className="boton boton-peligro" disabled={ocupado} onClick={alta}>
-                                        Sí, dar de alta
+                        <div className="acciones">
+                            {!confirmandoAlta ? (
+                                <button type="button" className="boton boton-peligro" disabled={procesando}
+                                    onClick={() => setConfirmandoAlta(true)}>
+                                    Dar de alta
+                                </button>
+                            ) : (
+                                <>
+                                    <button type="button" className="boton boton-peligro" disabled={procesando} onClick={ejecutarAlta}>
+                                        {procesando ? 'Procesando…' : 'Confirmar alta'}
                                     </button>
-                                    <button className="boton-secundario" onClick={() => setConfirmandoAlta(false)}>
+                                    <button type="button" className="boton-secundario" disabled={procesando}
+                                        onClick={() => setConfirmandoAlta(false)}>
                                         Cancelar
                                     </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                                </>
+                            )}
+                        </div>
+                    </section>
                 </div>
-            )}
-
-            {activa && !esMedico && (
-                <p className="nota">Solo el personal médico puede trasladar o dar de alta a un paciente.</p>
             )}
         </>
     );

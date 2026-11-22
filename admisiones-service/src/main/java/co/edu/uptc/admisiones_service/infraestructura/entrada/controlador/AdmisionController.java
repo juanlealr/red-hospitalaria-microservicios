@@ -23,7 +23,7 @@ public class AdmisionController {
 
     @PostMapping("/ingreso")
     public ResponseEntity<AdmisionResponse> registrarIngreso(
-            @RequestParam String pacienteId,
+            @RequestParam(required = false) String pacienteId,
             @RequestParam String sedeId,
             @RequestParam String servicio,
             @RequestParam String medicoTratante,
