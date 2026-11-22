@@ -15,19 +15,24 @@ public class OrdenLaboratorioService implements OrdenLaboratorioUseCase {
 
     private final RepositorioOrdenesLaboratorio repositorioOrdenes;
     private final OrdenLaboratorioFactory ordenFactory;
+    private final PublicadorEventosOrden publicadorEventos;
 
     public OrdenLaboratorioService(
             RepositorioOrdenesLaboratorio repositorioOrdenes,
-            OrdenLaboratorioFactory ordenFactory) {
+            OrdenLaboratorioFactory ordenFactory,
+            PublicadorEventosOrden publicadorEventos) {
         this.repositorioOrdenes = repositorioOrdenes;
         this.ordenFactory = ordenFactory;
+        this.publicadorEventos = publicadorEventos;
     }
 
     @Override
     @Transactional
     public OrdenLaboratorio solicitarExamen(String pacienteId, String tipoExamen) {
         OrdenLaboratorio orden = ordenFactory.crear(pacienteId, tipoExamen);
-        return repositorioOrdenes.guardar(orden);
+        OrdenLaboratorio guardada = repositorioOrdenes.guardar(orden);
+        publicadorEventos.publicar(EventosLaboratorio.EXAMEN_SOLICITADO, guardada);
+        return guardada;
     }
 
     @Override
@@ -35,7 +40,9 @@ public class OrdenLaboratorioService implements OrdenLaboratorioUseCase {
     public OrdenLaboratorio registrarResultado(UUID ordenId, String valor, String unidad) {
         OrdenLaboratorio orden = buscarOrden(ordenId);
         orden.registrarResultado(new ResultadoExamen(valor, unidad));
-        return repositorioOrdenes.guardar(orden);
+        OrdenLaboratorio guardada = repositorioOrdenes.guardar(orden);
+        publicadorEventos.publicar(EventosLaboratorio.RESULTADO_REGISTRADO, guardada);
+        return guardada;
     }
 
     @Override
@@ -43,7 +50,8 @@ public class OrdenLaboratorioService implements OrdenLaboratorioUseCase {
     public void cerrar(UUID ordenId) {
         OrdenLaboratorio orden = buscarOrden(ordenId);
         orden.cerrar();
-        repositorioOrdenes.guardar(orden);
+        OrdenLaboratorio guardada = repositorioOrdenes.guardar(orden);
+        publicadorEventos.publicar(EventosLaboratorio.ORDEN_CERRADA, guardada);
     }
 
     @Override

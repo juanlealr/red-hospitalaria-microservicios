@@ -19,8 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrdenLaboratorioServiceTest {
 
     private final FakeRepositorioOrdenes repositorio = new FakeRepositorioOrdenes();
+    private final FakePublicadorEventos publicador = new FakePublicadorEventos();
     private final OrdenLaboratorioService servicio =
-            new OrdenLaboratorioService(repositorio, new OrdenLaboratorioFactory());
+            new OrdenLaboratorioService(repositorio, new OrdenLaboratorioFactory(), publicador);
 
     @Test
     void solicitarExamenGuardaUnaOrdenSolicitada() {
@@ -96,6 +97,37 @@ class OrdenLaboratorioServiceTest {
         assertEquals(2, servicio.listarOrdenes("PAC-1001").size());
     }
 
+    @Test
+    void cadaCambioDeEstadoPublicaSuEventoConElEstadoResultante() {
+        UUID id = servicio.solicitarExamen("PAC-1001", "Hemograma").getId();
+        servicio.registrarResultado(id, "120", "g/L");
+        servicio.cerrar(id);
+
+        assertEquals(
+                List.of(EventosLaboratorio.EXAMEN_SOLICITADO,
+                        EventosLaboratorio.RESULTADO_REGISTRADO,
+                        EventosLaboratorio.ORDEN_CERRADA),
+                publicador.tipos());
+        assertEquals(
+                List.of(EstadoOrdenLaboratorio.SOLICITADA,
+                        EstadoOrdenLaboratorio.CON_RESULTADO,
+                        EstadoOrdenLaboratorio.CERRADA),
+                publicador.estados());
+        assertTrue(publicador.ordenes().stream().allMatch(o -> o.getId().equals(id)));
+    }
+
+    @Test
+    void unaOperacionRechazadaNoPublicaNingunEvento() {
+        UUID id = servicio.solicitarExamen("PAC-1001", "Hemograma").getId();
+        publicador.limpiar();
+
+        assertThrows(IllegalStateException.class, () -> servicio.cerrar(id));
+        assertThrows(RecursoNoEncontradoException.class,
+                () -> servicio.registrarResultado(UUID.randomUUID(), "120", "g/L"));
+
+        assertTrue(publicador.tipos().isEmpty());
+    }
+
     private static class FakeRepositorioOrdenes implements RepositorioOrdenesLaboratorio {
 
         private final Map<UUID, OrdenLaboratorio> ordenes = new LinkedHashMap<>();
@@ -127,6 +159,39 @@ class OrdenLaboratorioServiceTest {
         public boolean existenPendientesDelPaciente(String pacienteId) {
             return ordenes.values().stream()
                     .anyMatch(o -> o.getPacienteId().equals(pacienteId) && o.estaPendiente());
+        }
+    }
+
+    private static class FakePublicadorEventos implements PublicadorEventosOrden {
+
+        private final List<String> tipos = new ArrayList<>();
+        private final List<OrdenLaboratorio> ordenes = new ArrayList<>();
+        private final List<EstadoOrdenLaboratorio> estados = new ArrayList<>();
+
+        @Override
+        public void publicar(String tipoEvento, OrdenLaboratorio orden) {
+            tipos.add(tipoEvento);
+            ordenes.add(orden);
+            // se guarda el estado en el momento de publicar (la orden es mutable)
+            estados.add(orden.getEstado());
+        }
+
+        List<String> tipos() {
+            return tipos;
+        }
+
+        List<OrdenLaboratorio> ordenes() {
+            return ordenes;
+        }
+
+        List<EstadoOrdenLaboratorio> estados() {
+            return estados;
+        }
+
+        void limpiar() {
+            tipos.clear();
+            ordenes.clear();
+            estados.clear();
         }
     }
 }

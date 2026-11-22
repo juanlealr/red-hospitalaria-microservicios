@@ -50,6 +50,12 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
+		<!-- Kafka: publica los eventos de laboratorio vía Transactional Outbox (mismo starter que farmacia/admisiones) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-kafka</artifactId>
+		</dependency>
+
 		<!-- Servidor gRPC: lo consume admisiones-service (HU-09, órdenes pendientes) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

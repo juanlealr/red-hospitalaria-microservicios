@@ -7,6 +7,11 @@ services:
       POSTGRES_USER: laboratorio
       POSTGRES_PASSWORD: laboratorio
     ports:
-      # 5433 en el host: admisiones-db ya ocupa el 5432
-      - "5433:5432"
+      # Puertos del host ya ocupados: 5432 admisiones-db, 5433 farmacia-db, 5436 auth-db
+      - "5434:5432"
     restart: always
+    volumes:
+      - laboratorio-db-data:/var/lib/postgresql/data
+
+volumes:
+  laboratorio-db-data:

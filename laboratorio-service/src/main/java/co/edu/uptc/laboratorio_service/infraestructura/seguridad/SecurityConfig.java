@@ -52,15 +52,19 @@ public class SecurityConfig {
                         .accessDeniedHandler(manejador))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/status").permitAll()
-                        // Roles asumidos: confirmarlos contra auth_service
+                        // Mismos roles que el gateway (/api/laboratorio/** -> MEDICO, LABORATORIO).
+                        // El gateway es la primera barrera; aquí se afina por acción (defensa en profundidad).
+                        // HU-04: el médico solicita el examen.
                         .requestMatchers(HttpMethod.POST, "/api/laboratorio/ordenes")
-                        .hasAnyAuthority("ROLE_MEDICO", "ROLE_ADMINISTRADOR")
+                        .hasAuthority("ROLE_MEDICO")
+                        // HU-05: el laboratorio registra el resultado y cierra la orden.
                         .requestMatchers(HttpMethod.POST, "/api/laboratorio/ordenes/*/resultado")
-                        .hasAnyAuthority("ROLE_LABORATORIO", "ROLE_ADMINISTRADOR")
+                        .hasAuthority("ROLE_LABORATORIO")
                         .requestMatchers(HttpMethod.PUT, "/api/laboratorio/ordenes/*/cierre")
-                        .hasAnyAuthority("ROLE_LABORATORIO", "ROLE_ADMINISTRADOR")
+                        .hasAuthority("ROLE_LABORATORIO")
+                        // Consultas (incluye /pendientes/{pacienteId}): ambos roles clínicos.
                         .requestMatchers(HttpMethod.GET, "/api/laboratorio/**")
-                        .hasAnyAuthority("ROLE_LABORATORIO", "ROLE_MEDICO", "ROLE_ADMINISTRADOR")
+                        .hasAnyAuthority("ROLE_MEDICO", "ROLE_LABORATORIO")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .authenticationEntryPoint(manejador)

@@ -1,13 +1,15 @@
 server:
-  port: ${SERVER_PORT:8081}
+  # 8080 admisiones, 8081 farmacia, 8083 consultas, 8085 auth, 8000 gateway, 8761 eureka
+  port: ${SERVER_PORT:8082}
 
 spring:
   application:
     name: laboratorio-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/laboratorio_db
-    username: laboratorio
-    password: laboratorio
+    # 5432 admisiones-db, 5433 farmacia-db, 5436 auth-db -> laboratorio-db usa 5434
+    url: ${LABORATORIO_DB_URL:jdbc:postgresql://localhost:5434/laboratorio_db}
+    username: ${LABORATORIO_DB_USER:laboratorio}
+    password: ${LABORATORIO_DB_PASSWORD:laboratorio}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -19,16 +21,30 @@ spring:
   grpc:
     server:
       # Puerto al que apunta el cliente de admisiones-service (static://localhost:9091)
-      port: 9091
+      port: ${GRPC_PORT:9091}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+
+laboratorio:
+  kafka:
+    topic-ordenes: laboratorio.ordenes
+  outbox:
+    intervalo-ms: 2000
 
 eureka:
   instance:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
 
 seguridad:
   jwt:
-    # Debe ser el MISMO secreto que usan auth_service y admisiones-service.
+    # Debe ser el MISMO secreto que usan auth_service, admisiones y el gateway.
     secret: ${JWT_SECRET:t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
