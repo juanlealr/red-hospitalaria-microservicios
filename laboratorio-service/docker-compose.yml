@@ -1,0 +1,17 @@
+services:
+  laboratorio-db:
+    image: postgres:16
+    container_name: laboratorio-db
+    environment:
+      POSTGRES_DB: laboratorio_db
+      POSTGRES_USER: laboratorio
+      POSTGRES_PASSWORD: laboratorio
+    ports:
+      # Puertos del host ya ocupados: 5432 admisiones-db, 5433 farmacia-db, 5436 auth-db
+      - "5434:5432"
+    restart: always
+    volumes:
+      - laboratorio-db-data:/var/lib/postgresql/data
+
+volumes:
+  laboratorio-db-data:
