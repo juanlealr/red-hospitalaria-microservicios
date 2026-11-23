@@ -14,7 +14,7 @@ El sistema coordina admisiones, disponibilidad de camas, medicación y consulta 
 | `admisiones-service` | 8080 | PostgreSQL (5432) | Admisiones, traslados, alta, inventario de camas, cobertura (HU-01, 02, 03, 07, 09, 10) |
 | `farmacia-service` | 8081 | PostgreSQL (5433) | Solicitudes y despacho de medicamentos (HU-06) |
 | `consultas_admisiones_service` | 8083 | MongoDB (27017) | Modelo de lectura CQRS: estado consolidado del paciente (HU-08) |
-| `laboratorio-service` | 9091 (gRPC esperado) | — | **No entregado al corte** (HU-04, HU-05) |
+| `laboratorio-service` | 8082 (REST) · 9091 (gRPC) | PostgreSQL (5434) | Órdenes de laboratorio y resultados (HU-04, HU-05) |
 | Kafka | 9092 | — | Bus de eventos entre servicios |
 
 ## 2. Diagrama
@@ -26,18 +26,20 @@ flowchart LR
     GW -->|lb://| ADM[admisiones-service]
     GW -->|lb://| FAR[farmacia-service]
     GW -->|lb://| CON[consultas_admisiones_service]
-    GW -. pendiente .-> LAB[laboratorio-service]
+    GW -->|lb://| LAB[laboratorio-service]
     EUR[(Eureka)] --- GW
     EUR --- ADM
     ADM -->|gRPC + Circuit Breaker| LAB
     ADM -->|REST + Circuit Breaker| ASEG[Aseguradora externa]
     ADM -->|Outbox| K{{Kafka}}
     FAR -->|Outbox| K
+    LAB -->|Outbox| K
     K -->|proyección| CON
     ADM --- DB1[(PostgreSQL admisiones)]
     FAR --- DB2[(PostgreSQL farmacia)]
     AUTH --- DB3[(PostgreSQL auth)]
     CON --- DB4[(MongoDB consultas)]
+    LAB --- DB5[(PostgreSQL laboratorio)]
 ```
 
 ## 3. Estilo interno de cada servicio
@@ -80,11 +82,11 @@ flowchart LR
 
 **Contexto.** Hay cinco roles (admisiones, médico, laboratorio, farmacéutico, administrador) y varios servicios.
 
-**Decisión.** El gateway enruta con `lb://` vía Eureka y valida el JWT (HS256, secreto compartido por variable `JWT_SECRET`). Cada servicio es además un resource server y vuelve a validar token y rol (defensa en profundidad). El claim `rol` se convierte en `ROLE_<rol>`; no hay registro público y solo el administrador crea usuarios.
+**Decisión.** El gateway enruta con `lb://` vía Eureka y valida el JWT (HS256, secreto compartido por variable `JWT_SECRET`). Cada servicio extiende además un resource server (`spring-boot-starter-security` + `oauth2-resource-server` + `oauth2-jose`) con su propio `SecurityConfig`, y vuelve a validar token y rol por acción; los roles se declaran igual que en el gateway para que ambos criterios coincidan. El claim `rol` se convierte en `ROLE_<rol>`; no hay registro público y solo el administrador crea usuarios.
 
 **Alternativas consideradas.** Validar solo en el gateway; sesiones con estado; un proveedor externo de identidad (Keycloak).
 
-**Consecuencias.** Un servicio no queda expuesto si alguien lo llama sin pasar por el gateway. El secreto compartido es un punto sensible y debe rotarse y no versionarse. `farmacia-service` aún no valida JWT.
+**Consecuencias.** Un servicio no queda expuesto si alguien lo llama sin pasar por el gateway. El secreto compartido es un punto sensible y debe rotarse y no versionarse. Los cinco servicios de negocio son resource servers: `admisiones`, `auth`, `farmacia`, `laboratorio` y `consultas` validan el token por su cuenta, así que un acceso directo al puerto de un servicio sin token devuelve 401.
 
 ## ADR-005: Integración con laboratorio por gRPC y aseguradora por REST, ambas con Circuit Breaker
 
@@ -98,4 +100,4 @@ flowchart LR
 
 ## 5. Calidad y límites conocidos
 
-La consistencia de camas se protege con bloqueo optimista (`@Version`) en el inventario y un índice único parcial que impide dos admisiones activas del mismo paciente. Límites actuales: `laboratorio-service` no está entregado, `farmacia-service` no valida JWT, no hay DLQ y cada servicio corre en una sola instancia.
+La consistencia de camas se protege con bloqueo optimista (`@Version`) en el inventario y un índice único parcial que impide dos admisiones activas del mismo paciente. Límites actuales: `laboratorio-service` está entregado pero aún no alimenta el consolidado del paciente, no hay DLQ y cada servicio corre en una sola instancia.
