@@ -66,5 +66,10 @@ export function useAuth() {
 }
 
 export function rutaInicial(rol) {
-    return { ADMISIONES: '/camas', MEDICO: '/admisiones', ADMINISTRADOR: '/reporte' }[rol] ?? '/sin-modulo';
+    return {
+        ADMISIONES: '/camas',
+        MEDICO: '/admisiones',
+        ADMINISTRADOR: '/reporte',
+        FARMACEUTICO: '/farmacia',
+    }[rol] ?? '/sin-modulo';
 }

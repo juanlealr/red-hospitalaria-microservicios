@@ -48,7 +48,9 @@ export async function api(ruta, { metodo = 'GET', cuerpo, params } = {}) {
 
     if (!respuesta.ok) {
         if (respuesta.status === 401 && token) alExpirarSesion();
-        throw new ErrorApi(respuesta.status, datos?.mensaje ?? `Error ${respuesta.status}`);
+        // admisiones responde { mensaje }; farmacia y otros usan ProblemDetail { detail }
+        const detalle = datos?.mensaje ?? datos?.detail ?? datos?.title;
+        throw new ErrorApi(respuesta.status, detalle ?? `Error ${respuesta.status}`);
     }
     return datos;
 }

@@ -47,4 +47,4 @@ eureka:
 seguridad:
   jwt:
     # Debe ser el MISMO secreto que usan auth_service, admisiones y el gateway.
-    secret: ${JWT_SECRET:t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
+    secret: ${JWT_SECRET}

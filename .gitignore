@@ -3,3 +3,12 @@
 **/*.iml
 **/.vscode/
 **/.DS_Store
+**/*.class
+**/*.jar
+**/*.war
+.commandcode
+
+# Secretos locales: cada equipo usa su propio .env (ver .env.example)
+.env
+.env.local
+*.env.local

@@ -3,12 +3,13 @@ import { useAuth } from '../features/auth/AuthContext';
 
 const ENLACES = {
     ADMISIONES: [['/camas', 'Disponibilidad'], ['/admisiones/nueva', 'Nueva admisión'],
-    ['/admisiones', 'Admisiones'], ['/capacidad', 'Capacidad']],
-    MEDICO: [['/admisiones', 'Admisiones'], ['/paciente', 'Paciente consolidado']],
+    ['/admisiones', 'Admisiones'], ['/capacidad', 'Capacidad'], ['/farmacia', 'Farmacia']],
+    MEDICO: [['/admisiones', 'Admisiones'], ['/paciente', 'Paciente consolidado'],
+    ['/farmacia/nueva', 'Solicitar medicamento'], ['/farmacia', 'Farmacia']],
     ADMINISTRADOR: [['/reporte', 'Reporte de ocupación'], ['/camas', 'Disponibilidad'],
     ['/admisiones', 'Admisiones'], ['/capacidad', 'Capacidad'], ['/usuarios', 'Usuarios']],
     LABORATORIO: [],
-    FARMACEUTICO: [],
+    FARMACEUTICO: [['/farmacia', 'Bandeja de farmacia']],
 };
 
 export default function Layout() {

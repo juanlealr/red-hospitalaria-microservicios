@@ -24,9 +24,9 @@ Evaluación breve de los atributos de calidad que pide el enunciado, contrastado
 
 ## Riesgos
 
-- **Riesgo 1 — Laboratorio no entregado.** HU-04 y HU-05 no existen y el alta depende de un servicio que aún no corre. Mientras ese servicio no exista, toda alta falla con 503. Mitigación: entregar `laboratorio-service` con el contrato gRPC ya definido en el adaptador.
-- **Riesgo 2 — Seguridad incompleta en farmacia.** `farmacia-service` no valida JWT, así que quien lo llame directo, sin gateway, evita la autorización. Mitigación: replicar el resource server de los otros servicios.
-- **Riesgo 3 — Secreto JWT y credenciales de desarrollo en archivos versionados.** Un secreto compartido filtrado permite falsificar tokens. Mitigación: rotarlo, no subirlo al repositorio y exigir la variable de entorno en producción.
+- **Riesgo 1 — Laboratorio fuera del consolidado.** `laboratorio-service` está entregado (REST en 8082, gRPC en 9091, con sus pruebas), pero sus eventos todavía no se proyectan: la ficha consolidada del paciente muestra admisión y medicación, no exámenes. Mitigación: añadir el tópico de laboratorio al proyector de consultas.
+- **Riesgo 2 — Secreto JWT compartido entre servicios (mitigado).** Todos los servicios validan el token con el mismo secreto HS256, porque comparten el mecanismo de firma: un secreto filtrado permitiría falsificar tokens para cualquier rol. El secreto ya no está en el código —se lee de la variable `JWT_SECRET`, con `.env` fuera del repositorio y `.env.example` como plantilla— y el valor que estuvo versionado se rotó. Lo que sigue abierto es su gestión operativa: rotación periódica y un almacén de secretos en un despliegue real.
+- **Riesgo 3 — Credenciales de desarrollo versionadas.** Los `docker-compose.yml` y `application.yaml` traen contraseñas de bases y el administrador inicial con valores conocidos. Aceptable para una demo local, no para un despliegue real. Mitigación: secretos fuera del repositorio y rotación al desplegar.
 - **Riesgo 4 — Eventos sin cola de mensajes fallidos.** Un mensaje que no se puede procesar solo se registra en el log y se pierde para el modelo de lectura. Mitigación: DLQ y reproceso.
 - **Riesgo 5 — Disponibilidad limitada.** Cada servicio, Kafka y las bases corren en una sola instancia, lo que no cumple una alta disponibilidad real. Mitigación: réplicas, balanceo y bases con réplica.
 
