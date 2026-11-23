@@ -40,6 +40,8 @@ class OrdenLaboratorioServiceTest {
 
         //servicio.cerrar(id);
         //assertEquals(EstadoOrdenLaboratorio.CERRADA, servicio.buscarPorId(id).getEstado());
+        servicio.cerrar(id);
+        assertEquals(EstadoOrdenLaboratorio.CERRADA, servicio.buscarPorId(id).getEstado());
     }
 
     @Test
