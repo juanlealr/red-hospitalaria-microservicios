@@ -1,0 +1,12 @@
+.git
+.gitignore
+idea
+.vscode
+**/target
+frontend
+docs
+**/node_modules
+*.md
+proyecto_completo.txt
+resultado.txt
+pruebas_auth_admisiones.sh

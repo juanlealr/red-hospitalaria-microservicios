@@ -1,0 +1,251 @@
+# Stack completo de la red hospitalaria para pruebas locales.
+#
+#   docker compose up -d --build       # construye (Java 25 + Maven) y levanta todo
+#   docker compose logs -f gateway     # ver logs
+#   docker compose down                # apagar (los datos persisten en volúmenes)
+#   docker compose down -v             # apagar y BORRAR los datos
+#
+# Las bases se crean solas (POSTGRES_DB / MONGO_INITDB_DATABASE) y Flyway
+# aplica el esquema al arrancar cada servicio. admin@hospital.com / 123456789
+# se siembra automáticamente en auth-service.
+
+name: red-hospitalaria
+
+services:
+  # ---------------------------------------------------------------- datos
+  admisiones-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: admisiones_db
+      POSTGRES_USER: admisiones
+      POSTGRES_PASSWORD: admisiones
+    ports: ["5432:5432"]
+    volumes: [admisiones-db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admisiones -d admisiones_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  farmacia-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: farmacia_db
+      POSTGRES_USER: farmacia
+      POSTGRES_PASSWORD: farmacia
+    ports: ["5433:5432"]
+    volumes: [farmacia-db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U farmacia -d farmacia_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  laboratorio-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: laboratorio_db
+      POSTGRES_USER: laboratorio
+      POSTGRES_PASSWORD: laboratorio
+    ports: ["5434:5432"]
+    volumes: [laboratorio-db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U laboratorio -d laboratorio_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+    ports: ["5436:5432"]
+    volumes: [auth-db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  consultas-mongo:
+    image: mongo:7.0
+    environment:
+      MONGO_INITDB_DATABASE: admisiones_consultas
+    ports: ["27017:27017"]
+    volumes: [consultas-mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  kafka:
+    image: apache/kafka:latest
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 30s
+
+  # ------------------------------------------------------- descubrimiento
+  eureka-server:
+    build:
+      context: .
+      dockerfile: docker/java-service.Dockerfile
+      target: eureka
+    image: red-hospitalaria/eureka-server:local
+    ports: ["8761:8761"]
+
+  # ------------------------------------------------------------- servicios
+  auth-service:
+    build:
+      context: .
+      dockerfile: docker/java-service.Dockerfile
+      target: auth
+    image: red-hospitalaria/auth-service:local
+    ports: ["8085:8085"]
+    environment:
+      AUTH_DB_URL: jdbc:postgresql://auth-db:5432/auth_db
+      AUTH_DB_USER: auth
+      AUTH_DB_PASSWORD: auth
+      EUREKA_URL: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      ADMIN_INICIAL_EMAIL: admin@hospital.com
+      ADMIN_INICIAL_PASSWORD: "123456789"
+    depends_on:
+      auth-db: { condition: service_healthy }
+      eureka-server: { condition: service_started }
+
+  admisiones-service:
+    build:
+      context: .
+      dockerfile: docker/java-service.Dockerfile
+      target: admisiones
+    image: red-hospitalaria/admisiones-service:local
+    ports: ["8080:8080"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://admisiones-db:5432/admisiones_db
+      SPRING_DATASOURCE_USERNAME: admisiones
+      SPRING_DATASOURCE_PASSWORD: admisiones
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_GRPC_CLIENT_CHANNEL_LABORATORIO_TARGET: static://laboratorio-service:9091
+      EUREKA_URL: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    depends_on:
+      admisiones-db: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+      eureka-server: { condition: service_started }
+      laboratorio-service: { condition: service_started }
+
+  farmacia-service:
+    build:
+      context: .
+      dockerfile: docker/java-service.Dockerfile
+      target: farmacia
+    image: red-hospitalaria/farmacia-service:local
+    ports: ["8081:8081"]
+    environment:
+      FARMACIA_DB_URL: jdbc:postgresql://farmacia-db:5432/farmacia_db
+      FARMACIA_DB_USER: farmacia
+      FARMACIA_DB_PASSWORD: farmacia
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_URL: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    depends_on:
+      farmacia-db: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+      eureka-server: { condition: service_started }
+
+  laboratorio-service:
+    build:
+      context: .
+      dockerfile: docker/java-service.Dockerfile
+      target: laboratorio
+    image: red-hospitalaria/laboratorio-service:local
+    ports: ["8082:8082", "9091:9091"]
+    environment:
+      SERVER_PORT: 8082
+      GRPC_PORT: 9091
+      LABORATORIO_DB_URL: jdbc:postgresql://laboratorio-db:5432/laboratorio_db
+      LABORATORIO_DB_USER: laboratorio
+      LABORATORIO_DB_PASSWORD: laboratorio
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_URL: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      # Spring Boot 4 auto-protege el servidor gRPC (exige credenciales) y el
+      # cliente de admisiones no las envía -> el alta (HU-09) devolvía UNAUTHENTICATED.
+      # Este es un canal interno (9091), así que se excluye la autoseguridad gRPC.
+      # Los endpoints REST siguen protegidos por JWT.
+      SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.grpc.server.autoconfigure.security.GrpcServerSecurityAutoConfiguration
+    depends_on:
+      laboratorio-db: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+      eureka-server: { condition: service_started }
+
+  consultas-admisiones-service:
+    build:
+      context: .
+      dockerfile: docker/java-service.Dockerfile
+      target: consultas
+    image: red-hospitalaria/consultas-admisiones-service:local
+    ports: ["8083:8083"]
+    environment:
+      SPRING_MONGODB_URI: mongodb://consultas-mongo:27017/admisiones_consultas
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_URL: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    depends_on:
+      consultas-mongo: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+      eureka-server: { condition: service_started }
+
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/java-service.Dockerfile
+      target: gateway
+    image: red-hospitalaria/gateway:local
+    ports: ["8000:8000"]
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    depends_on:
+      eureka-server: { condition: service_started }
+      auth-service: { condition: service_started }
+      admisiones-service: { condition: service_started }
+      farmacia-service: { condition: service_started }
+      laboratorio-service: { condition: service_started }
+      consultas-admisiones-service: { condition: service_started }
+
+  # ------------------------------------------------------------- frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: red-hospitalaria/frontend:local
+    ports: ["5173:80"]
+    depends_on:
+      gateway: { condition: service_started }
+
+volumes:
+  admisiones-db-data:
+  farmacia-db-data:
+  laboratorio-db-data:
+  auth-db-data:
+  consultas-mongo-data:
