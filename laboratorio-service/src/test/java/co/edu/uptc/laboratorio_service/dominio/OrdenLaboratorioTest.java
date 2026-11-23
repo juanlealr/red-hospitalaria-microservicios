@@ -34,7 +34,7 @@ class OrdenLaboratorioTest {
     void registrarResultadoLaDejaConResultadoPeroTodaviaPendiente() {
         OrdenLaboratorio orden = factory.crear("PAC-1", "Hemograma");
 
-        // orden.registrarResultado(new ResultadoExamen("120", "g/L"));
+        orden.registrarResultado(new ResultadoExamen("120", "g/L"));
 
         assertEquals(EstadoOrdenLaboratorio.CON_RESULTADO, orden.getEstado());
         assertTrue(orden.estaPendiente());
