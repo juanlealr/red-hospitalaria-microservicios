@@ -70,20 +70,16 @@ curl http://localhost:8080/api/status            # admisiones
 curl http://localhost:8761/eureka/apps | findstr /i "AUTH-SERVICE"
 ```
 
-Pruebas de regresión de la API (necesita `bash`, `curl`, `jq`):
+Las pruebas unitarias de cada servicio corren sin infraestructura externa:
 
 ```bash
-bash pruebas_auth_admisiones.sh
+cd farmacia-service && ./mvnw test               # idem en cada módulo
 ```
 
-> **Nota:** ese script quedó desactualizado respecto del código. Espera que el
-> rol `ADMISIONES` pueda hacer `POST /api/admisiones/inventario-camas`, pero
-> `SecurityConfig` (servicio **y** gateway) exige `ROLE_ADMINISTRADOR`. Ese 403
-> en `E01` arrastra en cascada las secciones E–K (sin inventario no hay ingresos
-> y sin ingresos no hay proyecciones CQRS). Las secciones A–D pasan completas.
-> Por eso `semilla-datos.ps1` carga el inventario como **admin**, que es lo que
-> el código realmente permite. `resultado.txt` es una corrida vieja del mismo
-> script y ya traía fallas propias (A10, B07, B12).
+> **Nota sobre roles e inventario:** `POST /api/admisiones/inventario-camas`
+> exige `ROLE_ADMINISTRADOR` tanto en el servicio como en el gateway. Por eso
+> `semilla-datos.ps1` carga el inventario como **admin**. Si un script de
+> pruebas antiguo asumía que `ADMISIONES` podía hacerlo, ese paso devolverá 403.
 
 ## 5. Operación
 
