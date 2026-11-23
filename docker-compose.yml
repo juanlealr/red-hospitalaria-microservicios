@@ -126,8 +126,9 @@ services:
       AUTH_DB_PASSWORD: auth
       EUREKA_URL: http://eureka-server:8761/eureka
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
-      ADMIN_INICIAL_EMAIL: admin@hospital.com
-      ADMIN_INICIAL_PASSWORD: "123456789"
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET en .env (copie .env.example)}
+      ADMIN_INICIAL_EMAIL: ${ADMIN_INICIAL_EMAIL:-admin@hospital.com}
+      ADMIN_INICIAL_PASSWORD: ${ADMIN_INICIAL_PASSWORD:-123456789}
     depends_on:
       auth-db: { condition: service_healthy }
       eureka-server: { condition: service_started }
@@ -147,6 +148,7 @@ services:
       SPRING_GRPC_CLIENT_CHANNEL_LABORATORIO_TARGET: static://laboratorio-service:9091
       EUREKA_URL: http://eureka-server:8761/eureka
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET en .env (copie .env.example)}
     depends_on:
       admisiones-db: { condition: service_healthy }
       kafka: { condition: service_healthy }
@@ -167,6 +169,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_URL: http://eureka-server:8761/eureka
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET en .env (copie .env.example)}
     depends_on:
       farmacia-db: { condition: service_healthy }
       kafka: { condition: service_healthy }
@@ -188,6 +191,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_URL: http://eureka-server:8761/eureka
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET en .env (copie .env.example)}
       # Spring Boot 4 auto-protege el servidor gRPC (exige credenciales) y el
       # cliente de admisiones no las envía -> el alta (HU-09) devolvía UNAUTHENTICATED.
       # Este es un canal interno (9091), así que se excluye la autoseguridad gRPC.
@@ -210,6 +214,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_URL: http://eureka-server:8761/eureka
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET en .env (copie .env.example)}
     depends_on:
       consultas-mongo: { condition: service_healthy }
       kafka: { condition: service_healthy }
@@ -225,6 +230,7 @@ services:
     environment:
       EUREKA_URL: http://eureka-server:8761/eureka
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET en .env (copie .env.example)}
     depends_on:
       eureka-server: { condition: service_started }
       auth-service: { condition: service_started }

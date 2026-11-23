@@ -33,7 +33,9 @@ Transactional Outbox. El detalle de las decisiones está en
 Requisitos: Docker Desktop con BuildKit, ~8 GB de RAM libres y ~6 GB de disco.
 
 ```bash
-docker compose up -d --build
+cp .env.example .env          # 1. crear el archivo local de secretos
+# 2. poner un JWT_SECRET propio en .env (openssl rand -base64 48)
+docker compose up -d --build  # 3. levantar
 ```
 
 La primera construcción descarga Maven Central y compila los siete módulos una

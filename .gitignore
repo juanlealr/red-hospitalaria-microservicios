@@ -7,3 +7,8 @@
 **/*.jar
 **/*.war
 .commandcode
+
+# Secretos locales: cada equipo usa su propio .env (ver .env.example)
+.env
+.env.local
+*.env.local

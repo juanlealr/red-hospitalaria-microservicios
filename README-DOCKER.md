@@ -9,7 +9,29 @@ y datos de prueba. Pensado para pruebas locales de punta a punta.
 - ~8 GB de RAM libres y ~6 GB de disco para las imágenes.
 - La primera construcción descarga Maven Central y las imágenes base (tarda).
 
-## 1. Levantar todo
+## 1. Configurar los secretos
+
+El secreto JWT **no está en el código**: cada servicio lo lee de la variable de
+entorno `JWT_SECRET`. Hay que crear el archivo `.env` local (no se versiona):
+
+```bash
+cp .env.example .env
+```
+
+Y generar un valor propio para `JWT_SECRET` (mínimo 32 bytes):
+
+```bash
+# Linux / macOS
+openssl rand -base64 48
+
+# PowerShell
+[Convert]::ToBase64String((1..48 | % { Get-Random -Max 256 }))
+```
+
+Pegue el resultado en `JWT_SECRET=` dentro de `.env`. **El mismo valor sirve para
+todos los servicios**: comparten el secreto para firmar y validar los tokens.
+
+## 2. Levantar todo
 
 ```bash
 docker compose up -d --build
@@ -19,11 +41,14 @@ Esto construye los 7 servicios con un único Dockerfile multi-stage
 (`docker/java-service.Dockerfile`), que compila los 7 módulos **una sola vez** y
 reutiliza la capa en cada imagen.
 
-Las bases se crean solas y **Flyway** aplica el esquema al arrancar cada servicio.
-El usuario administrador `admin@hospital.com` / `123456789` se siembra
-automáticamente en `auth-service`.
+Si `JWT_SECRET` no está definido, `docker compose` se detiene con un mensaje claro
+en lugar de arrancar servicios que no podrían validar tokens.
 
-## 2. Sembrar datos de prueba
+Las bases se crean solas y **Flyway** aplica el esquema al arrancar cada servicio.
+El usuario administrador (`admin@hospital.com` / `123456789`, tomado de `.env`) se
+siembra automáticamente en `auth-service`.
+
+## 3. Sembrar datos de prueba
 
 Con el stack arriba:
 
@@ -46,7 +71,7 @@ Siembra, **usando la API real** (vía gateway, igual que el frontend):
 El script es idempotente: si lo corres de nuevo no duplica pacientes activos ni
 falla por correos repetidos.
 
-## 3. URLs
+## 4. URLs
 
 | Servicio | URL |
 |---|---|
@@ -62,7 +87,7 @@ falla por correos repetidos.
 Puertos de bases: Postgres admisiones `5432`, farmacia `5433`, laboratorio
 `5434`, auth `5436`; Mongo `27017`; Kafka `9092`.
 
-## 4. Verificación rápida
+## 5. Verificación rápida
 
 ```bash
 curl http://localhost:8000/api/status            # gateway
@@ -81,7 +106,7 @@ cd farmacia-service && ./mvnw test               # idem en cada módulo
 > `semilla-datos.ps1` carga el inventario como **admin**. Si un script de
 > pruebas antiguo asumía que `ADMISIONES` podía hacerlo, ese paso devolverá 403.
 
-## 5. Operación
+## 6. Operación
 
 ```bash
 docker compose ps                  # estado

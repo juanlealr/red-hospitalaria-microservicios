@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -33,7 +34,11 @@ class RutasGatewayTest {
 
     @Test
     void elSecretoJwtSeLeeDeLaVariableDeEntorno() throws IOException {
-        assertTrue(configuracion().contains("${JWT_SECRET:"),
-                "El secreto debe poder sobrescribirse con JWT_SECRET");
+        String yaml = configuracion();
+
+        assertTrue(yaml.contains("${JWT_SECRET"),
+                "El secreto debe leerse de JWT_SECRET, no estar escrito en el archivo");
+        assertFalse(yaml.matches("(?s).*secret:\\s*[A-Za-z0-9+/]{20,}.*"),
+                "No debe haber un secreto literal en application.yaml: va en el entorno (.env)");
     }
 }
