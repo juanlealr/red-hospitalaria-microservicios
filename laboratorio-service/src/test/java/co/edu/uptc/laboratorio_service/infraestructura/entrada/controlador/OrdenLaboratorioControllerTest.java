@@ -164,16 +164,16 @@ class OrdenLaboratorioControllerTest {
 
     @Test
     void registrarResultadoEnUnaOrdenCerradaDevuelve409() throws Exception {
-        // UUID id = UUID.randomUUID();
-        // when(useCase.registrarResultado(id, "120", "g/L"))
-        //         .thenThrow(new IllegalStateException("No se puede registrar un resultado en una orden cerrada."));
+        UUID id = UUID.randomUUID();
+        when(useCase.registrarResultado(id, "120", "g/L"))
+                .thenThrow(new IllegalStateException("No se puede registrar un resultado en una orden cerrada."));
 
-        // mockMvc.perform(post(BASE + "/" + id + "/resultado")
-        //                 .contentType(MediaType.APPLICATION_JSON)
-        //                 .content("{\"valor\":\"120\",\"unidad\":\"g/L\"}"))
-        //         .andExpect(status().isConflict())
-        //         .andExpect(jsonPath("$.status").value(409))
-        //         .andExpect(jsonPath("$.error").value("Conflict"));
+        mockMvc.perform(post(BASE + "/" + id + "/resultado")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"valor\":\"120\",\"unidad\":\"g/L\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"));
     }
 
     // ---------- cierre ----------
