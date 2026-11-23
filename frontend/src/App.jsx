@@ -11,6 +11,8 @@ import { rutaInicial, useAuth } from './features/auth/AuthContext';
 import LoginPage from './features/auth/LoginPage';
 import RutaProtegida from './features/auth/RutaProtegida';
 import UsuariosPage from './features/auth/UsuariosPage';
+import FarmaciaPage from './features/farmacia/FarmaciaPage';
+import NuevaSolicitudPage from './features/farmacia/NuevaSolicitudPage';
 import PacienteConsolidadoPage from './features/paciente/PacienteConsolidadoPage';
 
 function Inicio() {
@@ -19,6 +21,7 @@ function Inicio() {
 }
 
 const TODOS_ADMISION = ['ADMISIONES', 'MEDICO', 'ADMINISTRADOR'];
+const TODOS_FARMACIA = ['FARMACEUTICO', 'MEDICO', 'ADMISIONES'];
 
 function protegida(roles, pagina) {
   return <RutaProtegida roles={roles}>{pagina}</RutaProtegida>;
@@ -43,6 +46,9 @@ export default function App() {
 
         <Route path="/reporte" element={protegida(['ADMINISTRADOR'], <ReportePage />)} />
         <Route path="/usuarios" element={protegida(['ADMINISTRADOR'], <UsuariosPage />)} />
+
+        <Route path="/farmacia" element={protegida(TODOS_FARMACIA, <FarmaciaPage />)} />
+        <Route path="/farmacia/nueva" element={protegida(['MEDICO'], <NuevaSolicitudPage />)} />
 
         <Route path="/sin-permiso" element={<Aviso titulo="No tienes permiso para ver esta pantalla" />} />
         <Route path="/sin-modulo" element={<Aviso titulo="Tu módulo aún no está disponible" texto="Las pantallas de tu rol las construye otro integrante del equipo." />} />
