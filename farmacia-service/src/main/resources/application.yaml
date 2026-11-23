@@ -44,3 +44,8 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+
+seguridad:
+  jwt:
+    # Debe ser el MISMO secreto que usan auth_service, admisiones, laboratorio y el gateway.
+    secret: ${JWT_SECRET:t6pqFkDcjy0LSh0MT9uKZgwPzbVFnD+QEJgfAXsrZCANrGQtP0245NOZfSJL9AyF}
