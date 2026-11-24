@@ -241,6 +241,12 @@ textarea:focus {
     display: inline-block;
 }
 
+.encabezado .boton-secundario {
+    text-decoration: none;
+    color: var(--negro);
+    display: inline-block;
+}
+
 .filtros {
     display: flex;
     align-items: center;
@@ -341,6 +347,14 @@ textarea:focus {
     background: #fdecea;
     color: var(--error);
     border-color: #f1a9a4;
+}
+
+/* Orden de laboratorio con resultado: ya no espera al laboratorio,
+   pero sigue bloqueando el alta hasta que se cierre. */
+.badge-proceso {
+    background: #efece3;
+    color: var(--negro);
+    border-color: var(--negro);
 }
 
 .badge-neutro {

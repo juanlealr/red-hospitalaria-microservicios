@@ -5,7 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // 'pruebas/.paquete-pruebas.mjs' lo genera esbuild al correr `npm run test:flujo`.
+  globalIgnores(['dist', 'pruebas/.paquete-pruebas.mjs']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

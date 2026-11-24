@@ -70,6 +70,7 @@ export function rutaInicial(rol) {
         ADMISIONES: '/camas',
         MEDICO: '/admisiones',
         ADMINISTRADOR: '/reporte',
+        LABORATORIO: '/laboratorio',
         FARMACEUTICO: '/farmacia',
     }[rol] ?? '/sin-modulo';
 }

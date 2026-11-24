@@ -8,6 +8,9 @@ import CapacidadPage from './features/admisiones/CapacidadPage';
 import NuevaAdmisionPage from './features/admisiones/NuevaAdmisionPage';
 import ReportePage from './features/admisiones/ReportePage';
 import { rutaInicial, useAuth } from './features/auth/AuthContext';
+import NuevaOrdenPage from './features/laboratorio/NuevaOrdenPage';
+import OrdenDetallePage from './features/laboratorio/OrdenDetallePage';
+import OrdenesPage from './features/laboratorio/OrdenesPage';
 import LoginPage from './features/auth/LoginPage';
 import RutaProtegida from './features/auth/RutaProtegida';
 import UsuariosPage from './features/auth/UsuariosPage';
@@ -22,6 +25,8 @@ function Inicio() {
 
 const TODOS_ADMISION = ['ADMISIONES', 'MEDICO', 'ADMINISTRADOR'];
 const TODOS_FARMACIA = ['FARMACEUTICO', 'MEDICO', 'ADMISIONES'];
+// El gateway solo deja /api/laboratorio/** a estos dos roles.
+const ROLES_LABORATORIO = ['MEDICO', 'LABORATORIO'];
 
 function protegida(roles, pagina) {
   return <RutaProtegida roles={roles}>{pagina}</RutaProtegida>;
@@ -40,6 +45,10 @@ export default function App() {
         <Route path="/admisiones/nueva" element={protegida(['ADMISIONES'], <NuevaAdmisionPage />)} />
         <Route path="/admisiones/:id" element={protegida(TODOS_ADMISION, <AdmisionDetallePage />)} />
         <Route path="/capacidad" element={protegida(['ADMISIONES', 'ADMINISTRADOR'], <CapacidadPage />)} />
+
+        <Route path="/laboratorio" element={protegida(ROLES_LABORATORIO, <OrdenesPage />)} />
+        <Route path="/laboratorio/nueva" element={protegida(['MEDICO'], <NuevaOrdenPage />)} />
+        <Route path="/laboratorio/:id" element={protegida(ROLES_LABORATORIO, <OrdenDetallePage />)} />
 
         <Route path="/paciente" element={protegida(['MEDICO'], <PacienteConsolidadoPage />)} />
         <Route path="/paciente/:pacienteId" element={protegida(['MEDICO'], <PacienteConsolidadoPage />)} />
