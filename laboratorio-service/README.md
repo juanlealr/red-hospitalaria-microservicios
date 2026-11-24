@@ -121,16 +121,39 @@ Cada cambio de la orden guarda su evento en `outbox_events` **en la misma transa
 ```
 (`resultadoValor`/`resultadoUnidad` son `null` en `ExamenSolicitado`; las fechas son texto ISO-8601.)
 
-## Qué falta fuera de este servicio (no es obligatorio para que conecte)
+## Interfaz (frontend)
 
-La conexión de núcleo (gateway → laboratorio, admisiones → laboratorio por gRPC, JWT, Eureka) **no requiere
-cambios en otros servicios**. Lo siguiente es para que los eventos se *vean*:
+Las pantallas están en `frontend/src/features/laboratorio/` y siguen el mismo estilo que admisiones:
 
-1. **`consultas_admisiones_service`** (HU-08): consumir `laboratorio.ordenes`. Mismo patrón que farmacia:
-   un `NewTopic` en `TopicosConfig`, un `@KafkaListener`, un `ProyectorFichasOrdenLaboratorio` (upsert por `ordenId`),
-   una `FichaOrdenLaboratorio` y el campo `ordenesLaboratorio` en `EstadoConsolidadoPaciente`.
-2. **`frontend`**: `PacienteConsolidadoPage` tiene el bloque «Exámenes de laboratorio» como placeholder, y
-   `Layout.jsx` tiene `LABORATORIO: []` (el rol no tiene pantallas aún).
+| Ruta | Pantalla | Rol |
+|---|---|---|
+| `/laboratorio` | Listado de órdenes, con contadores y filtros | MEDICO, LABORATORIO |
+| `/laboratorio/nueva` | Solicitar examen (HU-04) | MEDICO |
+| `/laboratorio/:id` | Detalle; registrar resultado y cerrar (HU-05) | MEDICO, LABORATORIO |
+
+Además, el detalle de la admisión lista los exámenes del paciente con un enlace para solicitar otro, y
+«Paciente consolidado» ya los muestra en lugar del texto de pendiente.
+
+Los tres estados se distinguen por color: `SOLICITADA` ámbar, `CON_RESULTADO` tinta y `CERRADA` verde.
+`CON_RESULTADO` **sigue bloqueando el alta**, y por eso no se pinta de verde.
+
+El flujo completo está cubierto por una prueba automática de interfaz:
+
+```bash
+cd frontend && npm run test:flujo
+```
+
+Hace clic sobre la aplicación real (solicitar → 409 en el alta → resultado → cierre → alta concedida)
+contra un gateway simulado que aplica las mismas reglas de roles del backend. Ver
+`frontend/pruebas/README.md`.
+
+## Qué falta fuera de este servicio
+
+**`consultas_admisiones_service` (HU-08)** no consume todavía el topic `laboratorio.ordenes`. Mientras
+tanto, «Paciente consolidado» pide los exámenes directamente a este servicio: se ven al instante, pero
+sin pasar por la proyección por eventos. Para cerrarlo como en farmacia hacen falta un `NewTopic` en
+`TopicosConfig`, un `@KafkaListener`, un `ProyectorFichasOrdenLaboratorio` (upsert por `ordenId`), una
+`FichaOrdenLaboratorio` y el campo `ordenesLaboratorio` en `EstadoConsolidadoPaciente`.
 
 ## Pruebas manuales (a través del gateway, puerto 8000)
 

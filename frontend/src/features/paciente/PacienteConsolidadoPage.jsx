@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import BadgeEstado from '../admisiones/BadgeEstado';
 import { fechaHora } from '../admisiones/formato';
+import { listarOrdenesPaciente } from '../laboratorio/api';
+import BadgeOrden from '../laboratorio/BadgeOrden';
+import { resultadoTexto } from '../laboratorio/catalogo';
 import { consultarConsolidado } from './api';
 
 const ESTADO_MEDICACION = {
@@ -17,6 +20,9 @@ export default function PacienteConsolidadoPage() {
     const [busqueda, setBusqueda] = useState(pacienteId ?? '');
     const [version, setVersion] = useState(0);
     const [resultado, setResultado] = useState(null);
+    // El laboratorio se consulta directo a su servicio: consultas_admisiones_service
+    // todavía no proyecta el topic laboratorio.ordenes.
+    const [laboratorio, setLaboratorio] = useState(null);
 
     useEffect(() => {
         if (!pacienteId) return undefined;
@@ -24,6 +30,15 @@ export default function PacienteConsolidadoPage() {
         consultarConsolidado(pacienteId)
             .then((datos) => { if (vigente) setResultado({ pacienteId, datos }); })
             .catch((err) => { if (vigente) setResultado({ pacienteId, error: err.message }); });
+        return () => { vigente = false; };
+    }, [pacienteId, version]);
+
+    useEffect(() => {
+        if (!pacienteId) return undefined;
+        let vigente = true;
+        listarOrdenesPaciente(pacienteId)
+            .then((ordenes) => { if (vigente) setLaboratorio({ pacienteId, ordenes }); })
+            .catch((err) => { if (vigente) setLaboratorio({ pacienteId, error: err.message }); });
         return () => { vigente = false; };
     }, [pacienteId, version]);
 
@@ -42,7 +57,11 @@ export default function PacienteConsolidadoPage() {
         .sort((a, b) => (b.fechaIngreso ?? '').localeCompare(a.fechaIngreso ?? ''));
     const medicaciones = [...(datos?.medicaciones ?? [])]
         .sort((a, b) => (b.fechaSolicitud ?? '').localeCompare(a.fechaSolicitud ?? ''));
-    const vacio = datos && admisiones.length === 0 && medicaciones.length === 0;
+    const lab = laboratorio?.pacienteId === pacienteId ? laboratorio : null;
+    const ordenes = [...(lab?.ordenes ?? [])]
+        .sort((a, b) => (b.fechaSolicitud ?? '').localeCompare(a.fechaSolicitud ?? ''));
+    const pendientes = ordenes.filter((o) => o.pendiente).length;
+    const vacio = datos && admisiones.length === 0 && medicaciones.length === 0 && ordenes.length === 0;
 
     return (
         <>
@@ -107,9 +126,36 @@ export default function PacienteConsolidadoPage() {
                     ))}
 
                     <h2>Exámenes de laboratorio</h2>
-                    <div className="tarjeta bloque pendiente">
-                        Pendiente de integración: aparecerá aquí cuando el módulo de laboratorio publique sus eventos.
-                    </div>
+                    {lab?.error && <p className="error" role="alert">{lab.error}</p>}
+                    {!lab && <p className="nota">Consultando laboratorio…</p>}
+                    {lab && !lab.error && ordenes.length === 0 && (
+                        <p className="nota">Sin exámenes solicitados.</p>
+                    )}
+                    {ordenes.length > 0 && (
+                        <>
+                            <table className="tabla">
+                                <thead>
+                                    <tr><th>Examen</th><th>Estado</th><th>Resultado</th><th>Solicitud</th><th /></tr>
+                                </thead>
+                                <tbody>
+                                    {ordenes.map((o) => (
+                                        <tr key={o.id}>
+                                            <td>{o.tipoExamen}</td>
+                                            <td><BadgeOrden orden={o} /></td>
+                                            <td>{resultadoTexto(o)}</td>
+                                            <td>{fechaHora(o.fechaSolicitud)}</td>
+                                            <td><Link to={`/laboratorio/${o.id}`}>Ver</Link></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <p className="nota" style={{ marginBottom: 24 }}>
+                                {pendientes === 0
+                                    ? 'Ningún examen bloquea el alta médica.'
+                                    : `${pendientes} ${pendientes === 1 ? 'examen pendiente bloquea' : 'exámenes pendientes bloquean'} el alta médica.`}
+                            </p>
+                        </>
+                    )}
 
                     <h2>Medicación</h2>
                     {medicaciones.length === 0 && <p className="nota">Sin solicitudes de medicamentos.</p>}

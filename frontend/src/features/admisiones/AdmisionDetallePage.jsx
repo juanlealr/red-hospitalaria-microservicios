@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { listarOrdenesPaciente } from '../laboratorio/api';
+import BadgeOrden from '../laboratorio/BadgeOrden';
+import { resultadoTexto } from '../laboratorio/catalogo';
 import { darDeAlta, listarInventario, obtenerAdmision, trasladarAdmision } from './api';
 import { fechaHora } from './formato';
 
@@ -24,6 +26,8 @@ export default function AdmisionDetallePage() {
     const [procesando, setProcesando] = useState(false);
     const [confirmandoAlta, setConfirmandoAlta] = useState(false);
     const [ordenesPendientes, setOrdenesPendientes] = useState([]);
+    // Listado completo de exámenes del paciente, para verlos sin tener que intentar el alta.
+    const [ordenesLab, setOrdenesLab] = useState(null);
 
     const cargarDatos = useCallback(async () => {
         try {
@@ -41,6 +45,17 @@ export default function AdmisionDetallePage() {
     }, [id, puedeGestionar]);
 
     useEffect(() => { cargarDatos(); }, [cargarDatos]);
+
+    const pacienteId = admision?.pacienteId;
+    const cargarLaboratorio = useCallback(() => {
+        // Solo el MÉDICO puede consultar laboratorio: el gateway bloquea a los demás roles.
+        if (!puedeGestionar || !pacienteId) return;
+        listarOrdenesPaciente(pacienteId)
+            .then((ordenes) => setOrdenesLab({ ordenes }))
+            .catch((err) => setOrdenesLab({ error: err.message }));
+    }, [puedeGestionar, pacienteId]);
+
+    useEffect(() => { cargarLaboratorio(); }, [cargarLaboratorio]);
 
     const sedes = useMemo(
         () => [...new Set(inventario.map((i) => i.sedeId))].sort((a, b) => a.localeCompare(b, 'es')),
@@ -84,6 +99,7 @@ export default function AdmisionDetallePage() {
             setConfirmandoAlta(false);
             setAvisoOk('Alta registrada. La cama fue liberada.');
             await cargarDatos();
+            cargarLaboratorio();
         } catch (err) {
             setConfirmandoAlta(false);
             if (err.status === 409 && /laboratorio/i.test(err.message)) {
@@ -95,6 +111,7 @@ export default function AdmisionDetallePage() {
                 }
             }
             setError(err.message);
+            cargarLaboratorio();
         } finally {
             setProcesando(false);
         }
@@ -175,6 +192,51 @@ export default function AdmisionDetallePage() {
 
             {!puedeGestionar && activa && (
                 <p className="nota">El traslado y el alta médica los realiza el personal médico.</p>
+            )}
+
+            {puedeGestionar && (
+                <>
+                    <div className="encabezado" style={{ marginTop: 28 }}>
+                        <h2 style={{ margin: 0 }}>Exámenes de laboratorio</h2>
+                        {activa && (
+                            <Link
+                                className="boton-secundario"
+                                to={`/laboratorio/nueva?paciente=${encodeURIComponent(admision.pacienteId)}`}
+                            >
+                                Solicitar examen
+                            </Link>
+                        )}
+                    </div>
+
+                    {ordenesLab?.error && (
+                        <p className="nota">No se pudo consultar laboratorio ({ordenesLab.error}).</p>
+                    )}
+                    {!ordenesLab && <p className="nota">Consultando laboratorio…</p>}
+                    {ordenesLab?.ordenes?.length === 0 && (
+                        <p className="nota">Este paciente no tiene exámenes solicitados.</p>
+                    )}
+
+                    {ordenesLab?.ordenes?.length > 0 && (
+                        <table className="tabla">
+                            <thead>
+                                <tr><th>Examen</th><th>Estado</th><th>Resultado</th><th>Solicitud</th><th /></tr>
+                            </thead>
+                            <tbody>
+                                {[...ordenesLab.ordenes]
+                                    .sort((a, b) => (b.fechaSolicitud ?? '').localeCompare(a.fechaSolicitud ?? ''))
+                                    .map((o) => (
+                                        <tr key={o.id}>
+                                            <td>{o.tipoExamen}</td>
+                                            <td><BadgeOrden orden={o} /></td>
+                                            <td>{resultadoTexto(o)}</td>
+                                            <td>{fechaHora(o.fechaSolicitud)}</td>
+                                            <td><Link to={`/laboratorio/${o.id}`}>Ver</Link></td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    )}
+                </>
             )}
 
             {puedeGestionar && activa && (
