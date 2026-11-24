@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InventarioCamasJpaRepository extends JpaRepository<InventarioCamas, String> {
-    Optional<InventarioCamas> findBySedeIdAndServicio(String sedeId, String servicio);
+    Optional<InventarioCamas> findBySedeIdIgnoreCaseAndServicioIgnoreCase(String sedeId, String servicio);
 
-    List<InventarioCamas> findBySedeId(String sedeId);
+    List<InventarioCamas> findBySedeIdIgnoreCase(String sedeId);
 }

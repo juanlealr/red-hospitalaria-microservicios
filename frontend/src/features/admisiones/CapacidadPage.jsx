@@ -45,8 +45,20 @@ export default function CapacidadPage() {
         e.preventDefault();
         if (!puedeEditar || enviando) return;
 
-        const sedeId = sede.trim().toUpperCase();
-        const servicioNormalizado = servicio.trim().toUpperCase();
+        const sedeEscrita = sede.trim();
+        const sedeExistente = inventario.find(
+            (i) => i.sedeId.toLowerCase() === sedeEscrita.toLowerCase(),
+        );
+        const sedeId = sedeExistente ? sedeExistente.sedeId : sedeEscrita;
+
+        const servicioEscrito = servicio.trim();
+        const servicioExistente = inventario.find(
+            (i) => i.sedeId === sedeId && i.servicio.toLowerCase() === servicioEscrito.toLowerCase(),
+        );
+        const servicioNormalizado = servicioExistente
+            ? servicioExistente.servicio
+            : servicioEscrito.toUpperCase();
+
         const totales = Number(camasTotales);
 
         if (!sedeId) { setError('Ingresa el nombre de la sede.'); return; }
@@ -56,9 +68,7 @@ export default function CapacidadPage() {
             return;
         }
 
-        const yaExistia = inventario.some(
-            (i) => i.sedeId === sedeId && i.servicio === servicioNormalizado,
-        );
+        const yaExistia = Boolean(servicioExistente);
 
         setError('');
         setEnviando(true);

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { listarOrdenesPaciente } from '../laboratorio/api';
 import { darDeAlta, listarInventario, obtenerAdmision, trasladarAdmision } from './api';
 import { fechaHora } from './formato';
 
@@ -22,6 +23,7 @@ export default function AdmisionDetallePage() {
     const [servicioDestino, setServicioDestino] = useState('');
     const [procesando, setProcesando] = useState(false);
     const [confirmandoAlta, setConfirmandoAlta] = useState(false);
+    const [ordenesPendientes, setOrdenesPendientes] = useState([]);
 
     const cargarDatos = useCallback(async () => {
         try {
@@ -73,7 +75,10 @@ export default function AdmisionDetallePage() {
 
     async function ejecutarAlta() {
         if (procesando) return;
-        setError(''); setAvisoOk(''); setProcesando(true);
+        setError('');
+        setAvisoOk('');
+        setOrdenesPendientes([]);
+        setProcesando(true);
         try {
             await darDeAlta(id);
             setConfirmandoAlta(false);
@@ -81,6 +86,14 @@ export default function AdmisionDetallePage() {
             await cargarDatos();
         } catch (err) {
             setConfirmandoAlta(false);
+            if (err.status === 409 && /laboratorio/i.test(err.message)) {
+                try {
+                    const ordenes = await listarOrdenesPaciente(admision.pacienteId);
+                    setOrdenesPendientes(ordenes.filter((o) => o.pendiente));
+                } catch {
+                    setOrdenesPendientes([]);
+                }
+            }
             setError(err.message);
         } finally {
             setProcesando(false);
@@ -204,6 +217,24 @@ export default function AdmisionDetallePage() {
                         <p className="nota">
                             Cierra la admisión y libera la cama. Se rechaza si el paciente tiene órdenes de laboratorio pendientes.
                         </p>
+                        {ordenesPendientes.length > 0 && (
+                            <div className="pendientes-lab" role="alert">
+                                <strong>
+                                    Órdenes de laboratorio pendientes ({ordenesPendientes.length})
+                                </strong>
+                                <ul>
+                                    {ordenesPendientes.map((o) => (
+                                        <li key={o.id}>
+                                            <b>{o.tipoExamen}</b> · {o.estado} · solicitada {fechaHora(o.fechaSolicitud)}
+                                            {o.resultado
+                                                ? ` · resultado ${o.resultado.valor} ${o.resultado.unidad} (falta cerrar la orden)`
+                                                : ' · sin resultado'}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <p className="tenue">El laboratorio debe registrar el resultado y cerrar cada orden antes del alta.</p>
+                            </div>
+                        )}
                         <div className="acciones">
                             {!confirmandoAlta ? (
                                 <button type="button" className="boton boton-peligro" disabled={procesando}

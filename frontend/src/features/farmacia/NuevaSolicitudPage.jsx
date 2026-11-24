@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 import { fechaHora } from '../admisiones/formato';
 import BadgeEstadoFarmacia from './BadgeEstadoFarmacia';
 import { recibirSolicitud } from './api';
 
 export default function NuevaSolicitudPage() {
+    const { usuario } = useAuth();
+    const medicoId = usuario?.email ?? '';
+
     const [pacienteId, setPacienteId] = useState('');
-    const [medicoId, setMedicoId] = useState('');
     const [medicamento, setMedicamento] = useState('');
     const [enviando, setEnviando] = useState(false);
     const [error, setError] = useState('');
@@ -20,12 +23,11 @@ export default function NuevaSolicitudPage() {
         try {
             const solicitud = await recibirSolicitud({
                 pacienteId: pacienteId.trim(),
-                medicoId: medicoId.trim(),
+                medicoId,
                 medicamento: medicamento.trim(),
             });
             setCreada(solicitud);
             setPacienteId('');
-            setMedicoId('');
             setMedicamento('');
         } catch (err) {
             setError(err.message);
@@ -72,10 +74,8 @@ export default function NuevaSolicitudPage() {
                     placeholder="Documento o ID del paciente"
                     onChange={(e) => setPacienteId(e.target.value)} />
 
-                <label htmlFor="medico">Médico solicitante</label>
-                <input id="medico" value={medicoId} required
-                    placeholder="Documento o ID del médico"
-                    onChange={(e) => setMedicoId(e.target.value)} />
+                <label>Médico solicitante</label>
+                <p className="mono tenue">{medicoId}</p>
 
                 <label htmlFor="medicamento">Medicamento</label>
                 <input id="medicamento" value={medicamento} required
@@ -86,7 +86,7 @@ export default function NuevaSolicitudPage() {
 
                 <div className="acciones">
                     <button type="submit" className="boton"
-                        disabled={enviando || !pacienteId.trim() || !medicoId.trim() || !medicamento.trim()}>
+                        disabled={enviando || !pacienteId.trim() || !medicoId || !medicamento.trim()}>
                         {enviando ? 'Enviando…' : 'Registrar solicitud'}
                     </button>
                     <Link className="boton-secundario" to="/farmacia">Cancelar</Link>

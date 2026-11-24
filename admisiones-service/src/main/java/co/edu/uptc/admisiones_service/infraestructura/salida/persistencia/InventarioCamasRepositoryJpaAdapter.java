@@ -19,12 +19,12 @@ public class InventarioCamasRepositoryJpaAdapter implements RepositorioInventari
 
     @Override
     public Optional<InventarioCamas> buscarPorSedeYServicio(String sedeId, String servicio) {
-        return jpaRepository.findBySedeIdAndServicio(sedeId, servicio);
+        return jpaRepository.findBySedeIdIgnoreCaseAndServicioIgnoreCase(sedeId, servicio);
     }
 
     @Override
     public List<InventarioCamas> listarPorSede(String sedeId) {
-        return jpaRepository.findBySedeId(sedeId);
+        return jpaRepository.findBySedeIdIgnoreCase(sedeId);
     }
 
     @Override

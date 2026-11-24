@@ -34,12 +34,24 @@ public class GestionInventarioCamasService implements InventarioCamasUseCase {
     @Override
     @Transactional
     public DisponibilidadCama registrarCapacidad(String sedeId, String servicio, int camasTotales) {
-        InventarioCamas inventario = repositorio.buscarPorSedeYServicio(sedeId, servicio)
+        String sede = sedeId.trim();
+        String serv = servicio.trim();
+
+        // Si la sede ya existe con otra capitalización, se reutiliza su nombre.
+        List<InventarioCamas> deLaSede = repositorio.listarPorSede(sede);
+        if (!deLaSede.isEmpty()) {
+            sede = deLaSede.get(0).sedeId();
+        }
+
+        final String sedeFinal = sede;
+        final String servFinal = serv;
+        InventarioCamas inventario = repositorio.buscarPorSedeYServicio(sedeFinal, servFinal)
                 .map(existente -> {
                     existente.actualizarCapacidad(camasTotales);
                     return existente;
                 })
-                .orElseGet(() -> new InventarioCamas(construirId(sedeId, servicio), sedeId, servicio, camasTotales));
+                .orElseGet(() -> new InventarioCamas(construirId(sedeFinal, servFinal), sedeFinal, servFinal,
+                        camasTotales));
 
         return repositorio.guardar(inventario).aDisponibilidad();
     }
